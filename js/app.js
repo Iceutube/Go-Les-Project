@@ -2,14 +2,79 @@
 let tutorsData = [];
 let myBookings = [];
 
-// Event Listener Utama saat Halaman Selesai Dimuat
+// 1. Inisialisasi saat Halaman Dimuat
 document.addEventListener('DOMContentLoaded', async () => {
     tutorsData = await fetchTutorsFromSQL();
     renderTutors();
     setupModalListeners();
 });
 
-// Fungsi Render Kartu Tutor
+// 2. Fungsi Buka & Tutup Modal "Jadi Tutor"
+function setupModalListeners() {
+    const btnJadiTutor = document.getElementById('btn-jadi-tutor');
+    const modalTutor = document.getElementById('modal-tutor');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const btnCancelModal = document.getElementById('btn-cancel-modal');
+    const formRegister = document.getElementById('form-register-tutor');
+
+    // Buka Modal
+    if (btnJadiTutor && modalTutor) {
+        btnJadiTutor.addEventListener('click', () => {
+            modalTutor.classList.remove('hidden');
+        });
+    }
+
+    // Tutup Modal (Tombol X)
+    if (btnCloseModal && modalTutor) {
+        btnCloseModal.addEventListener('click', () => {
+            modalTutor.classList.add('hidden');
+        });
+    }
+
+    // Tutup Modal (Tombol Batal)
+    if (btnCancelModal && modalTutor) {
+        btnCancelModal.addEventListener('click', () => {
+            modalTutor.classList.add('hidden');
+        });
+    }
+
+    // Submit Pendaftaran Tutor Baru
+    if (formRegister) {
+        formRegister.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const selectedHours = Array.from(document.querySelectorAll('.reg-hour-check:checked')).map(cb => cb.value);
+
+            const tutorProfile = {
+                name: document.getElementById('reg-name').value,
+                subject: document.getElementById('reg-subject').value,
+                level: document.getElementById('reg-level').value,
+                price: parseInt(document.getElementById('reg-price').value) || 0,
+                phone_number: document.getElementById('reg-phone').value,
+                location: document.getElementById('reg-location').value,
+                teaching_video_url: document.getElementById('reg-video').value,
+                available_hours: selectedHours
+            };
+
+            // Panggil fungsi registrasi di js/supabase.js
+            const result = await registerTutorWithAuth(tutorProfile, email, password);
+
+            if (result.success) {
+                alert('Pendaftaran Berhasil! Akun kamu sudah dibuat. Silakan login melalui tombol Login Tutor.');
+                formRegister.reset();
+                modalTutor.classList.add('hidden');
+                tutorsData = await fetchTutorsFromSQL();
+                renderTutors();
+            } else {
+                alert(`Gagal Mendaftar: ${result.error}`);
+            }
+        });
+    }
+}
+
+// 3. Render Kartu Tutor di Halaman Depan
 function renderTutors() {
     const searchInput = document.getElementById('searchInput');
     const subjectFilter = document.getElementById('subjectFilter');
@@ -22,7 +87,6 @@ function renderTutors() {
     
     grid.innerHTML = '';
 
-    // Jika data kosong
     if (!tutorsData || tutorsData.length === 0) {
         grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Belum ada data tutor di database.</p>`;
         return;
@@ -82,14 +146,14 @@ function renderTutors() {
     });
 }
 
-// Pemesanan Tutor
+// 4. Pemesanan Sesi
 function bookTutor(name, subject, price) {
     myBookings.push({ name, subject, price, date: new Date().toLocaleDateString('id-ID') });
     alert(`Berhasil memesan sesi dengan ${name}!`);
     renderSchedule();
 }
 
-// Render List Jadwal Saya
+// 5. Render Jadwal Saya
 function renderSchedule() {
     const list = document.getElementById('scheduleList');
     if (!list) return;
@@ -117,7 +181,7 @@ function renderSchedule() {
     });
 }
 
-// Navigasi Tab Browser
+// 6. Switch Tab Navigasi
 function switchTab(tab) {
     if (tab === 'search') {
         document.getElementById('tabSearch').classList.remove('hidden');
@@ -125,54 +189,5 @@ function switchTab(tab) {
     } else {
         document.getElementById('tabSearch').classList.add('hidden');
         document.getElementById('tabSchedule').classList.remove('hidden');
-    }
-}
-
-// Logika Modal Pendaftaran "Jadi Tutor"
-function setupModalListeners() {
-    const btnOpenModal = document.getElementById('btn-jadi-tutor');
-    const btnCloseModal = document.getElementById('btn-close-modal');
-    const btnCancelModal = document.getElementById('btn-cancel-modal');
-    const modal = document.getElementById('modal-tutor');
-    const form = document.getElementById('form-register-tutor');
-
-    const openModal = () => modal && modal.classList.remove('hidden');
-    const closeModal = () => modal && modal.classList.add('hidden');
-
-    if (btnOpenModal) btnOpenModal.addEventListener('click', openModal);
-    if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
-    if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
-
-    if (form) {
-        form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const email = document.getElementById('reg-email').value;
-    const password = document.getElementById('reg-password').value;
-    const selectedHours = Array.from(document.querySelectorAll('.reg-hour-check:checked')).map(cb => cb.value);
-
-    const tutorProfile = {
-        name: document.getElementById('reg-name').value,
-        subject: document.getElementById('reg-subject').value,
-        level: document.getElementById('reg-level').value,
-        price: parseInt(document.getElementById('reg-price').value) || 0,
-        phone_number: document.getElementById('reg-phone').value,
-        location: document.getElementById('reg-location').value,
-        teaching_video_url: document.getElementById('reg-video').value,
-        available_hours: selectedHours
-    };
-
-    const result = await registerTutorWithAuth(tutorProfile, email, password);
-
-    if (result.success) {
-        alert('Akun Tutor berhasil dibuat! Admin akan memverifikasi video mengajar kamu sebelum status diaktifkan.');
-        form.reset();
-        closeModal();
-        tutorsData = await fetchTutorsFromSQL();
-        renderTutors();
-    } else {
-        alert(`Gagal mendaftar: ${result.error}`);
-    }
-});
     }
 }

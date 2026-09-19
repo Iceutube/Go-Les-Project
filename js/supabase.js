@@ -12,7 +12,7 @@ async function registerTutorWithAuth(tutorData, email, password) {
 
         const userId = authData.user ? authData.user.id : null;
 
-        // 2. Simpan Data Profil Tutor ke Tabel tutors dengan user_id
+        // 2. Simpan Data Profil Tutor ke Tabel tutors
         const { data, error: dbError } = await _supabase
             .from('tutors')
             .insert([{
@@ -26,7 +26,7 @@ async function registerTutorWithAuth(tutorData, email, password) {
                 location: tutorData.location,
                 teaching_video_url: tutorData.teaching_video_url,
                 available_hours: tutorData.available_hours,
-                status: 'pending' // Menunggu verifikasi video oleh Admin
+                status: 'pending'
             }]);
 
         if (dbError) throw dbError;
