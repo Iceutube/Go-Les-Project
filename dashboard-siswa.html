@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Siswa - GO-LES</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- NAVBAR SISWA -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 font-normal text-sm">| Area Siswa</span></span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="user-email" class="text-xs font-semibold text-slate-600">Siswa</span>
+                <button onclick="logoutSiswa()" class="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold transition">
+                    <i class="fa-solid fa-right-from-bracket"></i> Keluar
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-8">
+
+        <!-- FITUR FILTER LOKASI SAYA -->
+        <div class="bg-sky-600 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div>
+                <h2 class="text-xl font-bold">Cari Tutor Terdekat di Sekitarmu</h2>
+                <p class="text-sky-100 text-sm mt-1">Sistem akan menyaring tutor berdasarkan domisili/lokasi terdekat kamu.</p>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <input type="text" id="filter-lokasi" placeholder="Masukkan nama Kecamatan/Kota..." class="px-4 py-2.5 rounded-xl text-slate-800 text-sm outline-none w-full md:w-64">
+                <button onclick="filterByLocation()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center gap-2 shrink-0">
+                    <i class="fa-solid fa-location-crosshairs"></i> Cari Lokasi
+                </button>
+            </div>
+        </div>
+
+        <!-- RIWAYAT & PESAN ULANG (RE-BOOK) -->
+        <section class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-rotate-right text-sky-600"></i> Tutor Yang Pernah Kamu Ditemani
+            </h3>
+            <div id="rebook-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="text-slate-400 text-sm col-span-full text-center py-4">Belum ada riwayat tutor sebelumnya.</p>
+            </div>
+        </section>
+
+        <!-- KATALOG TUTOR -->
+        <section>
+            <h3 class="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-chalkboard-user text-sky-600"></i> Rekomendasi Semua Tutor
+            </h3>
+            <div id="student-tutor-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL REVIEW WAJIB SEBELUM BOOKING BARU -->
+    <div id="modal-review" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
+            <div class="text-center mb-4">
+                <div class="bg-amber-100 text-amber-600 w-12 h-12 rounded-full flex items-center justify-center text-xl mx-auto mb-2">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <h3 class="font-bold text-lg text-slate-900">Ulasan Sesi Sebelumnya Wajib Diisi</h3>
+                <p class="text-xs text-slate-500 mt-1">Berikan ulasan singkat untuk tutor yang baru saja selesai mengajar kamu sebelum memesan tutor baru.</p>
+            </div>
+
+            <form id="form-review" class="space-y-4">
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Pilih Rating</label>
+                    <select id="review-rating" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-white outline-none focus:border-sky-500">
+                        <option value="5">⭐⭐⭐⭐⭐ (5.0 - Sangat Bagus)</option>
+                        <option value="4">⭐⭐⭐⭐ (4.0 - Bagus)</option>
+                        <option value="3">⭐⭐⭐ (3.0 - Cukup)</option>
+                        <option value="2">⭐⭐ (2.0 - Kurang)</option>
+                        <option value="1">⭐ (1.0 - Sangat Kurang)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Ulasan / Kesan Mengajar</label>
+                    <textarea id="review-text" required rows="3" placeholder="Penyampaian materi sangat jelas dan ramah..." class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none focus:border-sky-500"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-lg text-sm transition">
+                    Kirim Ulasan & Lanjutkan Pemesanan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SUPABASE SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script>
+        let currentSelectedTutor = null;
+        let pendingReviewBookingId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                alert('Silakan login terlebih dahulu untuk mengakses area siswa!');
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('user-email').innerText = user.email;
+            await loadStudentDashboardData();
+        });
+
+        async function loadStudentDashboardData() {
+            const { data: tutors } = await _supabase.from('tutors').select('*').eq('status', 'approved');
+            renderStudentTutors(tutors || []);
+        }
+
+        function renderStudentTutors(list) {
+            const grid = document.getElementById('student-tutor-grid');
+            grid.innerHTML = '';
+
+            list.forEach(t => {
+                grid.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition">
+                        <div class="flex gap-4 items-start mb-4">
+                            <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + t.name}" class="w-14 h-14 rounded-xl object-cover">
+                            <div>
+                                <h4 class="font-bold text-slate-900">${t.name}</h4>
+                                <p class="text-xs text-slate-500">${t.subject} (${t.level})</p>
+                                <p class="text-xs text-sky-600 font-semibold mt-1"><i class="fa-solid fa-location-dot"></i> ${t.location || 'Online'}</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-slate-100 pt-3">
+                            <span class="font-bold text-sky-600 text-sm">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
+                            <button onclick="attemptBooking('${t.id}', '${t.name}')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                                Pesan Sesi
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // FUNGSI PENGECEKAN PERSYARATAN REVIEW SEBELUM BOOKING BARU
+        async function attemptBooking(tutorId, tutorName) {
+            const { data: { user } } = await _supabase.auth.getUser();
+            
+            // Cek apakah siswa punya pesanan lama yang belum di-review
+            const { data: unreviewedBookings } = await _supabase
+                .from('bookings')
+                .select('*')
+                .eq('student_id', user.id)
+                .eq('has_reviewed', false)
+                .limit(1);
+
+            if (unreviewedBookings && unreviewedBookings.length > 0) {
+                // Tampilkan modal wajib review
+                pendingReviewBookingId = unreviewedBookings[0].id;
+                currentSelectedTutor = { id: tutorId, name: tutorName };
+                document.getElementById('modal-review').classList.remove('hidden');
+            } else {
+                // Jika tidak ada tanggungan review, buat pesanan langsung
+                await createNewBooking(tutorId, tutorName);
+            }
+        }
+
+        document.getElementById('form-review').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const rating = document.getElementById('review-rating').value;
+            const reviewText = document.getElementById('review-text').value;
+
+            // Update status booking lama menjadi sudah di-review
+            if (pendingReviewBookingId) {
+                await _supabase.from('bookings').update({ 
+                    has_reviewed: true, 
+                    rating: parseInt(rating), 
+                    review: reviewText 
+                }).eq('id', pendingReviewBookingId);
+            }
+
+            document.getElementById('modal-review').classList.add('hidden');
+            alert('Ulasan berhasil dikirim!');
+
+            if (currentSelectedTutor) {
+                await createNewBooking(currentSelectedTutor.id, currentSelectedTutor.name);
+            }
+        });
+
+        async function createNewBooking(tutorId, tutorName) {
+            const { data: { user } } = await _supabase.auth.getUser();
+            const { error } = await _supabase.from('bookings').insert([{
+                student_id: user.id,
+                tutor_id: tutorId,
+                has_reviewed: false
+            }]);
+
+            if (!error) {
+                alert(`Berhasil memesan sesi dengan ${tutorName}! Sesi mengajar telah ditambahkan.`);
+                loadStudentDashboardData();
+            } else {
+                alert(`Gagal memesan: ${error.message}`);
+            }
+        }
+
+        async function filterByLocation() {
+            const loc = document.getElementById('filter-lokasi').value.toLowerCase().trim();
+            const { data: tutors } = await _supabase.from('tutors').select('*').eq('status', 'approved');
+            
+            const filtered = tutors.filter(t => (t.location || '').toLowerCase().includes(loc));
+            renderStudentTutors(filtered);
+        }
+
+        async function logoutSiswa() {
+            await _supabase.auth.signOut();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
