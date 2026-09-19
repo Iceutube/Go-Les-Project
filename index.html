@@ -120,6 +120,21 @@
 
             renderIndexTutors(filtered);
         }
+        function filterIndexTutors() {
+            const selectedMapel = document.getElementById('filter-mapel').value;
+            const selectedLevel = document.getElementById('filter-level').value;
+            const locVal = document.getElementById('filter-lokasi').value.toLowerCase().trim();
+
+            const filtered = rawApprovedTutors.filter(t => {
+            const matchMapel = selectedMapel === 'all' || t.subject === selectedMapel;
+            matchLevel = selectedLevel === 'all' || t.level === selectedLevel;
+            const matchLoc = (t.location || '').toLowerCase().includes(locVal);
+        return matchMapel && matchLevel && matchLoc;
+    });
+
+    renderIndexTutors(filtered);
+}
+        
 
         function renderIndexTutors(list) {
             const grid = document.getElementById('index-tutor-grid');
