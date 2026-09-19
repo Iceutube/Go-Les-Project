@@ -37,82 +37,82 @@
         <!-- Summary Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="bg-sky-100 text-sky-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Total Tutor</span>
+                    <span id="stat-total-tutor" class="text-2xl font-extrabold text-slate-900">0</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                 <div class="bg-amber-100 text-amber-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
                     <i class="fa-solid fa-clock"></i>
                 </div>
                 <div>
-                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Menunggu Verifikasi</span>
-                    <span id="stat-pending" class="text-2xl font-extrabold text-slate-900">0</span>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Tutor Pending</span>
+                    <span id="stat-pending-tutor" class="text-2xl font-extrabold text-slate-900">0</span>
                 </div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                 <div class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-circle-check"></i>
+                    <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <div>
-                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Tutor Aktif</span>
-                    <span id="stat-approved" class="text-2xl font-extrabold text-slate-900">0</span>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                <div class="bg-sky-100 text-sky-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-house-user"></i>
-                </div>
-                <div>
-                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Tutor Offline Verification</span>
-                    <span id="stat-offline" class="text-2xl font-extrabold text-slate-900">0</span>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Total Siswa</span>
+                    <span id="stat-total-siswa" class="text-2xl font-extrabold text-slate-900">0</span>
                 </div>
             </div>
 
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                 <div class="bg-indigo-100 text-indigo-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-graduation-cap"></i>
+                    <i class="fa-solid fa-users"></i>
                 </div>
                 <div>
-                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Total Terdaftar</span>
-                    <span id="stat-total" class="text-2xl font-extrabold text-slate-900">0</span>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Total Pengguna</span>
+                    <span id="stat-total-users" class="text-2xl font-extrabold text-slate-900">0</span>
                 </div>
             </div>
         </div>
 
         <!-- Management Table Card -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <!-- Header Nav Tabs (Pemisah Tutor dan Siswa) -->
             <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">Daftar Pendaftaran Tutor</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Kelola dan verifikasi berkas tutor pengajar GO-LES</p>
+                <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl">
+                    <button id="tab-btn-tutor" onclick="switchRoleTab('tutor')" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-sky-600 shadow-sm">
+                        <i class="fa-solid fa-chalkboard-user"></i> Daftar Tutor
+                    </button>
+                    <button id="tab-btn-siswa" onclick="switchRoleTab('siswa')" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900">
+                        <i class="fa-solid fa-graduation-cap"></i> Daftar Siswa
+                    </button>
                 </div>
 
                 <div class="flex flex-wrap gap-2 w-full md:w-auto">
                     <select id="admin-filter-status" onchange="filterAdminTable()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 font-medium outline-none">
                         <option value="all">Semua Status</option>
-                        <option value="pending" selected>Menunggu (Pending)</option>
-                        <option value="approved">Disetujui (Approved)</option>
-                        <option value="rejected">Ditolak (Rejected)</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
                     </select>
 
-                    <input type="text" id="admin-search" onkeyup="filterAdminTable()" placeholder="Cari nama / email / mapel..." class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 outline-none w-full sm:w-60">
+                    <input type="text" id="admin-search" onkeyup="filterAdminTable()" placeholder="Cari nama / email..." class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 outline-none w-full sm:w-60">
                 </div>
             </div>
 
+            <!-- Table Content -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-700">
                     <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
-                        <tr>
-                            <th class="py-3.5 px-4">Tutor</th>
-                            <th class="py-3.5 px-4">Mata Pelajaran</th>
-                            <th class="py-3.5 px-4">Kontak / Domisili</th>
-                            <th class="py-3.5 px-4">Tarif</th>
-                            <th class="py-3.5 px-4 text-center">Verifikasi Offline</th>
-                            <th class="py-3.5 px-4 text-center">Status</th>
-                            <th class="py-3.5 px-4 text-right">Aksi Admin</th>
+                        <tr id="table-head-row">
+                            <!-- Header diisi via JavaScript -->
                         </tr>
                     </thead>
-                    <tbody id="admin-tutor-table-body" class="divide-y divide-slate-100">
+                    <tbody id="admin-table-body" class="divide-y divide-slate-100">
                         <tr>
-                            <td colspan="7" class="text-center py-8 text-slate-400">Memuat data pendaftaran tutor...</td>
+                            <td colspan="7" class="text-center py-8 text-slate-400">Memuat data pengguna...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -120,7 +120,7 @@
         </div>
     </main>
 
-    <!-- Modal Detail & Verifikasi Tutor -->
+    <!-- Modal Detail Tutor -->
     <div id="modal-detail" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
             <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
@@ -157,15 +157,9 @@
                     <span class="text-slate-400 block font-semibold">Nomor WhatsApp:</span>
                     <span id="modal-phone" class="font-bold text-slate-800"></span>
                 </div>
-                <div id="modal-video-container" class="col-span-2 hidden">
-                    <span class="text-slate-400 block font-semibold mb-1">Demo Mengajar:</span>
-                    <a id="modal-video-link" href="#" target="_blank" class="text-sky-600 font-bold hover:underline inline-flex items-center gap-1">
-                        <i class="fa-brands fa-youtube text-red-500"></i> Buka Link Video Demo
-                    </a>
-                </div>
             </div>
 
-            <div class="pt-4 border-t border-slate-100 flex flex-col gap-2">
+            <div id="modal-tutor-actions" class="pt-4 border-t border-slate-100 flex flex-col gap-2">
                 <div class="flex gap-2">
                     <button id="btn-approve-online" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
                         <i class="fa-solid fa-check"></i> Setujui (Online Only)
@@ -191,12 +185,13 @@
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
-        let allTutorData = [];
+        let allUsersData = [];
+        let currentRoleTab = 'tutor'; // Default tab: 'tutor'
         let selectedTutorId = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             await checkAdminAuth();
-            await loadAdminTutorData();
+            await loadAdminData();
         });
 
         async function checkAdminAuth() {
@@ -222,141 +217,191 @@
             document.getElementById('admin-email-display').innerText = user.email;
         }
 
-        async function loadAdminTutorData() {
-            const { data: tutors, error } = await _supabase
+        async function loadAdminData() {
+            const { data: users, error } = await _supabase
                 .from('tutors')
                 .select('*')
-                .eq('role', 'tutor') // HANYA AMBIL PERAN TUTOR
+                .neq('role', 'admin') // Ambil Tutor dan Siswa (Kecuali Admin)
                 .order('id', { ascending: false });
 
             if (error) {
-                console.error("Gagal memuat data tutor:", error);
+                console.error("Gagal memuat data:", error);
                 return;
             }
 
-            allTutorData = tutors || [];
-            updateStats(allTutorData);
+            allUsersData = users || [];
+            updateStats(allUsersData);
             filterAdminTable();
         }
 
         function updateStats(list) {
-            const pending = list.filter(t => t.status === 'pending').length;
-            const approved = list.filter(t => t.status === 'approved').length;
-            const offline = list.filter(t => t.is_offline_verified === true).length;
+            const tutors = list.filter(u => u.role === 'tutor');
+            const siswas = list.filter(u => u.role === 'siswa');
+            const pendingTutors = tutors.filter(t => t.status === 'pending').length;
 
-            document.getElementById('stat-pending').innerText = pending;
-            document.getElementById('stat-approved').innerText = approved;
-            document.getElementById('stat-offline').innerText = offline;
-            document.getElementById('stat-total').innerText = list.length;
+            document.getElementById('stat-total-tutor').innerText = tutors.length;
+            document.getElementById('stat-pending-tutor').innerText = pendingTutors;
+            document.getElementById('stat-total-siswa').innerText = siswas.length;
+            document.getElementById('stat-total-users').innerText = list.length;
+        }
+
+        function switchRoleTab(role) {
+            currentRoleTab = role;
+            const btnTutor = document.getElementById('tab-btn-tutor');
+            const btnSiswa = document.getElementById('tab-btn-siswa');
+
+            if (role === 'tutor') {
+                btnTutor.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-sky-600 shadow-sm';
+                btnSiswa.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
+            } else {
+                btnSiswa.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-sky-600 shadow-sm';
+                btnTutor.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
+            }
+
+            filterAdminTable();
         }
 
         function filterAdminTable() {
             const statusFilter = document.getElementById('admin-filter-status').value;
             const searchVal = document.getElementById('admin-search').value.toLowerCase().trim();
 
-            const filtered = allTutorData.filter(t => {
-                const matchStatus = statusFilter === 'all' || t.status === statusFilter;
-                const matchSearch = (t.name || '').toLowerCase().includes(searchVal) ||
-                                    (t.email || '').toLowerCase().includes(searchVal) ||
-                                    (t.subject || '').toLowerCase().includes(searchVal);
-                return matchStatus && matchSearch;
+            const filtered = allUsersData.filter(u => {
+                const matchRole = u.role === currentRoleTab;
+                const matchStatus = statusFilter === 'all' || u.status === statusFilter;
+                const matchSearch = (u.name || '').toLowerCase().includes(searchVal) ||
+                                    (u.email || '').toLowerCase().includes(searchVal) ||
+                                    (u.subject || '').toLowerCase().includes(searchVal);
+                return matchRole && matchStatus && matchSearch;
             });
 
             renderAdminTable(filtered);
         }
 
         function renderAdminTable(list) {
-            const tbody = document.getElementById('admin-tutor-table-body');
+            const headRow = document.getElementById('table-head-row');
+            const tbody = document.getElementById('admin-table-body');
             tbody.innerHTML = '';
 
+            // 1. Render Header Tabel Sesuai Role
+            if (currentRoleTab === 'tutor') {
+                headRow.innerHTML = `
+                    <th class="py-3.5 px-4">Tutor</th>
+                    <th class="py-3.5 px-4">Mata Pelajaran</th>
+                    <th class="py-3.5 px-4">Kontak / Domisili</th>
+                    <th class="py-3.5 px-4">Tarif</th>
+                    <th class="py-3.5 px-4 text-center">Verifikasi Offline</th>
+                    <th class="py-3.5 px-4 text-center">Status</th>
+                    <th class="py-3.5 px-4 text-right">Aksi</th>
+                `;
+            } else {
+                headRow.innerHTML = `
+                    <th class="py-3.5 px-4">Siswa</th>
+                    <th class="py-3.5 px-4">Tingkat Sekolah</th>
+                    <th class="py-3.5 px-4">Kontak / WhatsApp</th>
+                    <th class="py-3.5 px-4">Domisili</th>
+                    <th class="py-3.5 px-4 text-center">Peran</th>
+                    <th class="py-3.5 px-4 text-center">Status</th>
+                    <th class="py-3.5 px-4 text-right">Aksi</th>
+                `;
+            }
+
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Tidak ada data pendaftaran tutor.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Tidak ada data ${currentRoleTab}.</td></tr>`;
                 return;
             }
 
-            list.forEach(t => {
-                let statusBadge = '';
-                if (t.status === 'approved') {
-                    statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Approved</span>`;
-                } else if (t.status === 'rejected') {
-                    statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Rejected</span>`;
-                } else {
-                    statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
-                }
+            // 2. Render Baris Data
+            list.forEach(u => {
+                let statusBadge = u.status === 'approved' 
+                    ? `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Active</span>`
+                    : u.status === 'rejected'
+                    ? `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Rejected</span>`
+                    : `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
 
-                const offlineBadge = t.is_offline_verified
-                    ? `<span class="bg-sky-50 text-sky-600 px-2 py-0.5 rounded font-bold text-[10px]"><i class="fa-solid fa-check"></i> Verified</span>`
-                    : `<span class="text-slate-400 text-[10px]">-</span>`;
+                if (currentRoleTab === 'tutor') {
+                    const offlineBadge = u.is_offline_verified
+                        ? `<span class="bg-sky-50 text-sky-600 px-2 py-0.5 rounded font-bold text-[10px]"><i class="fa-solid fa-check"></i> Verified</span>`
+                        : `<span class="text-slate-400 text-[10px]">-</span>`;
 
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50/80 transition border-b border-slate-100">
-                        <td class="py-3 px-4">
-                            <div class="flex items-center gap-3">
-                                <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
-                                <div>
-                                    <div class="font-bold text-slate-900">${t.name}</div>
-                                    <div class="text-[11px] text-slate-400">${t.email}</div>
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
+                                    <div>
+                                        <div class="font-bold text-slate-900">${u.name} <span class="bg-sky-100 text-sky-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded ml-1">TUTOR</span></div>
+                                        <div class="text-[11px] text-slate-400">${u.email}</div>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="py-3 px-4 font-semibold text-slate-800">${t.subject} <span class="text-[10px] text-slate-400 font-normal">(${t.level || 'Umum'})</span></td>
-                        <td class="py-3 px-4">
-                            <div>${t.phone_number || '-'}</div>
-                            <div class="text-[11px] text-slate-400">${t.location || 'Online'}</div>
-                        </td>
-                        <td class="py-3 px-4 font-bold text-sky-600">Rp ${(t.price || 0).toLocaleString('id-ID')}</td>
-                        <td class="py-3 px-4 text-center">${offlineBadge}</td>
-                        <td class="py-3 px-4 text-center">${statusBadge}</td>
-                        <td class="py-3 px-4 text-right">
-                            <button onclick="openDetailModal(${t.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-bold px-3 py-1.5 rounded-lg text-xs transition">
-                                <i class="fa-solid fa-eye"></i> Detail
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                            </td>
+                            <td class="py-3 px-4 font-semibold text-slate-800">${u.subject} <span class="text-[10px] text-slate-400 font-normal">(${u.level || 'Umum'})</span></td>
+                            <td class="py-3 px-4">
+                                <div>${u.phone_number || '-'}</div>
+                                <div class="text-[11px] text-slate-400">${u.location || 'Online'}</div>
+                            </td>
+                            <td class="py-3 px-4 font-bold text-sky-600">Rp ${(u.price || 0).toLocaleString('id-ID')}</td>
+                            <td class="py-3 px-4 text-center">${offlineBadge}</td>
+                            <td class="py-3 px-4 text-center">${statusBadge}</td>
+                            <td class="py-3 px-4 text-right">
+                                <button onclick="openDetailModal(${u.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                                    <i class="fa-solid fa-eye"></i> Detail
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    // Tampilan Baris Siswa
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
+                                    <div>
+                                        <div class="font-bold text-slate-900">${u.name} <span class="bg-emerald-100 text-emerald-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded ml-1">SISWA</span></div>
+                                        <div class="text-[11px] text-slate-400">${u.email}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 font-semibold text-slate-800">${u.level || 'SMA'}</td>
+                            <td class="py-3 px-4 text-slate-700 font-medium">${u.phone_number || '-'}</td>
+                            <td class="py-3 px-4 text-slate-700 font-medium">${u.location || '-'}</td>
+                            <td class="py-3 px-4 text-center"><span class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded">Siswa</span></td>
+                            <td class="py-3 px-4 text-center">${statusBadge}</td>
+                            <td class="py-3 px-4 text-right">
+                                <button onclick="openDetailModal(${u.id})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                                    <i class="fa-solid fa-eye"></i> Detail
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
             });
         }
 
         function openDetailModal(id) {
-            const tutor = allTutorData.find(t => t.id === id);
-            if (!tutor) return;
+            const user = allUsersData.find(u => u.id === id);
+            if (!user) return;
 
-            selectedTutorId = tutor.id;
+            selectedTutorId = user.id;
 
-            document.getElementById('modal-avatar').src = tutor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.name)}`;
-            document.getElementById('modal-name').innerText = tutor.name;
-            document.getElementById('modal-email').innerText = tutor.email;
-            document.getElementById('modal-subject').innerText = tutor.subject;
-            document.getElementById('modal-level').innerText = tutor.level || 'Umum';
-            document.getElementById('modal-location').innerText = tutor.location || 'Online';
-            document.getElementById('modal-price').innerText = `Rp ${(tutor.price || 0).toLocaleString('id-ID')}`;
-            document.getElementById('modal-phone').innerText = tutor.phone_number || '-';
+            document.getElementById('modal-avatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`;
+            document.getElementById('modal-name').innerText = user.name;
+            document.getElementById('modal-email').innerText = user.email;
+            document.getElementById('modal-subject').innerText = user.subject || '-';
+            document.getElementById('modal-level').innerText = user.level || 'Umum';
+            document.getElementById('modal-location').innerText = user.location || '-';
+            document.getElementById('modal-price').innerText = `Rp ${(user.price || 0).toLocaleString('id-ID')}`;
+            document.getElementById('modal-phone').innerText = user.phone_number || '-';
 
-            const videoContainer = document.getElementById('modal-video-container');
-            const videoLink = document.getElementById('modal-video-link');
-            if (tutor.teaching_video_url) {
-                videoLink.href = tutor.teaching_video_url;
-                videoContainer.classList.remove('hidden');
+            const actionsBox = document.getElementById('modal-tutor-actions');
+            if (user.role === 'tutor') {
+                actionsBox.classList.remove('hidden');
+                document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
+                document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
+                document.getElementById('btn-reject').onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
             } else {
-                videoContainer.classList.add('hidden');
+                actionsBox.classList.add('hidden'); // Sembunyikan tombol verifikasi jika role-nya Siswa
             }
-
-            const badge = document.getElementById('modal-status-badge');
-            if (tutor.status === 'approved') {
-                badge.className = 'inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700';
-                badge.innerText = 'Approved';
-            } else if (tutor.status === 'rejected') {
-                badge.className = 'inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700';
-                badge.innerText = 'Rejected';
-            } else {
-                badge.className = 'inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700';
-                badge.innerText = 'Pending Review';
-            }
-
-            // Bind aksi tombol modal tanpa menyentuh/mengubah kolom user_id/email
-            document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
-            document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
-            document.getElementById('btn-reject').onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
 
             document.getElementById('modal-detail').classList.remove('hidden');
         }
@@ -366,7 +411,6 @@
             selectedTutorId = null;
         }
 
-        // FUNGSI UPDATE STATUS AMAN: HANYA MENGUBAH `status` & `is_offline_verified`
         async function updateTutorStatus(tutorId, newStatus, isOffline) {
             const { error } = await _supabase
                 .from('tutors')
@@ -379,9 +423,9 @@
             if (error) {
                 alert('Gagal memperbarui status: ' + error.message);
             } else {
-                alert(`Status tutor berhasil diperbarui menjadi ${newStatus.toUpperCase()}!`);
+                alert(`Status berhasil diperbarui!`);
                 closeDetailModal();
-                await loadAdminTutorData();
+                await loadAdminData();
             }
         }
 
