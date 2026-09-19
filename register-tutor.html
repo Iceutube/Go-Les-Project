@@ -129,10 +129,21 @@
 
             let finalAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
 
-            const { data: authData, error: authError } = await _supabase.auth.signUp({
+            let { data: authData, error: authError } = await _supabase.auth.signUp({
                 email: email,
                 password: password
             });
+
+            if (authError && authError.message.includes('already registered')) {
+                const { data: signInData, error: signInError } = await _supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                if (!signInError) {
+                    authData = signInData;
+                    authError = null;
+                }
+            }
 
             if (authError) {
                 alert('Gagal pendaftaran: ' + authError.message);
