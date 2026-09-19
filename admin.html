@@ -228,7 +228,6 @@
         return;
     }
 
-    // Normalisasi role: Jika role kosong atau bukan admin/tutor, anggap sebagai siswa
     allUsersData = (users || []).map(u => {
         let userRole = (u.role || '').toLowerCase();
         if (userRole !== 'admin' && userRole !== 'tutor') {
