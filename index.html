@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS Custom Lokal (Sesuaikan jika nama filemu style.css atau styles.css) -->
+    <!-- CSS Custom Lokal -->
     <link rel="stylesheet" href="css/style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -33,9 +33,9 @@
                 <button id="btn-jadi-tutor" class="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
                     <i class="fa-solid fa-user-plus"></i> Jadi Tutor
                 </button>
-            <a href="login.html" class="flex items-center gap-2 border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 transition">
-                <i class="fa-solid fa-right-to-bracket"></i> Login Tutor
-            </a>
+                <a href="login.html" class="flex items-center gap-2 border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 transition">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login Tutor
+                </a>
             </div>
         </div>
     </nav>
@@ -94,23 +94,29 @@
                 <h3 class="font-bold text-lg">Pendaftaran Tutor Baru</h3>
                 <button id="btn-close-modal" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
-      
-    <div class="grid grid-cols-2 gap-3">
-        <div>
-            <label class="block font-semibold mb-1">Email (Untuk Akun Login)</label>
-             <input type="email" id="reg-email" required placeholder="tutor@gmail.com" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-            </div>
-        <div>
-            <label class="block font-semibold mb-1">Password</label>
-            <input type="password" id="reg-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                </div>
-            </div>
+
+            <!-- FORM HARUS MEMBUNGKUS SELURUH INPUT -->
             <form id="form-register-tutor" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-sm">
+                
+                <!-- INPUT AKUN LOGIN -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold mb-1">Email (Untuk Login)</label>
+                        <input type="email" id="reg-email" required placeholder="tutor@gmail.com" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Password</label>
+                        <input type="password" id="reg-password" required minlength="6" placeholder="Min. 6 karakter" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
+                    </div>
+                </div>
+
+                <!-- NAMA LENGKAP -->
                 <div>
                     <label class="block font-semibold mb-1">Nama Lengkap</label>
                     <input type="text" id="reg-name" required placeholder="Contoh: Dr. Budi Santoso" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
                 </div>
 
+                <!-- MAPEL & TINGKAT -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold mb-1">Mata Pelajaran</label>
@@ -122,6 +128,7 @@
                     </div>
                 </div>
 
+                <!-- HARGA & PHONE -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold mb-1">Tarif per Jam (Rp)</label>
@@ -133,17 +140,20 @@
                     </div>
                 </div>
 
+                <!-- LOKASI -->
                 <div>
                     <label class="block font-semibold mb-1">Lokasi Domisili (Kecamatan/Kota)</label>
                     <input type="text" id="reg-location" required placeholder="Contoh: Kebayoran Baru, Jakarta Selatan" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
                 </div>
 
+                <!-- LINK VIDEO DEMO -->
                 <div>
                     <label class="block font-semibold mb-1">Link Video Demo Mengajar (10-15 Menit)</label>
                     <input type="url" id="reg-video" required placeholder="https://youtube.com/watch?v=..." class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
                     <p class="text-xs text-slate-500 mt-1">Upload video simulasi caramu mengajar ke YouTube/Drive lalu masukkan link di sini.</p>
                 </div>
 
+                <!-- JAM OPERASIONAL -->
                 <div>
                     <label class="block font-semibold mb-1">Pilih Jam Operasional Mengajar</label>
                     <div class="grid grid-cols-3 gap-2 mt-2" id="reg-hours-container">
