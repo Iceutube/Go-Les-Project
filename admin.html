@@ -13,225 +13,150 @@
 </head>
 <body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
 
-    <!-- NAVBAR ADMIN -->
-    <nav class="bg-slate-900 text-white border-b border-slate-800">
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <div class="bg-amber-500 text-slate-900 w-9 h-9 rounded-lg flex items-center justify-center font-bold">
+                <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
-                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-amber-400 font-normal text-sm">| Admin Control Panel</span></span>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 font-normal text-sm">| Portal Admin</span></span>
             </div>
-            <a href="index.html" class="text-xs text-slate-400 hover:text-white transition">
-                <i class="fa-solid fa-house mr-1"></i> Ke Halaman Utama
-            </a>
+            <div class="flex items-center gap-4">
+                <span id="admin-email" class="text-xs font-semibold text-slate-600">admin@goles.com</span>
+                <button onclick="handleLogout()" class="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-red-200">
+                    <i class="fa-solid fa-right-from-bracket"></i> Keluar
+                </button>
+            </div>
         </div>
     </nav>
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
-                <i class="fa-solid fa-graduation-cap"></i>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900">Persetujuan & Verifikasi Tutor</h1>
+                <p class="text-xs text-slate-500 mt-1">Kelola permohonan pendaftaran tutor baru dan verifikasi status kelas offline.</p>
             </div>
-            <span class="font-extrabold text-lg tracking-tight">GO-LES</span>
-        </div>
-        
-        <div class="flex items-center gap-4">
-            <span id="user-display-email" class="text-xs font-semibold text-slate-600">admin@goles.com</span>
-            <button onclick="handleLogout()" class="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-red-200">
-                <i class="fa-solid fa-right-from-bracket"></i> Keluar
+            <button onclick="loadAdminData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-semibold transition">
+                <i class="fa-solid fa-rotate"></i> Refresh Data
             </button>
         </div>
-    </div>
-</nav>
 
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
-        
-        <!-- RINGKASAN STATISTIK -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Menunggu Verifikasi Video</span>
-                <span id="count-pending" class="text-3xl font-extrabold text-amber-600">0</span>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Tutor Aktif (Online)</span>
-                <span id="count-approved" class="text-3xl font-extrabold text-sky-600">0</span>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Tutor Terverifikasi Offline</span>
-                <span id="count-offline" class="text-3xl font-extrabold text-emerald-600">0</span>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-bold border-b border-slate-200">
+                            <th class="p-4">Tutor</th>
+                            <th class="p-4">Mata Pelajaran</th>
+                            <th class="p-4">Lokasi</th>
+                            <th class="p-4">Video Demo</th>
+                            <th class="p-4">Status Akun</th>
+                            <th class="p-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-tutor-list" class="text-sm divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-slate-400">Memuat data tutor...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <!-- TABEL PERMOHONAN TUTOR BARU -->
-        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-amber-500"></i> Permohonan Tutor Baru (Pending Video)
-                </h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-600">
-                    <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs">
-                        <tr>
-                            <th class="p-4">Nama Tutor</th>
-                            <th class="p-4">Mata Pelajaran</th>
-                            <th class="p-4">Kontak</th>
-                            <th class="p-4">Video Demo Mengajar</th>
-                            <th class="p-4 text-center">Aksi Verifikasi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-pending" class="divide-y divide-slate-100">
-                        <tr>
-                            <td colspan="5" class="p-6 text-center text-slate-400">Memuat permohonan...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- TABEL SEMUA TUTOR TERDAFTAR -->
-        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-users text-sky-600"></i> Daftar Seluruh Tutor Terdaftar
-                </h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-600">
-                    <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs">
-                        <tr>
-                            <th class="p-4">Nama Tutor</th>
-                            <th class="p-4">Status Online</th>
-                            <th class="p-4">Hak Mengajar Offline</th>
-                            <th class="p-4 text-center">Aksi Admin</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-all-tutors" class="divide-y divide-slate-100">
-                        <tr>
-                            <td colspan="4" class="p-6 text-center text-slate-400">Memuat data tutor...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
     </main>
 
-    <!-- SUPABASE SDK & LOGIKA ADMIN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            await loadAdminDashboardData();
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const { data: profile } = await _supabase
+                .from('tutors')
+                .select('role')
+                .eq('user_id', user.id)
+                .maybeSingle();
+
+            if (!profile || profile.role !== 'admin') {
+                alert('Akses ditolak! Halaman ini khusus Admin.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('admin-email').innerText = user.email;
+            await loadAdminData();
         });
 
-        async function loadAdminDashboardData() {
-            const { data: tutors, error } = await _supabase.from('tutors').select('*');
-            if (error) {
-                console.error("Gagal memuat data admin:", error);
+        async function loadAdminData() {
+            const tbody = document.getElementById('admin-tutor-list');
+            const { data: tutors, error } = await _supabase
+                .from('tutors')
+                .select('*')
+                .neq('role', 'admin')
+                .order('id', { ascending: false });
+
+            if (error || !tutors || tutors.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pendaftaran tutor.</td></tr>`;
                 return;
             }
 
-            const pending = tutors.filter(t => t.status === 'pending');
-            const approved = tutors.filter(t => t.status === 'approved');
-            const offlineVerified = tutors.filter(t => t.is_offline_verified === true);
-
-            document.getElementById('count-pending').innerText = pending.length;
-            document.getElementById('count-approved').innerText = approved.length;
-            document.getElementById('count-offline').innerText = offlineVerified.length;
-
-            renderPendingTable(pending);
-            renderAllTutorsTable(tutors);
-        }
-
-        function renderPendingTable(list) {
-            const tbody = document.getElementById('table-pending');
             tbody.innerHTML = '';
+            tutors.forEach(t => {
+                const statusBadge = t.status === 'approved' 
+                    ? `<span class="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-md text-xs font-bold">Disetujui</span>` 
+                    : `<span class="bg-amber-50 text-amber-600 px-2.5 py-1 rounded-md text-xs font-bold">Menunggu</span>`;
 
-            if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Tidak ada permohonan tutor baru saat ini.</td></tr>`;
-                return;
-            }
+                const videoBtn = t.teaching_video_url 
+                    ? `<a href="${t.teaching_video_url}" target="_blank" class="text-sky-600 hover:underline text-xs"><i class="fa-solid fa-circle-play"></i> Tonton Video</a>` 
+                    : `<span class="text-slate-400 text-xs">-</span>`;
 
-            list.forEach(t => {
-                const videoUrl = t.teaching_video_url || '#';
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-4 font-bold text-slate-800">${t.name}<br><span class="text-xs text-slate-400 font-normal">${t.email || '-'}</span></td>
-                        <td class="p-4">${t.subject} (${t.level || 'Umum'})</td>
-                        <td class="p-4">${t.phone_number || '-'}</td>
-                        <td class="p-4">
-                            <a href="${videoUrl}" target="_blank" class="inline-flex items-center gap-1 text-sky-600 hover:underline font-semibold text-xs">
-                                <i class="fa-solid fa-circle-play text-red-500"></i> Tonton Demo Video
-                            </a>
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-4 flex items-center gap-3">
+                            <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-10 h-10 rounded-xl object-cover">
+                            <div>
+                                <p class="font-bold text-slate-900">${t.name}</p>
+                                <p class="text-xs text-slate-500">${t.email || '-'}</p>
+                            </div>
                         </td>
+                        <td class="p-4 text-slate-700 font-medium">${t.subject} (${t.level})</td>
+                        <td class="p-4 text-slate-600">${t.location || 'Online'}</td>
+                        <td class="p-4">${videoBtn}</td>
+                        <td class="p-4">${statusBadge}</td>
                         <td class="p-4 text-center">
-                            <button onclick="approveTutor('${t.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition mr-1">
-                                Disetujui
-                            </button>
-                            <button onclick="rejectTutor('${t.id}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
-                                Tolak
-                            </button>
+                            ${t.status === 'pending' ? `
+                                <button onclick="updateStatus(${t.id}, 'approved')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition mr-1">
+                                    Setujui
+                                </button>
+                            ` : `
+                                <button onclick="updateStatus(${t.id}, 'pending')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
+                                    Batalkan
+                                </button>
+                            `}
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function renderAllTutorsTable(list) {
-            const tbody = document.getElementById('table-all-tutors');
-            tbody.innerHTML = '';
-
-            list.forEach(t => {
-                const isOffline = t.is_offline_verified;
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-4 font-bold text-slate-800">${t.name}</td>
-                        <td class="p-4">
-                            <span class="px-2.5 py-1 rounded-md text-xs font-bold ${t.status === 'approved' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'}">
-                                ${t.status || 'pending'}
-                            </span>
-                        </td>
-                        <td class="p-4">
-                            <span class="px-2.5 py-1 rounded-md text-xs font-bold ${isOffline ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}">
-                                ${isOffline ? 'Verifikasi Offline ✓' : 'Belum Verifikasi'}
-                            </span>
-                        </td>
-                        <td class="p-4 text-center">
-                            <button onclick="toggleOfflineVerification('${t.id}', ${!isOffline})" class="border border-slate-300 hover:bg-slate-100 px-3 py-1 rounded-lg text-xs font-semibold transition">
-                                ${isOffline ? 'Cabut Verifikasi Offline' : 'Setujui Mode Offline'}
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function approveTutor(id) {
-            const { error } = await _supabase.from('tutors').update({ status: 'approved' }).eq('id', id);
+        async function updateStatus(id, newStatus) {
+            const { error } = await _supabase.from('tutors').update({ status: newStatus }).eq('id', id);
             if (!error) {
-                alert('Tutor berhasil disetujui!');
-                loadAdminDashboardData();
+                alert(`Status tutor berhasil diperbarui menjadi: ${newStatus}`);
+                await loadAdminData();
+            } else {
+                alert(`Gagal memperbarui status: ${error.message}`);
             }
         }
 
-        async function rejectTutor(id) {
-            const { error } = await _supabase.from('tutors').update({ status: 'rejected' }).eq('id', id);
-            if (!error) {
-                alert('Tutor ditolak.');
-                loadAdminDashboardData();
-            }
-        }
-
-        async function toggleOfflineVerification(id, targetState) {
-            const { error } = await _supabase.from('tutors').update({ is_offline_verified: targetState }).eq('id', id);
-            if (!error) {
-                alert('Status verifikasi offline berhasil diperbarui!');
-                loadAdminDashboardData();
-            }
+        async function handleLogout() {
+            await _supabase.auth.signOut();
+            alert('Berhasil keluar!');
+            window.location.href = 'index.html';
         }
     </script>
 </body>
