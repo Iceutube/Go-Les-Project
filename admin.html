@@ -31,14 +31,27 @@
     </nav>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
             <div>
                 <h1 class="text-xl font-bold text-slate-900">Persetujuan & Verifikasi Tutor</h1>
-                <p class="text-xs text-slate-500 mt-1">Kelola permohonan pendaftaran tutor baru dan verifikasi status kelas offline.</p>
+                <p class="text-xs text-slate-500 mt-1">Kelola permohonan pendaftaran tutor baru dan pantau performa mengajar.</p>
             </div>
-            <button onclick="loadAdminData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-semibold transition">
-                <i class="fa-solid fa-rotate"></i> Refresh Data
-            </button>
+
+            <!-- FILTER & SEARCH BAR -->
+            <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <div class="flex items-center border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 focus-within:border-sky-500 text-xs">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400 mr-2"></i>
+                    <input type="text" id="admin-search" oninput="filterAdminTutors()" placeholder="Cari nama tutor..." class="bg-transparent outline-none w-full sm:w-48">
+                </div>
+                <select id="admin-status-filter" onchange="filterAdminTutors()" class="border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 text-xs font-semibold outline-none">
+                    <option value="all">Semua Status</option>
+                    <option value="pending">Menunggu (Pending)</option>
+                    <option value="approved">Disetujui (Approved)</option>
+                </select>
+                <button onclick="loadAdminData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-semibold transition shrink-0">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
+            </div>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -48,6 +61,7 @@
                         <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-bold border-b border-slate-200">
                             <th class="p-4">Tutor</th>
                             <th class="p-4">Mata Pelajaran</th>
+                            <th class="p-4">Rating</th>
                             <th class="p-4">Lokasi</th>
                             <th class="p-4">Video Demo</th>
                             <th class="p-4">Status Akun</th>
@@ -56,7 +70,7 @@
                     </thead>
                     <tbody id="admin-tutor-list" class="text-sm divide-y divide-slate-100">
                         <tr>
-                            <td colspan="6" class="p-8 text-center text-slate-400">Memuat data tutor...</td>
+                            <td colspan="7" class="p-8 text-center text-slate-400">Memuat data tutor...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -68,6 +82,8 @@
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
+        let rawTutorList = [];
+
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { user } } = await _supabase.auth.getUser();
             if (!user) {
@@ -92,20 +108,39 @@
         });
 
         async function loadAdminData() {
-            const tbody = document.getElementById('admin-tutor-list');
             const { data: tutors, error } = await _supabase
                 .from('tutors')
                 .select('*')
                 .neq('role', 'admin')
                 .order('id', { ascending: false });
 
-            if (error || !tutors || tutors.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pendaftaran tutor.</td></tr>`;
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            rawTutorList = tutors || [];
+            filterAdminTutors();
+        }
+
+        function filterAdminTutors() {
+            const tbody = document.getElementById('admin-tutor-list');
+            const searchVal = document.getElementById('admin-search').value.toLowerCase().trim();
+            const filterVal = document.getElementById('admin-status-filter').value;
+
+            const filtered = rawTutorList.filter(t => {
+                const matchesName = (t.name || '').toLowerCase().includes(searchVal);
+                const matchesStatus = filterVal === 'all' || t.status === filterVal;
+                return matchesName && matchesStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Tutor tidak ditemukan.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
-            tutors.forEach(t => {
+            filtered.forEach(t => {
                 const statusBadge = t.status === 'approved' 
                     ? `<span class="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-md text-xs font-bold">Disetujui</span>` 
                     : `<span class="bg-amber-50 text-amber-600 px-2.5 py-1 rounded-md text-xs font-bold">Menunggu</span>`;
@@ -113,6 +148,8 @@
                 const videoBtn = t.teaching_video_url 
                     ? `<a href="${t.teaching_video_url}" target="_blank" class="text-sky-600 hover:underline text-xs"><i class="fa-solid fa-circle-play"></i> Tonton Video</a>` 
                     : `<span class="text-slate-400 text-xs">-</span>`;
+
+                const ratingBadge = `<span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${t.rating || 'Baru'}</span>`;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
@@ -123,7 +160,8 @@
                                 <p class="text-xs text-slate-500">${t.email || '-'}</p>
                             </div>
                         </td>
-                        <td class="p-4 text-slate-700 font-medium">${t.subject} (${t.level})</td>
+                        <td class="p-4 text-slate-700 font-medium">${t.subject} (${t.level || 'Umum'})</td>
+                        <td class="p-4">${ratingBadge}</td>
                         <td class="p-4 text-slate-600">${t.location || 'Online'}</td>
                         <td class="p-4">${videoBtn}</td>
                         <td class="p-4">${statusBadge}</td>
