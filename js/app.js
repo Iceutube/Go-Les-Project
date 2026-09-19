@@ -33,6 +33,20 @@ async function checkExistingSession() {
         console.log("Akses mode publik/tamu");
     }
 }
+async function handleLogout() {
+    try {
+        const { error } = await _supabase.auth.signOut();
+        if (error) {
+            alert('Gagal logout: ' + error.message);
+            return;
+        }
+        alert('Berhasil keluar!');
+        window.location.href = 'index.html';
+    } catch (err) {
+        console.error('Error saat logout:', err);
+        window.location.href = 'index.html';
+    }
+}
 
 function openTutorModal() {
     const modal = document.getElementById('modal-tutor');
