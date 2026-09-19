@@ -52,47 +52,51 @@
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
-        document.getElementById('form-login').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btnLogin = document.getElementById('btn-login');
-            btnLogin.innerText = 'Memproses...';
-            btnLogin.disabled = true;
+       document.getElementById('form-login').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btnLogin = document.getElementById('btn-login');
+    btnLogin.innerText = 'Memproses...';
+    btnLogin.disabled = true;
 
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
 
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+    // 1. Authenticate via Supabase Auth
+    const { data: authData, error: authError } = await _supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+    });
 
-            if (error) {
-                alert('Gagal masuk: ' + error.message);
-                btnLogin.innerText = 'Masuk';
-                btnLogin.disabled = false;
-                return;
+    if (authError) {
+        alert('Gagal masuk: ' + authError.message);
+        btnLogin.innerText = 'Masuk';
+        btnLogin.disabled = false;
+        return;
+    }
+
+    if (authData.user) {
+        // 2. Cari data profil berdasarkan email atau user_id di tabel tutors
+        const { data: profiles, error: profileError } = await _supabase
+            .from('tutors')
+            .select('*')
+            .or(`user_id.eq.${authData.user.id},email.eq.${email}`);
+
+        if (profiles && profiles.length > 0) {
+            const userProfile = profiles[0];
+
+            if (userProfile.role === 'admin') {
+                window.location.href = 'admin.html';
+            } else if (userProfile.role === 'tutor') {
+                window.location.href = 'dashboard-tutor.html';
+            } else {
+                window.location.href = 'dashboard-siswa.html';
             }
-
-            if (data.user) {
-                const { data: profile } = await _supabase
-                    .from('tutors')
-                    .select('*')
-                    .eq('user_id', data.user.id)
-                    .single();
-
-                if (profile) {
-                    if (profile.role === 'admin') {
-                        window.location.href = 'admin.html';
-                    } else if (profile.role === 'tutor') {
-                        window.location.href = 'dashboard-tutor.html';
-                    } else {
-                        window.location.href = 'dashboard-siswa.html';
-                    }
-                } else {
-                    window.location.href = 'dashboard-siswa.html';
-                }
-            }
-        });
+        } else {
+            // Default fallback jika profil tabel belum terbuat
+            window.location.href = 'dashboard-siswa.html';
+        }
+    }
+});
     </script>
 </body>
 </html>
