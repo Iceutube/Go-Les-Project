@@ -75,18 +75,22 @@ function renderTutors() {
         return;
     }
 
+    // FILTER HANYA UNTUK ROLE TUTOR & STATUS APPROVED (TIDAK MENAMPILKAN ADMIN)
     const filtered = tutorsData.filter(t => {
+        const isTutorOnly = (t.role === 'tutor' || !t.role); // Filter hanya role tutor
+        const isApproved = t.status === 'approved'; // Hanya tutor yang disetujui Admin
+        
         const name = t.name ? t.name.toLowerCase() : '';
         const subj = t.subject ? t.subject.toLowerCase() : '';
         
         const matchSearch = search === '' || name.includes(search) || subj.includes(search);
         const matchSubject = subject === 'Semua' || (t.subject && t.subject.toLowerCase().includes(subject.toLowerCase()));
         
-        return matchSearch && matchSubject;
+        return isTutorOnly && isApproved && matchSearch && matchSubject;
     });
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Tutor tidak ditemukan untuk pencarian ini.</p>`;
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Belum ada tutor aktif yang disetujui untuk ditampilkan.</p>`;
         return;
     }
 
