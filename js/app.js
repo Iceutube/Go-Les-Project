@@ -145,32 +145,34 @@ function setupModalListeners() {
 
     if (form) {
         form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const selectedHours = Array.from(document.querySelectorAll('.reg-hour-check:checked')).map(cb => cb.value);
+    e.preventDefault();
+    
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-password').value;
+    const selectedHours = Array.from(document.querySelectorAll('.reg-hour-check:checked')).map(cb => cb.value);
 
-            const newTutor = {
-                name: document.getElementById('reg-name').value,
-                subject: document.getElementById('reg-subject').value,
-                level: document.getElementById('reg-level').value,
-                price: parseInt(document.getElementById('reg-price').value) || 0,
-                phone_number: document.getElementById('reg-phone').value,
-                location: document.getElementById('reg-location').value,
-                teaching_video_url: document.getElementById('reg-video').value,
-                available_hours: selectedHours,
-                status: 'approved' // Set langsung approved untuk testing
-            };
+    const tutorProfile = {
+        name: document.getElementById('reg-name').value,
+        subject: document.getElementById('reg-subject').value,
+        level: document.getElementById('reg-level').value,
+        price: parseInt(document.getElementById('reg-price').value) || 0,
+        phone_number: document.getElementById('reg-phone').value,
+        location: document.getElementById('reg-location').value,
+        teaching_video_url: document.getElementById('reg-video').value,
+        available_hours: selectedHours
+    };
 
-            const result = await registerTutorToSQL(newTutor);
-            if (result.success) {
-                alert('Pendaftaran berhasil terkirim!');
-                form.reset();
-                closeModal();
-                tutorsData = await fetchTutorsFromSQL();
-                renderTutors();
-            } else {
-                alert('Gagal mendaftar. Silakan periksa kembali data kamu.');
-            }
-        });
+    const result = await registerTutorWithAuth(tutorProfile, email, password);
+
+    if (result.success) {
+        alert('Akun Tutor berhasil dibuat! Admin akan memverifikasi video mengajar kamu sebelum status diaktifkan.');
+        form.reset();
+        closeModal();
+        tutorsData = await fetchTutorsFromSQL();
+        renderTutors();
+    } else {
+        alert(`Gagal mendaftar: ${result.error}`);
+    }
+});
     }
 }

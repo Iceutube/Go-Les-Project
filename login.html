@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Tutor - GO-LES</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-sky-600 text-white p-6 text-center">
+            <div class="bg-white text-sky-600 w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold mx-auto mb-2 shadow-sm">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2 class="text-2xl font-bold">Portal Login Tutor</h2>
+            <p class="text-sky-100 text-sm mt-1">Masuk untuk mengelola jadwal & penyewa les kamu</p>
+        </div>
+
+        <!-- Form Login -->
+        <form id="form-login-tutor" class="p-6 space-y-4 text-sm">
+            <div>
+                <label class="block font-semibold mb-1 text-slate-700">Email Tutor</label>
+                <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2 focus-within:border-sky-500">
+                    <i class="fa-regular fa-envelope text-slate-400 mr-2"></i>
+                    <input type="email" id="login-email" required placeholder="tutor@gmail.com" class="w-full outline-none bg-transparent">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1 text-slate-700">Password</label>
+                <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2 focus-within:border-sky-500">
+                    <i class="fa-solid fa-lock text-slate-400 mr-2"></i>
+                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full outline-none bg-transparent">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-lg transition shadow-md">
+                Masuk ke Dashboard
+            </button>
+
+            <div class="text-center pt-2">
+                <a href="index.html" class="text-xs text-slate-500 hover:text-sky-600 transition">
+                    ← Kembali ke Halaman Utama
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- SDK & Script -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script>
+        document.getElementById('form-login-tutor').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                alert(`Gagal Login: ${error.message}`);
+            } else {
+                alert('Login Berhasil!');
+                window.location.href = 'dashboard-tutor.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,33 +1,39 @@
 // js/supabase.js
 
-async function fetchTutorsFromSQL() {
-    const grid = document.getElementById('tutorGrid');
-    if (grid) {
-        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Memuat data dari Database SQL...</p>`;
+async function registerTutorWithAuth(tutorData, email, password) {
+    try {
+        // 1. Buat Akun Pengguna di Supabase Auth
+        const { data: authData, error: authError } = await _supabase.auth.signUp({
+            email: email,
+            password: password,
+        });
+
+        if (authError) throw authError;
+
+        const userId = authData.user ? authData.user.id : null;
+
+        // 2. Simpan Data Profil Tutor ke Tabel tutors dengan user_id
+        const { data, error: dbError } = await _supabase
+            .from('tutors')
+            .insert([{
+                user_id: userId,
+                email: email,
+                name: tutorData.name,
+                subject: tutorData.subject,
+                level: tutorData.level,
+                price: tutorData.price,
+                phone_number: tutorData.phone_number,
+                location: tutorData.location,
+                teaching_video_url: tutorData.teaching_video_url,
+                available_hours: tutorData.available_hours,
+                status: 'pending' // Menunggu verifikasi video oleh Admin
+            }]);
+
+        if (dbError) throw dbError;
+
+        return { success: true };
+    } catch (err) {
+        console.error("Error registrasi tutor:", err.message);
+        return { success: false, error: err.message };
     }
-
-    const { data, error } = await _supabase.from('tutors').select('*');
-
-    if (error) {
-        console.error("Error SQL:", error);
-        if (grid) {
-            grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-8">Gagal mengambil data dari database.</p>`;
-        }
-        return [];
-    }
-
-    return data || [];
-}
-
-async function registerTutorToSQL(tutorData) {
-    const { data, error } = await _supabase
-        .from('tutors')
-        .insert([tutorData]);
-
-    if (error) {
-        console.error("Error pendaftaran tutor:", error);
-        return { success: false, error };
-    }
-
-    return { success: true, data };
 }
