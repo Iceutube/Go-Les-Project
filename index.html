@@ -81,7 +81,7 @@
 
         async function loadIndexTutorData() {
             const { data: tutors, error } = await _supabase
-                .from('tutors')
+                .from('tutor')
                 .select('*')
                 .eq('status', 'approved')
                 .neq('role', 'admin')
