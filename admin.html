@@ -98,7 +98,7 @@
                         <option value="rejected">Rejected</option>
                     </select>
 
-                    <input type="text" id="admin-search" onkeyup="filterAdminTable()" placeholder="Cari nama / email..." class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 outline-none w-full sm:w-60">
+                    <input type="text" id="admin-search" onkeyup="filterAdminTable()" placeholder="Cari nama / email / mapel..." class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 outline-none w-full sm:w-60">
                 </div>
             </div>
 
@@ -112,7 +112,7 @@
                     </thead>
                     <tbody id="admin-table-body" class="divide-y divide-slate-100">
                         <tr>
-                            <td colspan="7" class="text-center py-8 text-slate-400">Memuat data pengguna...</td>
+                            <td colspan="8" class="text-center py-8 text-slate-400">Memuat data pengguna...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -120,7 +120,7 @@
         </div>
     </main>
 
-    <!-- Modal Detail Tutor -->
+    <!-- Modal Detail Tutor/Siswa -->
     <div id="modal-detail" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
             <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
@@ -152,6 +152,14 @@
                 <div>
                     <span class="text-slate-400 block font-semibold">Tarif / Jam:</span>
                     <span id="modal-price" class="font-bold text-sky-600"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Rating Performa:</span>
+                    <span id="modal-rating" class="font-bold text-amber-500"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Total Ulasan:</span>
+                    <span id="modal-reviews-count" class="font-bold text-slate-800"></span>
                 </div>
                 <div class="col-span-2">
                     <span class="text-slate-400 block font-semibold">Nomor WhatsApp:</span>
@@ -186,7 +194,7 @@
     <script src="js/supabase.js"></script>
     <script>
         let allUsersData = [];
-        let currentRoleTab = 'tutor'; // Default tab: 'tutor'
+        let currentRoleTab = 'tutor';
         let selectedTutorId = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -219,27 +227,25 @@
 
         async function loadAdminData() {
             const { data: users, error } = await _supabase
-        .from('tutors')
-        .select('*')
-        .order('id', { ascending: false });
+                .from('tutors')
+                .select('*')
+                .order('id', { ascending: false });
 
-    if (error) {
-        console.error("Gagal memuat data pengguna:", error);
-        return;
-    }
+            if (error) {
+                console.error("Gagal memuat data:", error);
+                return;
+            }
 
-    allUsersData = (users || []).map(u => {
-        let userRole = (u.role || '').toLowerCase();
-        if (userRole !== 'admin' && userRole !== 'tutor') {
-            userRole = 'siswa';
-        }
-        return { ...u, role: userRole };
-    });
+            allUsersData = (users || []).map(u => {
+                let userRole = (u.role || '').toLowerCase();
+                if (userRole !== 'admin' && userRole !== 'tutor') {
+                    userRole = 'siswa';
+                }
+                return { ...u, role: userRole };
+            }).filter(u => u.role !== 'admin');
 
-    allUsersData = allUsersData.filter(u => u.role !== 'admin');
-
-    updateStats(allUsersData);
-    filterAdminTable();
+            updateStats(allUsersData);
+            filterAdminTable();
         }
 
         function updateStats(list) {
@@ -294,6 +300,7 @@
                 headRow.innerHTML = `
                     <th class="py-3.5 px-4">Tutor</th>
                     <th class="py-3.5 px-4">Mata Pelajaran</th>
+                    <th class="py-3.5 px-4">Rating & Review</th>
                     <th class="py-3.5 px-4">Kontak / Domisili</th>
                     <th class="py-3.5 px-4">Tarif</th>
                     <th class="py-3.5 px-4 text-center">Verifikasi Offline</th>
@@ -313,7 +320,7 @@
             }
 
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Tidak ada data ${currentRoleTab}.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada data ${currentRoleTab}.</td></tr>`;
                 return;
             }
 
@@ -329,18 +336,26 @@
                         ? `<span class="bg-sky-50 text-sky-600 px-2 py-0.5 rounded font-bold text-[10px]"><i class="fa-solid fa-check"></i> Verified</span>`
                         : `<span class="text-slate-400 text-[10px]">-</span>`;
 
+                    const ratingVal = u.rating || 0;
+                    const totalReviews = u.total_reviews || 0;
+                    const ratingBadge = `<div class="flex items-center gap-1 font-bold text-amber-500">
+                        <i class="fa-solid fa-star text-xs"></i> <span>${ratingVal > 0 ? ratingVal : 'Baru'}</span>
+                        <span class="text-[10px] text-slate-400 font-normal">(${totalReviews} ulasan)</span>
+                    </div>`;
+
                     tbody.innerHTML += `
                         <tr class="hover:bg-slate-50 transition border-b border-slate-100">
                             <td class="py-3 px-4">
                                 <div class="flex items-center gap-3">
                                     <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
                                     <div>
-                                        <div class="font-bold text-slate-900">${u.name} <span class="bg-sky-100 text-sky-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded ml-1">TUTOR</span></div>
+                                        <div class="font-bold text-slate-900">${u.name}</div>
                                         <div class="text-[11px] text-slate-400">${u.email}</div>
                                     </div>
                                 </div>
                             </td>
                             <td class="py-3 px-4 font-semibold text-slate-800">${u.subject} <span class="text-[10px] text-slate-400 font-normal">(${u.level || 'Umum'})</span></td>
+                            <td class="py-3 px-4">${ratingBadge}</td>
                             <td class="py-3 px-4">
                                 <div>${u.phone_number || '-'}</div>
                                 <div class="text-[11px] text-slate-400">${u.location || 'Online'}</div>
@@ -362,7 +377,7 @@
                                 <div class="flex items-center gap-3">
                                     <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
                                     <div>
-                                        <div class="font-bold text-slate-900">${u.name} <span class="bg-emerald-100 text-emerald-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded ml-1">SISWA</span></div>
+                                        <div class="font-bold text-slate-900">${u.name}</div>
                                         <div class="text-[11px] text-slate-400">${u.email}</div>
                                     </div>
                                 </div>
@@ -396,6 +411,8 @@
             document.getElementById('modal-level').innerText = user.level || 'Umum';
             document.getElementById('modal-location').innerText = user.location || '-';
             document.getElementById('modal-price').innerText = `Rp ${(user.price || 0).toLocaleString('id-ID')}`;
+            document.getElementById('modal-rating').innerText = user.rating ? `★ ${user.rating}` : 'Belum Ada';
+            document.getElementById('modal-reviews-count').innerText = `${user.total_reviews || 0} ulasan`;
             document.getElementById('modal-phone').innerText = user.phone_number || '-';
 
             const actionsBox = document.getElementById('modal-tutor-actions');
@@ -405,7 +422,7 @@
                 document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
                 document.getElementById('btn-reject').onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
             } else {
-                actionsBox.classList.add('hidden'); // Sembunyikan tombol verifikasi jika role-nya Siswa
+                actionsBox.classList.add('hidden');
             }
 
             document.getElementById('modal-detail').classList.remove('hidden');
