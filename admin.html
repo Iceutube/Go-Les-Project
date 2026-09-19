@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - GO-LES</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
+
+    <!-- NAVBAR ADMIN -->
+    <nav class="bg-slate-900 text-white border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="bg-amber-500 text-slate-900 w-9 h-9 rounded-lg flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-amber-400 font-normal text-sm">| Admin Control Panel</span></span>
+            </div>
+            <a href="index.html" class="text-xs text-slate-400 hover:text-white transition">
+                <i class="fa-solid fa-house mr-1"></i> Ke Halaman Utama
+            </a>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+        
+        <!-- RINGKASAN STATISTIK -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Menunggu Verifikasi Video</span>
+                <span id="count-pending" class="text-3xl font-extrabold text-amber-600">0</span>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Tutor Aktif (Online)</span>
+                <span id="count-approved" class="text-3xl font-extrabold text-sky-600">0</span>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Tutor Terverifikasi Offline</span>
+                <span id="count-offline" class="text-3xl font-extrabold text-emerald-600">0</span>
+            </div>
+        </div>
+
+        <!-- TABEL PERMOHONAN TUTOR BARU -->
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-amber-500"></i> Permohonan Tutor Baru (Pending Video)
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs">
+                        <tr>
+                            <th class="p-4">Nama Tutor</th>
+                            <th class="p-4">Mata Pelajaran</th>
+                            <th class="p-4">Kontak</th>
+                            <th class="p-4">Video Demo Mengajar</th>
+                            <th class="p-4 text-center">Aksi Verifikasi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-pending" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="5" class="p-6 text-center text-slate-400">Memuat permohonan...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- TABEL SEMUA TUTOR TERDAFTAR -->
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-users text-sky-600"></i> Daftar Seluruh Tutor Terdaftar
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-100 text-slate-700 font-bold uppercase text-xs">
+                        <tr>
+                            <th class="p-4">Nama Tutor</th>
+                            <th class="p-4">Status Online</th>
+                            <th class="p-4">Hak Mengajar Offline</th>
+                            <th class="p-4 text-center">Aksi Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-all-tutors" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="4" class="p-6 text-center text-slate-400">Memuat data tutor...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SUPABASE SDK & LOGIKA ADMIN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAdminDashboardData();
+        });
+
+        async function loadAdminDashboardData() {
+            const { data: tutors, error } = await _supabase.from('tutors').select('*');
+            if (error) {
+                console.error("Gagal memuat data admin:", error);
+                return;
+            }
+
+            const pending = tutors.filter(t => t.status === 'pending');
+            const approved = tutors.filter(t => t.status === 'approved');
+            const offlineVerified = tutors.filter(t => t.is_offline_verified === true);
+
+            document.getElementById('count-pending').innerText = pending.length;
+            document.getElementById('count-approved').innerText = approved.length;
+            document.getElementById('count-offline').innerText = offlineVerified.length;
+
+            renderPendingTable(pending);
+            renderAllTutorsTable(tutors);
+        }
+
+        function renderPendingTable(list) {
+            const tbody = document.getElementById('table-pending');
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Tidak ada permohonan tutor baru saat ini.</td></tr>`;
+                return;
+            }
+
+            list.forEach(t => {
+                const videoUrl = t.teaching_video_url || '#';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 font-bold text-slate-800">${t.name}<br><span class="text-xs text-slate-400 font-normal">${t.email || '-'}</span></td>
+                        <td class="p-4">${t.subject} (${t.level || 'Umum'})</td>
+                        <td class="p-4">${t.phone_number || '-'}</td>
+                        <td class="p-4">
+                            <a href="${videoUrl}" target="_blank" class="inline-flex items-center gap-1 text-sky-600 hover:underline font-semibold text-xs">
+                                <i class="fa-solid fa-circle-play text-red-500"></i> Tonton Demo Video
+                            </a>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="approveTutor('${t.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition mr-1">
+                                Disetujui
+                            </button>
+                            <button onclick="rejectTutor('${t.id}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                                Tolak
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderAllTutorsTable(list) {
+            const tbody = document.getElementById('table-all-tutors');
+            tbody.innerHTML = '';
+
+            list.forEach(t => {
+                const isOffline = t.is_offline_verified;
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-4 font-bold text-slate-800">${t.name}</td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-md text-xs font-bold ${t.status === 'approved' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'}">
+                                ${t.status || 'pending'}
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-md text-xs font-bold ${isOffline ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-500'}">
+                                ${isOffline ? 'Verifikasi Offline ✓' : 'Belum Verifikasi'}
+                            </span>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="toggleOfflineVerification('${t.id}', ${!isOffline})" class="border border-slate-300 hover:bg-slate-100 px-3 py-1 rounded-lg text-xs font-semibold transition">
+                                ${isOffline ? 'Cabut Verifikasi Offline' : 'Setujui Mode Offline'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function approveTutor(id) {
+            const { error } = await _supabase.from('tutors').update({ status: 'approved' }).eq('id', id);
+            if (!error) {
+                alert('Tutor berhasil disetujui!');
+                loadAdminDashboardData();
+            }
+        }
+
+        async function rejectTutor(id) {
+            const { error } = await _supabase.from('tutors').update({ status: 'rejected' }).eq('id', id);
+            if (!error) {
+                alert('Tutor ditolak.');
+                loadAdminDashboardData();
+            }
+        }
+
+        async function toggleOfflineVerification(id, targetState) {
+            const { error } = await _supabase.from('tutors').update({ is_offline_verified: targetState }).eq('id', id);
+            if (!error) {
+                alert('Status verifikasi offline berhasil diperbarui!');
+                loadAdminDashboardData();
+            }
+        }
+    </script>
+</body>
+</html>
