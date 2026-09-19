@@ -86,9 +86,9 @@
             </div>
 
             <div>
-                <label class="block font-semibold text-xs text-slate-700 mb-1">URL Foto Profil Formal (Link Gambar/Drive)</label>
-                <input type="url" id="reg-avatar" placeholder="https://example.com/foto-formal.jpg" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs outline-none focus:border-sky-500">
-                <span class="text-[10px] text-slate-400">Gunakan foto wajah formal berpakaian rapi. Jika dikosongkan, avatar otomatis akan dibuatkan.</span>
+                <label class="block font-semibold text-xs text-slate-700 mb-1">Unggah Foto Profil Formal</label>
+                <input type="file" id="reg-avatar-file" accept="image/*" required class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-slate-50 outline-none file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-600 file:text-white hover:file:bg-sky-700 cursor-pointer">
+                <span class="text-[10px] text-slate-400">Pilih foto wajah formal dalam format JPG, PNG, atau WEBP.</span>
             </div>
 
             <div>
@@ -96,7 +96,7 @@
                 <input type="url" id="reg-video" placeholder="https://youtube.com/watch?v=..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs outline-none focus:border-sky-500">
             </div>
 
-            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
+            <button type="submit" id="btn-submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
                 Daftar Sebagai Tutor
             </button>
         </form>
@@ -112,6 +112,10 @@
     <script>
         document.getElementById('form-register-tutor').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.innerText = 'Mengunggah & Mendaftar...';
+            btnSubmit.disabled = true;
+
             const name = document.getElementById('reg-name').value;
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
@@ -120,12 +124,10 @@
             const level = document.getElementById('reg-level').value;
             const location = document.getElementById('reg-location').value;
             const price = parseInt(document.getElementById('reg-price').value) || 0;
-            const avatarInput = document.getElementById('reg-avatar').value;
             const video = document.getElementById('reg-video').value;
+            const avatarFile = document.getElementById('reg-avatar-file').files[0];
 
-            const finalAvatar = avatarInput.trim() !== '' 
-                ? avatarInput.trim() 
-                : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
+            let finalAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
 
             const { data: authData, error: authError } = await _supabase.auth.signUp({
                 email: email,
@@ -134,10 +136,33 @@
 
             if (authError) {
                 alert('Gagal pendaftaran: ' + authError.message);
+                btnSubmit.innerText = 'Daftar Sebagai Tutor';
+                btnSubmit.disabled = false;
                 return;
             }
 
             if (authData.user) {
+                if (avatarFile) {
+                    const fileExt = avatarFile.name.split('.').pop();
+                    const fileName = `${authData.user.id}-${Date.now()}.${fileExt}`;
+
+                    const { data: uploadData, error: uploadError } = await _supabase
+                        .storage
+                        .from('avatars')
+                        .upload(fileName, avatarFile);
+
+                    if (!uploadError) {
+                        const { data: publicUrlData } = _supabase
+                            .storage
+                            .from('avatars')
+                            .getPublicUrl(fileName);
+                        
+                        finalAvatarUrl = publicUrlData.publicUrl;
+                    } else {
+                        console.error('Gagal upload gambar:', uploadError);
+                    }
+                }
+
                 const { error: profileError } = await _supabase.from('tutors').insert([{
                     user_id: authData.user.id,
                     name: name,
@@ -152,14 +177,16 @@
                     phone_number: phone,
                     teaching_video_url: video,
                     price: price,
-                    avatar: finalAvatar
+                    avatar: finalAvatarUrl
                 }]);
 
                 if (!profileError) {
-                    alert('Pendaftaran berhasil! Akun kamu sedang dalam status Menunggu Verifikasi Admin.');
+                    alert('Pendaftaran berhasil! Akun dan foto profil kamu telah diunggah dan sedang menunggu verifikasi Admin.');
                     window.location.href = 'login.html';
                 } else {
                     alert('Gagal menyimpan profil: ' + profileError.message);
+                    btnSubmit.innerText = 'Daftar Sebagai Tutor';
+                    btnSubmit.disabled = false;
                 }
             }
         });
