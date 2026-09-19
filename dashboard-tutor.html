@@ -11,7 +11,7 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -19,230 +19,342 @@
                 <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
                     <i class="fa-solid fa-chalkboard-user"></i>
                 </div>
-                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 font-normal text-sm">| Area Tutor</span></span>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Tutor</span></span>
             </div>
-            <div class="flex items-center gap-4">
-                <span id="tutor-email" class="text-xs font-semibold text-slate-600">Tutor</span>
-                <button onclick="handleLogout()" class="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-red-200">
-                    <i class="fa-solid fa-right-from-bracket"></i> Keluar
+
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <img id="tutor-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                    <span id="tutor-name" class="font-bold text-xs text-slate-800">Tutor</span>
+                </div>
+                <button onclick="logout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Keluar">
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
     </nav>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-            <div class="flex items-center gap-4">
-                <img id="tutor-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
+        <div id="status-alert" class="hidden p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3">
+            <i id="status-icon" class="fa-solid text-lg"></i>
+            <div>
+                <p id="status-title" class="font-bold"></p>
+                <p id="status-desc" class="text-slate-500 font-normal mt-0.5"></p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+            <div class="flex gap-4 items-center">
+                <img id="card-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
                 <div>
-                    <h1 id="tutor-name" class="text-xl font-bold text-slate-900">Nama Tutor</h1>
-                    <p id="tutor-subject" class="text-xs text-slate-500">Mata Pelajaran</p>
-                    <span id="tutor-status-badge" class="inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600">Status...</span>
+                    <h2 id="card-name" class="text-lg font-bold text-slate-900">-</h2>
+                    <p id="card-subject" class="text-xs text-sky-600 font-semibold">-</p>
+                    <p id="card-location" class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot"></i> -</p>
+                </div>
+            </div>
+
+            <div class="flex gap-4 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 w-full md:w-auto justify-between md:justify-start">
+                <div>
+                    <span class="text-[10px] text-slate-400 block font-semibold">Tarif Sesi</span>
+                    <span id="card-price" class="text-sm font-extrabold text-slate-900">Rp 0/jam</span>
+                </div>
+                <div>
+                    <span class="text-[10px] text-slate-400 block font-semibold">Status</span>
+                    <span id="card-status-badge" class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">Pending</span>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-xs font-semibold text-slate-400 block mb-1">Total Sesi Mengajar</span>
-                <span id="total-sessions" class="text-2xl font-extrabold text-slate-900">0</span>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check text-sky-600"></i> Sesi Les Siswa
+                </h3>
+                <div id="booking-list" class="space-y-3">
+                    <p class="text-center text-xs text-slate-400 py-6">Memuat sesi les...</p>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-xs font-semibold text-slate-400 block mb-1">Rating Rata-Rata</span>
-                <span id="average-rating" class="text-2xl font-extrabold text-amber-500"><i class="fa-solid fa-star"></i> Baru</span>
-            </div>
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-xs font-semibold text-slate-400 block mb-1">Verifikasi Offline</span>
-                <span id="offline-status" class="text-2xl font-extrabold text-sky-600">Online Only</span>
+
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-comments text-emerald-600"></i> Pesan Masuk Siswa
+                </h3>
+                <div id="chat-inbox-list" class="space-y-2">
+                    <p class="text-center text-xs text-slate-400 py-6">Memuat percakapan...</p>
+                </div>
             </div>
         </div>
+    </main>
 
-        <!-- PERSYARATAN OFFLINE -->
-        <div id="offline-qualification-card" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-house-user text-sky-600"></i> Syarat Verifikasi Mengajar Offline (Face-to-Face)
-                </h3>
-                <span id="badge-offline-eligibility" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600">Memeriksa...</span>
+    <div id="chat-modal" class="fixed bottom-4 right-4 w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 hidden flex flex-col overflow-hidden h-[450px]">
+        <div class="bg-sky-600 text-white p-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=User" class="w-8 h-8 rounded-full border border-white/30 object-cover">
+                <div>
+                    <h4 id="chat-target-name" class="font-bold text-xs">Obrolan Siswa</h4>
+                    <span class="text-[9px] text-sky-100 flex items-center gap-1"><i class="fa-solid fa-circle text-emerald-400 text-[6px]"></i> Online</span>
+                </div>
             </div>
-
-            <div class="text-xs text-slate-600 space-y-1">
-                <p>• <strong>Syarat 1:</strong> Memiliki minimal 10 ulasan dari siswa (Progres: <span id="prog-reviews" class="font-bold">0/10</span>).</p>
-                <p>• <strong>Syarat 2:</strong> Memiliki rating rata-rata minimal 4.0 (Progres: <span id="prog-rating" class="font-bold">0.0</span>/4.0).</p>
-                <p>• <strong>Syarat 3:</strong> Mengisi dan menyetujui Surat Perjanjian Standar Keamanan Mengajar Offline.</p>
-            </div>
-
-            <button id="btn-apply-offline" disabled onclick="openAgreementModal()" class="w-full bg-slate-200 text-slate-400 font-bold py-2.5 rounded-xl text-xs transition cursor-not-allowed">
-                Ajukan Verifikasi Offline ke Admin
+            <button onclick="closeChatModal()" class="text-white hover:text-sky-200 text-base px-1">
+                <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
-        <section class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-            <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                <i class="fa-solid fa-calendar-days text-sky-600"></i> Riwayat Sesi & Ulasan Siswa
-            </h3>
-            <div id="booking-list" class="space-y-3">
-                <p class="text-slate-400 text-sm text-center py-4">Belum ada siswa yang memesan sesi mengajar.</p>
-            </div>
-        </section>
-    </main>
-
-    <!-- MODAL SURAT PERJANJIAN OFFLINE -->
-    <div id="modal-agreement" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 space-y-4">
-            <h3 class="font-bold text-lg text-slate-900 border-b pb-2">Surat Perjanjian Mengajar Offline</h3>
-            
-            <div class="text-xs text-slate-600 space-y-2 max-h-60 overflow-y-auto bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <p><strong>Pasal 1: Etika & Keamanan</strong><br>Pengajar wajib menjaga norma kesopanan, keamanan, dan kedisiplinan selama melakukan sesi belajar tatap muka di rumah/lokasi siswa.</p>
-                <p><strong>Pasal 2: Identitas Diri</strong><br>Pengajar bersedia menunjukkan kartu identitas asli (KTP/SIM) sebelum memulai sesi mengajar pertama kali jika diminta oleh siswa/orang tua.</p>
-                <p><strong>Pasal 3: Tanggung Jawab Platform</strong><br>GO-LES berhak mencabut izin mengajar offline secara sepihak apabila menerima laporan pelanggaran kode etik dari siswa.</p>
-            </div>
-
-            <label class="flex items-start gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                <input type="checkbox" id="check-agree" class="mt-0.5">
-                Saya telah membaca, memahami, dan menyetujui seluruh syarat & ketentuan mengajar offline GO-LES.
-            </label>
-
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeAgreementModal()" class="px-4 py-2 border rounded-lg text-xs font-semibold">Batal</button>
-                <button onclick="submitOfflineApplication()" class="px-4 py-2 bg-sky-600 text-white rounded-lg text-xs font-bold hover:bg-sky-700">Kirim Perjanjian ke Admin</button>
-            </div>
+        <div id="chat-messages-box" class="flex-1 p-3 overflow-y-auto space-y-2.5 bg-slate-50 text-xs">
+            <p class="text-center text-slate-400 py-4 text-[11px]">Memuat percakapan...</p>
         </div>
+
+        <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex gap-2">
+            <input type="text" id="chat-input" required placeholder="Tulis balasan..." class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-sky-500">
+            <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
     </div>
+
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        &copy; 2026 GO-LES. Hak Cipta Dilindungi.
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
+        let currentUser = null;
+        let currentTutorProfile = null;
+        let currentChatTargetUserId = null;
+        let chatSubscription = null;
+
         document.addEventListener('DOMContentLoaded', async () => {
+            await checkTutorAuth();
+        });
+
+        async function checkTutorAuth() {
             const { data: { user } } = await _supabase.auth.getUser();
+
             if (!user) {
                 window.location.href = 'login.html';
                 return;
             }
 
-            document.getElementById('tutor-email').innerText = user.email;
+            currentUser = user;
 
-            const { data: profile } = await _supabase
+            const { data: profile, error } = await _supabase
                 .from('tutors')
                 .select('*')
                 .eq('user_id', user.id)
-                .maybeSingle();
+                .eq('role', 'tutor')
+                .single();
 
-            if (profile) {
-                document.getElementById('tutor-name').innerText = profile.name;
-                document.getElementById('tutor-subject').innerText = `${profile.subject} (${profile.level || 'Umum'})`;
-                document.getElementById('tutor-avatar').src = profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}`;
-                
-                const badge = document.getElementById('tutor-status-badge');
-                if (profile.status === 'approved') {
-                    badge.className = 'inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-600';
-                    badge.innerText = 'Akun Disetujui (Aktif)';
-                } else {
-                    badge.className = 'inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-600';
-                    badge.innerText = 'Menunggu Persetujuan Admin';
-                }
-
-                if (profile.is_offline_verified) {
-                    document.getElementById('offline-status').innerText = 'Online & Offline';
-                }
-
-                await loadTutorBookings(profile);
-            }
-        });
-
-        async function loadTutorBookings(profile) {
-            const container = document.getElementById('booking-list');
-            const { data: bookings } = await _supabase
-                .from('bookings')
-                .select('*')
-                .eq('tutor_id', profile.id);
-
-            const totalReviews = bookings ? bookings.filter(b => b.has_reviewed).length : 0;
-            let totalRating = 0;
-            let ratingCount = 0;
-
-            if (bookings && bookings.length > 0) {
-                document.getElementById('total-sessions').innerText = bookings.length;
-                container.innerHTML = '';
-
-                bookings.forEach(b => {
-                    if (b.rating) {
-                        totalRating += b.rating;
-                        ratingCount++;
-                    }
-
-                    const reviewText = b.review ? `"${b.review}"` : 'Belum memberikan ulasan';
-                    const ratingStars = b.rating ? `⭐ ${b.rating}.0` : 'Belum di-rating';
-
-                    container.innerHTML += `
-                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center">
-                            <div>
-                                <span class="text-xs font-bold text-sky-600 block mb-1">ID Pesanan: #${b.id.substring(0, 8)}</span>
-                                <p class="text-xs text-slate-600">Ulasan: <span class="font-semibold text-slate-800">${reviewText}</span></p>
-                            </div>
-                            <span class="text-xs font-bold bg-amber-50 text-amber-600 px-2.5 py-1 rounded-lg">${ratingStars}</span>
-                        </div>
-                    `;
-                });
-            }
-
-            const avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : '0.0';
-            if (ratingCount > 0) {
-                document.getElementById('average-rating').innerHTML = `<i class="fa-solid fa-star"></i> ${avgRating}`;
-            }
-
-            checkEligibility(totalReviews, parseFloat(avgRating), profile.is_offline_verified);
-        }
-
-        function checkEligibility(totalReviews, avgRating, isOfflineVerified) {
-            const badge = document.getElementById('badge-offline-eligibility');
-            const btn = document.getElementById('btn-apply-offline');
-
-            document.getElementById('prog-reviews').innerText = `${totalReviews}/10`;
-            document.getElementById('prog-rating').innerText = avgRating;
-
-            if (isOfflineVerified) {
-                badge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-600';
-                badge.innerText = 'Terverifikasi Offline';
-                btn.innerText = 'Mode Offline Telah Aktif';
-                btn.disabled = true;
-                btn.className = 'w-full bg-emerald-100 text-emerald-700 font-bold py-2.5 rounded-xl text-xs cursor-default';
-            } else if (totalReviews >= 10 && avgRating >= 4.0) {
-                badge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-sky-50 text-sky-600';
-                badge.innerText = 'Memenuhi Syarat';
-                btn.disabled = false;
-                btn.className = 'w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer';
-                btn.innerText = 'Isi Perjanjian & Ajukan ke Admin';
-            } else {
-                badge.className = 'text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-600';
-                badge.innerText = 'Belum Memenuhi Syarat';
-            }
-        }
-
-        function openAgreementModal() {
-            document.getElementById('modal-agreement').classList.remove('hidden');
-        }
-
-        function closeAgreementModal() {
-            document.getElementById('modal-agreement').classList.add('hidden');
-        }
-
-        async function submitOfflineApplication() {
-            const agree = document.getElementById('check-agree').checked;
-            if (!agree) {
-                alert('Kamu wajib mencentang persetujuan surat perjanjian!');
+            if (error || !profile) {
+                window.location.href = 'login.html';
                 return;
             }
 
-            alert('Surat perjanjian berhasil dikirim! Admin akan memeriksa pengajuan kamu.');
-            closeAgreementModal();
+            currentTutorProfile = profile;
+            renderTutorProfile(profile);
+            await loadTutorBookings(profile.id);
+            await loadChatInbox();
+            listenToGlobalMessages();
         }
 
-        async function handleLogout() {
+        function renderTutorProfile(p) {
+            document.getElementById('tutor-name').innerText = p.name;
+            document.getElementById('tutor-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
+            document.getElementById('card-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
+            document.getElementById('card-name').innerText = p.name;
+            document.getElementById('card-subject').innerText = `${p.subject} (${p.level || 'Umum'})`;
+            document.getElementById('card-location').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${p.location || 'Online'}`;
+            document.getElementById('card-price').innerText = `Rp ${(p.price || 0).toLocaleString('id-ID')}/jam`;
+
+            const alertBox = document.getElementById('status-alert');
+            const alertIcon = document.getElementById('status-icon');
+            const alertTitle = document.getElementById('status-title');
+            const alertDesc = document.getElementById('status-desc');
+            const statusBadge = document.getElementById('card-status-badge');
+
+            alertBox.classList.remove('hidden');
+
+            if (p.status === 'approved') {
+                alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-emerald-50 border-emerald-200 text-emerald-800';
+                alertIcon.className = 'fa-solid fa-circle-check text-emerald-600 text-lg';
+                alertTitle.innerText = 'Akun Tutor Terverifikasi';
+                alertDesc.innerText = 'Profil kamu sudah disetujui Admin dan sudah tampil di katalog utama.';
+                statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700';
+                statusBadge.innerText = 'Aktif / Approved';
+            } else if (p.status === 'rejected') {
+                alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-rose-50 border-rose-200 text-rose-800';
+                alertIcon.className = 'fa-solid fa-circle-xmark text-rose-600 text-lg';
+                alertTitle.innerText = 'Verifikasi Ditolak';
+                alertDesc.innerText = 'Mohon periksa kembali data profil atau hubungi Admin GO-LES.';
+                statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700';
+                statusBadge.innerText = 'Ditolak';
+            } else {
+                alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-amber-50 border-amber-200 text-amber-800';
+                alertIcon.className = 'fa-solid fa-clock text-amber-600 text-lg';
+                alertTitle.innerText = 'Menunggu Verifikasi Admin';
+                alertDesc.innerText = 'Tim Admin GO-LES sedang meninjau kelengkapan profil dan foto formal kamu.';
+                statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700';
+                statusBadge.innerText = 'Pending Review';
+            }
+        }
+
+        async function loadTutorBookings(tutorId) {
+            const list = document.getElementById('booking-list');
+
+            const { data: bookings, error } = await _supabase
+                .from('bookings')
+                .select('*')
+                .eq('tutor_id', tutorId)
+                .order('created_at', { ascending: false });
+
+            if (error || !bookings || bookings.length === 0) {
+                list.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Belum ada pemesanan sesi les dari siswa.</p>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            bookings.forEach(b => {
+                list.innerHTML += `
+                    <div class="border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row gap-3 justify-between items-start md:items-center hover:bg-slate-50 transition">
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-xs">${b.student_name || 'Siswa GO-LES'}</h4>
+                            <p class="text-[11px] text-slate-500 mt-0.5"><i class="fa-regular fa-clock"></i> ${b.booking_date || '-'} | ${b.booking_time || '-'}</p>
+                            <p class="text-[11px] text-sky-600 font-medium mt-0.5"><i class="fa-brands fa-whatsapp"></i> ${b.student_phone || '-'}</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${b.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                            ${b.status || 'Pending'}
+                        </span>
+                    </div>
+                `;
+            });
+        }
+
+        async function loadChatInbox() {
+            const inboxBox = document.getElementById('chat-inbox-list');
+
+            const { data: messages, error } = await _supabase
+                .from('messages')
+                .select('*')
+                .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+                .order('created_at', { ascending: false });
+
+            if (error || !messages || messages.length === 0) {
+                inboxBox.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Belum ada pesan dari siswa.</p>`;
+                return;
+            }
+
+            const uniqueSenderIds = [...new Set(messages.map(m => m.sender_id === currentUser.id ? m.receiver_id : m.sender_id))];
+
+            const { data: senders } = await _supabase
+                .from('tutors')
+                .select('*')
+                .in('user_id', uniqueSenderIds);
+
+            inboxBox.innerHTML = '';
+            uniqueSenderIds.forEach(uid => {
+                const senderProfile = (senders || []).find(s => s.user_id === uid) || { name: 'Siswa GO-LES', avatar: '' };
+                const lastMsg = messages.find(m => m.sender_id === uid || m.receiver_id === uid);
+
+                inboxBox.innerHTML += `
+                    <div onclick="openChatModal('${uid}', '${senderProfile.name.replace(/'/g, "\\'")}', '${senderProfile.avatar || ''}')" class="p-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition cursor-pointer flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="${senderProfile.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(senderProfile.name)}" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                            <div>
+                                <h4 class="font-bold text-xs text-slate-900">${senderProfile.name}</h4>
+                                <p class="text-[11px] text-slate-500 truncate max-w-[160px]">${lastMsg ? lastMsg.message : ''}</p>
+                            </div>
+                        </div>
+                        <span class="text-[9px] text-slate-400"><i class="fa-solid fa-chevron-right"></i></span>
+                    </div>
+                `;
+            });
+        }
+
+        async function openChatModal(targetUserId, targetName, targetAvatar) {
+            currentChatTargetUserId = targetUserId;
+            document.getElementById('chat-target-name').innerText = targetName;
+            document.getElementById('chat-target-avatar').src = targetAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetName)}`;
+            document.getElementById('chat-modal').classList.remove('hidden');
+
+            await loadChatHistory();
+        }
+
+        function closeChatModal() {
+            document.getElementById('chat-modal').classList.add('hidden');
+        }
+
+        async function loadChatHistory() {
+            const box = document.getElementById('chat-messages-box');
+            box.innerHTML = '';
+
+            const { data: messages, error } = await _supabase
+                .from('messages')
+                .select('*')
+                .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentChatTargetUserId}),and(sender_id.eq.${currentChatTargetUserId},receiver_id.eq.${currentUser.id})`)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                box.innerHTML = `<p class="text-center text-rose-500 py-2">Gagal memuat pesan.</p>`;
+                return;
+            }
+
+            if (!messages || messages.length === 0) {
+                box.innerHTML = `<p class="text-center text-slate-400 py-4 text-[11px]">Belum ada pesan.</p>`;
+                return;
+            }
+
+            messages.forEach(msg => {
+                const isMe = msg.sender_id === currentUser.id;
+                box.innerHTML += `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <div class="${isMe ? 'bg-sky-600 text-white' : 'bg-white border border-slate-200 text-slate-800'} px-3 py-2 rounded-2xl max-w-[80%] shadow-sm">
+                            ${msg.message}
+                        </div>
+                        <span class="text-[9px] text-slate-400 mt-0.5 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                `;
+            });
+
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const msgText = input.value.trim();
+            if (!msgText) return;
+
+            const { error } = await _supabase.from('messages').insert([{
+                sender_id: currentUser.id,
+                receiver_id: currentChatTargetUserId,
+                message: msgText
+            }]);
+
+            if (!error) {
+                input.value = '';
+                await loadChatHistory();
+                await loadChatInbox();
+            } else {
+                alert('Gagal mengirim pesan: ' + error.message);
+            }
+        }
+
+        function listenToGlobalMessages() {
+            _supabase
+                .channel('public:messages')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                    if (currentChatTargetUserId && (payload.new.sender_id === currentChatTargetUserId || payload.new.receiver_id === currentChatTargetUserId)) {
+                        loadChatHistory();
+                    }
+                    loadChatInbox();
+                })
+                .subscribe();
+        }
+
+        async function logout() {
             await _supabase.auth.signOut();
-            alert('Berhasil keluar!');
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }
     </script>
 </body>
