@@ -11,7 +11,7 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen relative">
 
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -86,30 +86,36 @@
         </div>
     </main>
 
-    <div id="chat-modal" class="fixed bottom-4 right-4 w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 hidden flex flex-col overflow-hidden h-[450px]">
-        <div class="bg-sky-600 text-white p-3.5 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=User" class="w-8 h-8 rounded-full border border-white/30 object-cover">
-                <div>
-                    <h4 id="chat-target-name" class="font-bold text-xs">Obrolan Siswa</h4>
-                    <span class="text-[9px] text-sky-100 flex items-center gap-1"><i class="fa-solid fa-circle text-emerald-400 text-[6px]"></i> Online</span>
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[480px] transition-all duration-300">
+            <div class="bg-sky-600 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=Siswa" class="w-10 h-10 rounded-2xl border border-white/30 object-cover">
+                    <div>
+                        <h4 id="chat-target-name" class="font-bold text-xs leading-tight">Obrolan Siswa</h4>
+                        <span class="text-[10px] text-sky-100 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-emerald-400 text-[6px]"></i> Aktif Dalam Aplikasi</span>
+                    </div>
                 </div>
+                <button onclick="closeChatModal()" class="text-white hover:text-sky-200 text-lg p-1 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-            <button onclick="closeChatModal()" class="text-white hover:text-sky-200 text-base px-1">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+
+            <div id="chat-messages-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/70 text-xs">
+                <p class="text-center text-slate-400 py-6 text-[11px]">Pilih siswa dari kotak masuk untuk memulai chat.</p>
+            </div>
+
+            <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-3 bg-white border-t border-slate-100 flex gap-2">
+                <input type="text" id="chat-input" required placeholder="Tulis balasan..." class="flex-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-sky-500 bg-slate-50">
+                <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
         </div>
 
-        <div id="chat-messages-box" class="flex-1 p-3 overflow-y-auto space-y-2.5 bg-slate-50 text-xs">
-            <p class="text-center text-slate-400 py-4 text-[11px]">Memuat percakapan...</p>
-        </div>
-
-        <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex gap-2">
-            <input type="text" id="chat-input" required placeholder="Tulis balasan..." class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-sky-500">
-            <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">
-                <i class="fa-solid fa-paper-plane"></i>
-            </button>
-        </form>
+        <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="bg-sky-600 hover:bg-sky-700 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all duration-300">
+            <i class="fa-solid fa-comments text-2xl"></i>
+        </button>
     </div>
 
     <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
@@ -123,7 +129,7 @@
         let currentUser = null;
         let currentTutorProfile = null;
         let currentChatTargetUserId = null;
-        let chatSubscription = null;
+        let recentChatUsers = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
             await checkTutorAuth();
@@ -251,6 +257,8 @@
                 .select('*')
                 .in('user_id', uniqueSenderIds);
 
+            recentChatUsers = senders || [];
+
             inboxBox.innerHTML = '';
             uniqueSenderIds.forEach(uid => {
                 const senderProfile = (senders || []).find(s => s.user_id === uid) || { name: 'Siswa GO-LES', avatar: '' };
@@ -271,6 +279,20 @@
             });
         }
 
+        function toggleFloatingChat() {
+            const chatModal = document.getElementById('chat-modal');
+            if (chatModal.classList.contains('hidden')) {
+                if (!currentChatTargetUserId && recentChatUsers.length > 0) {
+                    const firstStudent = recentChatUsers[0];
+                    openChatModal(firstStudent.user_id, firstStudent.name, firstStudent.avatar);
+                } else {
+                    chatModal.classList.remove('hidden');
+                }
+            } else {
+                closeChatModal();
+            }
+        }
+
         async function openChatModal(targetUserId, targetName, targetAvatar) {
             currentChatTargetUserId = targetUserId;
             document.getElementById('chat-target-name').innerText = targetName;
@@ -288,6 +310,11 @@
             const box = document.getElementById('chat-messages-box');
             box.innerHTML = '';
 
+            if (!currentChatTargetUserId) {
+                box.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Pilih siswa dari kotak masuk untuk memulai chat.</p>`;
+                return;
+            }
+
             const { data: messages, error } = await _supabase
                 .from('messages')
                 .select('*')
@@ -300,7 +327,7 @@
             }
 
             if (!messages || messages.length === 0) {
-                box.innerHTML = `<p class="text-center text-slate-400 py-4 text-[11px]">Belum ada pesan.</p>`;
+                box.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan.</p>`;
                 return;
             }
 
@@ -308,10 +335,10 @@
                 const isMe = msg.sender_id === currentUser.id;
                 box.innerHTML += `
                     <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                        <div class="${isMe ? 'bg-sky-600 text-white' : 'bg-white border border-slate-200 text-slate-800'} px-3 py-2 rounded-2xl max-w-[80%] shadow-sm">
+                        <div class="${isMe ? 'bg-sky-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'} px-3.5 py-2.5 rounded-2xl max-w-[85%] shadow-sm leading-relaxed">
                             ${msg.message}
                         </div>
-                        <span class="text-[9px] text-slate-400 mt-0.5 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <span class="text-[9px] text-slate-400 mt-1 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
                 `;
             });
@@ -323,7 +350,7 @@
             e.preventDefault();
             const input = document.getElementById('chat-input');
             const msgText = input.value.trim();
-            if (!msgText) return;
+            if (!msgText || !currentChatTargetUserId) return;
 
             const { error } = await _supabase.from('messages').insert([{
                 sender_id: currentUser.id,
