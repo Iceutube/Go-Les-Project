@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Tutor - GO-LES</title>
+    <title>Daftar sebagai Tutor - GO-LES</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,437 +11,153 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen relative">
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
-                    <i class="fa-solid fa-chalkboard-user"></i>
-                </div>
-                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Tutor</span></span>
+    <div class="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-slate-200/80 space-y-6">
+        
+        <div class="text-center space-y-2">
+            <a href="index.html" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-sky-600 transition mb-2">
+                <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
+            </a>
+            <div class="bg-sky-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center font-bold mx-auto text-xl shadow-lg shadow-sky-600/20">
+                <i class="fa-solid fa-chalkboard-user"></i>
             </div>
-
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2">
-                    <img id="tutor-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-8 h-8 rounded-full object-cover border border-slate-200">
-                    <span id="tutor-name" class="font-bold text-xs text-slate-800">Tutor</span>
-                </div>
-                <button onclick="logout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Keluar">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Daftar Pengajar GO-LES</h2>
+            <p class="text-xs text-slate-500">Bergabunglah sebagai tutor les privat dan bagikan ilmu terbaikmu</p>
         </div>
-    </nav>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-        <div id="status-alert" class="hidden p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3">
-            <i id="status-icon" class="fa-solid text-lg"></i>
+        <form id="form-register-tutor" class="space-y-4">
             <div>
-                <p id="status-title" class="font-bold"></p>
-                <p id="status-desc" class="text-slate-500 font-normal mt-0.5"></p>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
+                <input type="text" id="reg-name" required placeholder="Contoh: Budi Santoso, S.Pd." class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
             </div>
-        </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-            <div class="flex gap-4 items-center">
-                <img id="card-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
+                <input type="email" id="reg-email" required placeholder="nama@email.com" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                <input type="password" id="reg-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <h2 id="card-name" class="text-lg font-bold text-slate-900">-</h2>
-                    <p id="card-subject" class="text-xs text-sky-600 font-semibold">-</p>
-                    <p id="card-location" class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot"></i> -</p>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran</label>
+                    <select id="reg-subject" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                        <option value="Matematika">Matematika</option>
+                        <option value="B. Indonesia">B. Indonesia</option>
+                        <option value="B. Inggris">B. Inggris</option>
+                        <option value="Fisika">Fisika</option>
+                        <option value="Kimia">Kimia</option>
+                        <option value="Biologi">Biologi</option>
+                        <option value="Sosiologi">Sosiologi</option>
+                        <option value="Sejarah">Sejarah</option>
+                        <option value="Pancasila">Pancasila</option>
+                        <option value="Geografi">Geografi</option>
+                        <option value="Informatika">Informatika</option>
+                    </select>
                 </div>
-            </div>
-
-            <div class="flex gap-4 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 w-full md:w-auto justify-between md:justify-start">
                 <div>
-                    <span class="text-[10px] text-slate-400 block font-semibold">Tarif Sesi</span>
-                    <span id="card-price" class="text-sm font-extrabold text-slate-900">Rp 0/jam</span>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Kelas</label>
+                    <select id="reg-level" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                        <option value="SD">SD</option>
+                        <option value="SMP">SMP</option>
+                        <option value="SMA">SMA</option>
+                        <option value="Umum">Umum</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kota / Domisili</label>
+                    <input type="text" id="reg-location" required placeholder="Contoh: Surabaya" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                 </div>
                 <div>
-                    <span class="text-[10px] text-slate-400 block font-semibold">Status Profil</span>
-                    <span id="card-status-badge" class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">Pending</span>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tarif / Jam (Rp)</label>
+                    <input type="number" id="reg-price" required min="10000" placeholder="50000" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                 </div>
             </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
+                <input type="tel" id="reg-phone" required placeholder="08123456789" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+            </div>
+
+            <button type="submit" id="btn-submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                Daftar Sebagai Tutor
+            </button>
+        </form>
+
+        <div class="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+            Sudah memiliki akun? <a href="login.html" class="text-sky-600 font-bold hover:underline">Masuk disini</a>
         </div>
-
-        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-            <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                <i class="fa-solid fa-calendar-check text-sky-600"></i> Sesi Les Siswa
-            </h3>
-            <div id="booking-list" class="space-y-3">
-                <p class="text-center text-xs text-slate-400 py-6">Memuat sesi les...</p>
-            </div>
-        </div>
-    </main>
-
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all duration-300">
-            
-            <div id="chat-header-list" class="bg-emerald-600 text-white p-4 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <i class="fa-brands fa-whatsapp text-2xl"></i>
-                    <div>
-                        <h4 class="font-bold text-sm leading-tight">Kotak Masuk Chat</h4>
-                        <p class="text-[10px] text-emerald-100">Daftar siswa yang mengirim pesan</p>
-                    </div>
-                </div>
-                <button onclick="closeChatModal()" class="text-white hover:text-emerald-200 text-lg p-1 transition">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div id="chat-header-room" class="hidden bg-emerald-600 text-white p-3.5 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <button onclick="showChatList()" class="text-white hover:text-emerald-200 text-sm mr-1">
-                        <i class="fa-solid fa-arrow-left"></i>
-                    </button>
-                    <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=Siswa" class="w-9 h-9 rounded-full border border-white/30 object-cover">
-                    <div>
-                        <h4 id="chat-target-name" class="font-bold text-xs leading-tight">Nama Siswa</h4>
-                        <span class="text-[9px] text-emerald-100 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-emerald-300 text-[6px]"></i> Online</span>
-                    </div>
-                </div>
-                <button onclick="closeChatModal()" class="text-white hover:text-emerald-200 text-lg p-1 transition">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div id="chat-view-list" class="flex-1 p-3 overflow-y-auto space-y-2 bg-slate-50 text-xs">
-                <div id="chat-contacts-container" class="space-y-1.5">
-                    <p class="text-center text-slate-400 py-6 text-[11px]">Memuat pesan masuk...</p>
-                </div>
-            </div>
-
-            <div id="chat-view-room" class="hidden flex-1 flex flex-col h-full overflow-hidden">
-                <div id="chat-messages-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-100/70 text-xs">
-                    <p class="text-center text-slate-400 py-6 text-[11px]">Belum ada percakapan.</p>
-                </div>
-
-                <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-3 bg-white border-t border-slate-100 flex gap-2">
-                    <input type="text" id="chat-input" required placeholder="Tulis balasan..." class="flex-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 bg-slate-50">
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </form>
-            </div>
-
-        </div>
-
-        <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all duration-300">
-            <i class="fa-brands fa-whatsapp text-3xl"></i>
-        </button>
     </div>
-
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        &copy; 2026 GO-LES. Hak Cipta Dilindungi.
-    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
-        let currentUser = null;
-        let currentTutorProfile = null;
-        let currentChatTargetUserId = null;
-        let chatSubscription = null;
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            await checkTutorAuth();
-            listenToRealtimeChat();
-        });
-
-        async function checkTutorAuth() {
-            const { data: { user } } = await _supabase.auth.getUser();
-
-            if (!user) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            currentUser = user;
-
-            const { data: profile, error } = await _supabase
-                .from('tutors')
-                .select('*')
-                .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-                .single();
-
-            if (error || !profile) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            if (!profile.user_id) {
-                await _supabase
-                    .from('tutors')
-                    .update({ user_id: user.id })
-                    .eq('id', profile.id);
-            }
-
-            currentTutorProfile = profile;
-            renderTutorProfile(profile);
-
-            if (profile.status === 'approved') {
-                await loadTutorBookings(profile.id);
-                await loadChatContacts();
-            } else {
-                restrictUnapprovedFeatures();
-            }
-        }
-
-        function renderTutorProfile(p) {
-            document.getElementById('tutor-name').innerText = p.name;
-            document.getElementById('tutor-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
-            document.getElementById('card-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
-            document.getElementById('card-name').innerText = p.name;
-            document.getElementById('card-subject').innerText = `${p.subject} (${p.level || 'Umum'})`;
-            document.getElementById('card-location').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${p.location || 'Online'}`;
-            document.getElementById('card-price').innerText = `Rp ${(p.price || 0).toLocaleString('id-ID')}/jam`;
-
-            const alertBox = document.getElementById('status-alert');
-            const alertIcon = document.getElementById('status-icon');
-            const alertTitle = document.getElementById('status-title');
-            const alertDesc = document.getElementById('status-desc');
-            const statusBadge = document.getElementById('card-status-badge');
-
-            alertBox.classList.remove('hidden');
-
-            if (p.status === 'approved') {
-                alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-emerald-50 border-emerald-200 text-emerald-800';
-                alertIcon.className = 'fa-solid fa-circle-check text-emerald-600 text-lg';
-                alertTitle.innerText = 'Akun Tutor Terverifikasi';
-                alertDesc.innerText = 'Profil kamu telah disetujui Admin. Katalog les privat dan fitur percakapan sudah aktif fully!';
-                statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700';
-                statusBadge.innerText = 'Approved / Aktif';
-            } else if (p.status === 'rejected') {
-                alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-rose-50 border-rose-200 text-rose-800';
-                alertIcon.className = 'fa-solid fa-circle-xmark text-rose-600 text-lg';
-                alertTitle.innerText = 'Pendaftaran Ditolak';
-                alertDesc.innerText = 'Mohon maaf, berkas pendaftaran kamu belum memenuhi kriteria. Silakan hubungi Admin GO-LES.';
-                statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700';
-                statusBadge.innerText = 'Ditolak';
-            } else {
-                alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-amber-50 border-amber-200 text-amber-800';
-                alertIcon.className = 'fa-solid fa-clock text-amber-600 text-lg';
-                alertTitle.innerText = 'Pendaftaran Dalam Peninjauan';
-                alertDesc.innerText = 'Akun kamu berhasil masuk tetapi fitur aplikasi masih dikunci hingga Admin menyetujui (approve) pendaftaranmu.';
-                statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700';
-                statusBadge.innerText = 'Pending Review';
-            }
-        }
-
-        function restrictUnapprovedFeatures() {
-            document.getElementById('booking-list').innerHTML = `
-                <div class="text-center py-8 space-y-2">
-                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto font-bold text-lg">
-                        <i class="fa-solid fa-lock"></i>
-                    </div>
-                    <p class="font-bold text-xs text-slate-700">Fitur Sesi Belajar Masih Dikunci</p>
-                    <p class="text-[11px] text-slate-400 max-w-sm mx-auto">Tunggu hingga Admin menyetujui profil kamu agar siswa dapat memesan sesi les privat.</p>
-                </div>
-            `;
-
-            document.getElementById('chat-contacts-container').innerHTML = `
-                <div class="text-center py-8 space-y-2">
-                    <p class="font-bold text-xs text-slate-700">Fitur Chat Dikunci</p>
-                    <p class="text-[11px] text-slate-400">Kamu belum bisa berkirim pesan sampai akun di-approve oleh Admin.</p>
-                </div>
-            `;
-        }
-
-        async function loadTutorBookings(tutorId) {
-            const list = document.getElementById('booking-list');
-
-            const { data: bookings, error } = await _supabase
-                .from('bookings')
-                .select('*')
-                .eq('tutor_id', tutorId)
-                .order('created_at', { ascending: false });
-
-            if (error || !bookings || bookings.length === 0) {
-                list.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Belum ada pemesanan sesi les dari siswa.</p>`;
-                return;
-            }
-
-            list.innerHTML = '';
-            bookings.forEach(b => {
-                list.innerHTML += `
-                    <div class="border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row gap-3 justify-between items-start md:items-center hover:bg-slate-50 transition">
-                        <div>
-                            <h4 class="font-bold text-slate-900 text-xs">${b.student_name || 'Siswa GO-LES'}</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5"><i class="fa-regular fa-clock"></i> ${b.booking_date || '-'} | ${b.booking_time || '-'}</p>
-                            <p class="text-[11px] text-sky-600 font-medium mt-0.5"><i class="fa-brands fa-whatsapp"></i> ${b.student_phone || '-'}</p>
-                        </div>
-                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${b.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                            ${b.status || 'Pending'}
-                        </span>
-                    </div>
-                `;
-            });
-        }
-
-        async function loadChatContacts() {
-            const container = document.getElementById('chat-contacts-container');
-
-            const { data: messages, error } = await _supabase
-                .from('messages')
-                .select('*')
-                .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-                .order('created_at', { ascending: false });
-
-            if (error || !messages || messages.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan dari siswa.</p>`;
-                return;
-            }
-
-            const uniqueSenderIds = [...new Set(messages.map(m => m.sender_id === currentUser.id ? m.receiver_id : m.sender_id))];
-
-            const { data: senders } = await _supabase
-                .from('tutors')
-                .select('*')
-                .in('user_id', uniqueSenderIds);
-
-            container.innerHTML = '';
-            uniqueSenderIds.forEach(uid => {
-                const senderProfile = (senders || []).find(s => s.user_id === uid) || { name: 'Siswa GO-LES', avatar: '' };
-                const lastMsg = messages.find(m => m.sender_id === uid || m.receiver_id === uid);
-
-                container.innerHTML += `
-                    <div onclick="openChatWithStudent('${uid}', '${senderProfile.name.replace(/'/g, "\\'")}', '${senderProfile.avatar || ''}')" class="p-3 bg-white border border-slate-200 rounded-2xl hover:bg-emerald-50/50 transition cursor-pointer flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <img src="${senderProfile.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(senderProfile.name)}" class="w-10 h-10 rounded-full object-cover border border-slate-200">
-                            <div>
-                                <h5 class="font-bold text-xs text-slate-900">${senderProfile.name}</h5>
-                                <p class="text-[11px] text-slate-500 truncate max-w-[170px]">${lastMsg ? lastMsg.message : ''}</p>
-                            </div>
-                        </div>
-                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs pr-1"></i>
-                    </div>
-                `;
-            });
-        }
-
-        function toggleFloatingChat() {
-            if (currentTutorProfile && currentTutorProfile.status !== 'approved') {
-                alert('Fitur Chat hanya dapat digunakan setelah akun kamu disetujui (Approved) oleh Admin.');
-                return;
-            }
-
-            const chatModal = document.getElementById('chat-modal');
-            if (chatModal.classList.contains('hidden')) {
-                chatModal.classList.remove('hidden');
-                showChatList();
-            } else {
-                closeChatModal();
-            }
-        }
-
-        function closeChatModal() {
-            document.getElementById('chat-modal').classList.add('hidden');
-        }
-
-        function showChatList() {
-            document.getElementById('chat-header-list').classList.remove('hidden');
-            document.getElementById('chat-header-room').classList.add('hidden');
-            document.getElementById('chat-view-list').classList.remove('hidden');
-            document.getElementById('chat-view-room').classList.add('hidden');
-            currentChatTargetUserId = null;
-        }
-
-        async function openChatWithStudent(targetUserId, targetName, targetAvatar) {
-            if (currentTutorProfile && currentTutorProfile.status !== 'approved') {
-                alert('Akun kamu masih dalam peninjauan Admin.');
-                return;
-            }
-
-            document.getElementById('chat-modal').classList.remove('hidden');
-            document.getElementById('chat-header-list').classList.add('hidden');
-            document.getElementById('chat-header-room').classList.remove('hidden');
-            document.getElementById('chat-view-list').classList.add('hidden');
-            document.getElementById('chat-view-room').classList.remove('hidden');
-
-            currentChatTargetUserId = targetUserId;
-            document.getElementById('chat-target-name').innerText = targetName;
-            document.getElementById('chat-target-avatar').src = targetAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetName)}`;
-
-            await loadChatHistory();
-        }
-
-        async function loadChatHistory() {
-            const box = document.getElementById('chat-messages-box');
-            box.innerHTML = '';
-
-            const { data: messages, error } = await _supabase
-                .from('messages')
-                .select('*')
-                .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentChatTargetUserId}),and(sender_id.eq.${currentChatTargetUserId},receiver_id.eq.${currentUser.id})`)
-                .order('created_at', { ascending: true });
-
-            if (error) {
-                box.innerHTML = `<p class="text-center text-rose-500 py-2">Gagal memuat pesan.</p>`;
-                return;
-            }
-
-            if (!messages || messages.length === 0) {
-                box.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada percakapan.</p>`;
-                return;
-            }
-
-            messages.forEach(msg => {
-                const isMe = msg.sender_id === currentUser.id;
-                box.innerHTML += `
-                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                        <div class="${isMe ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'} px-3.5 py-2 rounded-2xl max-w-[85%] shadow-sm leading-relaxed">
-                            ${msg.message}
-                        </div>
-                        <span class="text-[9px] text-slate-400 mt-0.5 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                    </div>
-                `;
-            });
-
-            box.scrollTop = box.scrollHeight;
-        }
-
-        async function sendChatMessage(e) {
+        document.getElementById('form-register-tutor').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const input = document.getElementById('chat-input');
-            const msgText = input.value.trim();
-            if (!msgText || !currentChatTargetUserId) return;
 
-            const { error } = await _supabase.from('messages').insert([{
-                sender_id: currentUser.id,
-                receiver_id: currentChatTargetUserId,
-                message: msgText
-            }]);
+            const btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.innerText = 'Memproses Pendaftaran...';
+            btnSubmit.disabled = true;
 
-            if (!error) {
-                input.value = '';
-                await loadChatHistory();
-                await loadChatContacts();
-            } else {
-                alert('Gagal mengirim pesan: ' + error.message);
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const subject = document.getElementById('reg-subject').value;
+            const level = document.getElementById('reg-level').value;
+            const location = document.getElementById('reg-location').value.trim();
+            const price = parseInt(document.getElementById('reg-price').value) || 0;
+            const phone = document.getElementById('reg-phone').value.trim();
+
+            const { data: authData, error: authError } = await _supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (authError) {
+                alert('Gagal mendaftarkan akun autentikasi: ' + authError.message);
+                btnSubmit.innerText = 'Daftar Sebagai Tutor';
+                btnSubmit.disabled = false;
+                return;
             }
-        }
 
-        function listenToRealtimeChat() {
-            chatSubscription = _supabase
-                .channel('public:messages')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                    if (currentTutorProfile && currentTutorProfile.status === 'approved') {
-                        if (currentChatTargetUserId) {
-                            loadChatHistory();
-                        }
-                        loadChatContacts();
-                    }
-                })
-                .subscribe();
-        }
+            if (authData.user) {
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
 
-        async function logout() {
-            await _supabase.auth.signOut();
-            window.location.href = 'login.html';
-        }
+                const { error: profileError } = await _supabase
+                    .from('tutors')
+                    .insert([{
+                        user_id: authData.user.id,
+                        name: name,
+                        email: email,
+                        role: 'tutor',
+                        status: 'pending',
+                        subject: subject,
+                        level: level,
+                        location: location,
+                        price: price,
+                        phone_number: phone,
+                        avatar: avatarUrl,
+                        is_offline_verified: false
+                    }]);
+
+                if (profileError) {
+                    alert('Gagal menyimpan profil tutor: ' + profileError.message);
+                    btnSubmit.innerText = 'Daftar Sebagai Tutor';
+                    btnSubmit.disabled = false;
+                } else {
+                    alert('Pendaftaran tutor berhasil! Silakan masuk ke akun kamu.');
+                    window.location.href = 'login.html';
+                }
+            }
+        });
     </script>
 </body>
 </html>
