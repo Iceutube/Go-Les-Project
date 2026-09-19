@@ -13,7 +13,7 @@
 </head>
 <body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-slate-200/80 space-y-6">
+    <div class="max-w-xl w-full bg-white rounded-3xl p-8 shadow-xl border border-slate-200/80 space-y-6 my-6">
         
         <div class="text-center space-y-2">
             <a href="index.html" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-sky-600 transition mb-2">
@@ -23,7 +23,7 @@
                 <i class="fa-solid fa-chalkboard-user"></i>
             </div>
             <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Daftar Pengajar GO-LES</h2>
-            <p class="text-xs text-slate-500">Bergabunglah sebagai tutor les privat dan bagikan ilmu terbaikmu</p>
+            <p class="text-xs text-slate-500">Atur jadwal mengajar dan tingkatan kelas sesuai preferensimu</p>
         </div>
 
         <form id="form-register-tutor" class="space-y-4">
@@ -32,17 +32,18 @@
                 <input type="text" id="reg-name" required placeholder="Contoh: Budi Santoso, S.Pd." class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
-                <input type="email" id="reg-email" required placeholder="nama@email.com" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
+                    <input type="email" id="reg-email" required placeholder="nama@email.com" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                    <input type="password" id="reg-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
-                <input type="password" id="reg-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran</label>
                     <select id="reg-subject" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
@@ -60,8 +61,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Kelas</label>
-                    <select id="reg-level" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Sekolah</label>
+                    <select id="reg-level" onchange="renderGradeOptions()" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
                         <option value="SD">SD</option>
                         <option value="SMP">SMP</option>
                         <option value="SMA">SMA</option>
@@ -70,20 +71,43 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div id="grades-container" class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
+                <label class="block text-xs font-bold text-slate-700">Pilih Kelas yang Bisa Diajar:</label>
+                <div id="grades-checkboxes" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs font-medium text-slate-700">
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
+                <label class="block text-xs font-bold text-slate-700">Ketersediaan Jam Mengajar:</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-medium text-slate-700">
+                    <label class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                        <input type="checkbox" name="teaching_hours" value="Pagi (08:00 - 12:00)" class="accent-sky-600"> Pagi
+                    </label>
+                    <label class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                        <input type="checkbox" name="teaching_hours" value="Siang (12:00 - 15:00)" class="accent-sky-600"> Siang
+                    </label>
+                    <label class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                        <input type="checkbox" name="teaching_hours" value="Sore (15:00 - 18:00)" class="accent-sky-600"> Sore
+                    </label>
+                    <label class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                        <input type="checkbox" name="teaching_hours" value="Malam (18:30 - 21:00)" class="accent-sky-600"> Malam
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Kota / Domisili</label>
-                    <input type="text" id="reg-location" required placeholder="Contoh: Surabaya" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    <input type="text" id="reg-location" required placeholder="Surabaya" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Tarif / Jam (Rp)</label>
                     <input type="number" id="reg-price" required min="10000" placeholder="50000" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                 </div>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
-                <input type="tel" id="reg-phone" required placeholder="08123456789" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
+                    <input type="tel" id="reg-phone" required placeholder="08123456789" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                </div>
             </div>
 
             <button type="submit" id="btn-submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
@@ -100,6 +124,35 @@
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGradeOptions();
+        });
+
+        function renderGradeOptions() {
+            const level = document.getElementById('reg-level').value;
+            const container = document.getElementById('grades-checkboxes');
+            container.innerHTML = '';
+
+            let grades = [];
+            if (level === 'SD') {
+                grades = ['Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6'];
+            } else if (level === 'SMP') {
+                grades = ['Kelas 7', 'Kelas 8', 'Kelas 9'];
+            } else if (level === 'SMA') {
+                grades = ['Kelas 10', 'Kelas 11', 'Kelas 12'];
+            } else {
+                grades = ['Semua Tingkat'];
+            }
+
+            grades.forEach(g => {
+                container.innerHTML += `
+                    <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                        <input type="checkbox" name="specific_grades" value="${g}" checked class="accent-sky-600"> ${g}
+                    </label>
+                `;
+            });
+        }
+
         document.getElementById('form-register-tutor').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -115,6 +168,9 @@
             const location = document.getElementById('reg-location').value.trim();
             const price = parseInt(document.getElementById('reg-price').value) || 0;
             const phone = document.getElementById('reg-phone').value.trim();
+
+            const selectedGrades = Array.from(document.querySelectorAll('input[name="specific_grades"]:checked')).map(cb => cb.value);
+            const selectedHours = Array.from(document.querySelectorAll('input[name="teaching_hours"]:checked')).map(cb => cb.value);
 
             const { data: authData, error: authError } = await _supabase.auth.signUp({
                 email: email,
@@ -140,7 +196,8 @@
                         role: 'tutor',
                         status: 'pending',
                         subject: subject,
-                        level: level,
+                        level: `${level} (${selectedGrades.join(', ')})`,
+                        available_hours: selectedHours.join(', '),
                         location: location,
                         price: price,
                         phone_number: phone,
