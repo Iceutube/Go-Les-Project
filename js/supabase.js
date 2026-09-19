@@ -1,36 +1,33 @@
-async function getTutors() {
-  const { data, error } = await _supabase
-    .from('tutors')
-    .select('*')
-    .eq('status', 'approved');
+// js/supabase.js
 
-  if (error) {
-    console.error('Gagal mengambil data tutor:', error.message);
-    return [];
-  }
-  return data;
+async function fetchTutorsFromSQL() {
+    const grid = document.getElementById('tutorGrid');
+    if (grid) {
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Memuat data dari Database SQL...</p>`;
+    }
+
+    const { data, error } = await _supabase.from('tutors').select('*');
+
+    if (error) {
+        console.error("Error SQL:", error);
+        if (grid) {
+            grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-8">Gagal mengambil data dari database.</p>`;
+        }
+        return [];
+    }
+
+    return data || [];
 }
 
-async function registerTutor(tutorData) {
-  const { data, error } = await _supabase
-    .from('tutors')
-    .insert([
-      {
-        name: tutorData.name,
-        subject: tutorData.subject,
-        level: tutorData.level,
-        price: tutorData.price,
-        phone_number: tutorData.phone_number,
-        location: tutorData.location,
-        teaching_video_url: tutorData.teaching_video_url,
-        available_hours: tutorData.available_hours,
-        status: 'pending'
-      }
-    ]);
+async function registerTutorToSQL(tutorData) {
+    const { data, error } = await _supabase
+        .from('tutors')
+        .insert([tutorData]);
 
-  if (error) {
-    console.error('Gagal mendaftar tutor:', error.message);
-    return { success: false, error };
-  }
-  return { success: true, data };
+    if (error) {
+        console.error("Error pendaftaran tutor:", error);
+        return { success: false, error };
+    }
+
+    return { success: true, data };
 }
