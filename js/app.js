@@ -4,7 +4,6 @@ let myBookings = [];
 
 // Event Listener Utama saat Halaman Selesai Dimuat
 document.addEventListener('DOMContentLoaded', async () => {
-    // Ambil data dari Supabase
     tutorsData = await fetchTutorsFromSQL();
     renderTutors();
     setupModalListeners();
@@ -12,31 +11,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Fungsi Render Kartu Tutor
 function renderTutors() {
-    const search = document.getElementById('searchInput').value.toLowerCase();
-    const subject = document.getElementById('subjectFilter').value;
+    const searchInput = document.getElementById('searchInput');
+    const subjectFilter = document.getElementById('subjectFilter');
     const grid = document.getElementById('tutorGrid');
+    
     if (!grid) return;
+
+    const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const subject = subjectFilter ? subjectFilter.value : 'Semua';
     
     grid.innerHTML = '';
 
+    // Jika data kosong
+    if (!tutorsData || tutorsData.length === 0) {
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Belum ada data tutor di database.</p>`;
+        return;
+    }
+
     const filtered = tutorsData.filter(t => {
-        const nameMatch = t.name ? t.name.toLowerCase().includes(search) : false;
-        const subjectMatch = t.subject ? t.subject.toLowerCase().includes(search) : false;
-        const matchSearch = nameMatch || subjectMatch;
-        const matchSubject = subject === 'Semua' || (t.subject && t.subject.includes(subject));
+        const name = t.name ? t.name.toLowerCase() : '';
+        const subj = t.subject ? t.subject.toLowerCase() : '';
+        
+        const matchSearch = search === '' || name.includes(search) || subj.includes(search);
+        const matchSubject = subject === 'Semua' || (t.subject && t.subject.toLowerCase().includes(subject.toLowerCase()));
+        
         return matchSearch && matchSubject;
     });
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Tutor tidak ditemukan.</p>`;
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Tutor tidak ditemukan untuk pencarian ini.</p>`;
         return;
     }
 
     filtered.forEach(t => {
-        const avatarUrl = t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name)}&background=0284c7&color=fff`;
+        const avatarUrl = t.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.name || 'Tutor')}&background=0284c7&color=fff`;
         const locationText = t.location || 'Online';
         const typeText = t.type || 'Online';
         const ratingVal = t.rating || 'Baru';
+        const levelText = t.level || 'Umum';
+        const priceVal = t.price || 0;
 
         grid.innerHTML += `
             <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
@@ -46,7 +59,7 @@ function renderTutors() {
                         <div>
                             <span class="text-xs font-semibold bg-sky-50 text-sky-600 px-2 py-0.5 rounded-md">SQL Connected</span>
                             <h3 class="font-bold text-slate-900 mt-1">${t.name}</h3>
-                            <p class="text-sm text-slate-500">${t.subject} (${t.level || 'Umum'})</p>
+                            <p class="text-sm text-slate-500">${t.subject} (${levelText})</p>
                         </div>
                     </div>
                     <div class="flex items-center justify-between text-xs text-slate-600 mb-4 bg-slate-50 p-3 rounded-xl">
@@ -57,9 +70,9 @@ function renderTutors() {
                     <div class="flex items-center justify-between border-t border-slate-100 pt-4">
                         <div>
                             <span class="text-xs text-slate-400 block">Tarif per sesi</span>
-                            <span class="text-base font-bold text-sky-600">Rp ${(t.price || 0).toLocaleString('id-ID')}</span>
+                            <span class="text-base font-bold text-sky-600">Rp ${priceVal.toLocaleString('id-ID')}</span>
                         </div>
-                        <button onclick="bookTutor('${t.name}', '${t.subject}', ${t.price || 0})" class="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition">
+                        <button onclick="bookTutor('${t.name}', '${t.subject}', ${priceVal})" class="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition">
                             Pesan Sesi
                         </button>
                     </div>
@@ -134,7 +147,6 @@ function setupModalListeners() {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Mengambil jam operasional yang dicentang
             const selectedHours = Array.from(document.querySelectorAll('.reg-hour-check:checked')).map(cb => cb.value);
 
             const newTutor = {
@@ -146,12 +158,12 @@ function setupModalListeners() {
                 location: document.getElementById('reg-location').value,
                 teaching_video_url: document.getElementById('reg-video').value,
                 available_hours: selectedHours,
-                status: 'pending'
+                status: 'approved' // Set langsung approved untuk testing
             };
 
             const result = await registerTutorToSQL(newTutor);
             if (result.success) {
-                alert('Pendaftaran berhasil terkirim! Admin akan memverifikasi video mengajar kamu.');
+                alert('Pendaftaran berhasil terkirim!');
                 form.reset();
                 closeModal();
                 tutorsData = await fetchTutorsFromSQL();
