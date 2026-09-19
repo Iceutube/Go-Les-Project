@@ -154,13 +154,16 @@
 
             if (authData.user) {
                 if (avatarFile) {
-                    const fileExt = avatarFile.name.split('.').pop();
-                    const fileName = `${authData.user.id}-${Date.now()}.${fileExt}`;
+                    const cleanFileName = avatarFile.name.replace(/[^a-zA-Z0-9.]/g, "_");
+                    const fileName = `${authData.user.id}-${Date.now()}-${cleanFileName}`;
 
                     const { data: uploadData, error: uploadError } = await _supabase
                         .storage
                         .from('avatars')
-                        .upload(fileName, avatarFile);
+                        .upload(fileName, avatarFile, {
+                            cacheControl: '3600',
+                            upsert: true
+                        });
 
                     if (!uploadError) {
                         const { data: publicUrlData } = _supabase
@@ -170,7 +173,7 @@
                         
                         finalAvatarUrl = publicUrlData.publicUrl;
                     } else {
-                        console.error('Gagal upload gambar:', uploadError);
+                        console.error('Gagal upload gambar:', uploadError.message);
                     }
                 }
 
