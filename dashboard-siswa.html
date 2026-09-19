@@ -79,34 +79,63 @@
     </main>
 
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[480px] transition-all duration-300">
-            <div class="bg-sky-600 text-white p-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-10 h-10 rounded-2xl border border-white/30 object-cover">
+        <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all duration-300">
+            
+            <div id="chat-header-list" class="bg-emerald-600 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i>
                     <div>
-                        <h4 id="chat-target-name" class="font-bold text-xs leading-tight">Obrolan Tutor</h4>
-                        <span class="text-[10px] text-sky-100 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-emerald-400 text-[6px]"></i> Aktif Dalam Aplikasi</span>
+                        <h4 class="font-bold text-sm leading-tight">Pesan GO-LES</h4>
+                        <p class="text-[10px] text-emerald-100">Pilih tutor untuk memulai chat</p>
                     </div>
                 </div>
-                <button onclick="closeChatModal()" class="text-white hover:text-sky-200 text-lg p-1 transition">
+                <button onclick="closeChatModal()" class="text-white hover:text-emerald-200 text-lg p-1 transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div id="chat-messages-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/70 text-xs">
-                <p class="text-center text-slate-400 py-6 text-[11px]">Memuat percakapan...</p>
+            <div id="chat-header-room" class="hidden bg-emerald-600 text-white p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <button onclick="showChatList()" class="text-white hover:text-emerald-200 text-sm mr-1">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=User" class="w-9 h-9 rounded-full border border-white/30 object-cover">
+                    <div>
+                        <h4 id="chat-target-name" class="font-bold text-xs leading-tight">Nama Tutor</h4>
+                        <span class="text-[9px] text-emerald-100 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-emerald-300 text-[6px]"></i> Aktif</span>
+                    </div>
+                </div>
+                <button onclick="closeChatModal()" class="text-white hover:text-emerald-200 text-lg p-1 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
-            <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-3 bg-white border-t border-slate-100 flex gap-2">
-                <input type="text" id="chat-input" required placeholder="Tulis pesan..." class="flex-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-sky-500 bg-slate-50">
-                <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </form>
+            <div id="chat-view-list" class="flex-1 p-3 overflow-y-auto space-y-2 bg-slate-50 text-xs">
+                <div class="px-2 py-1">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Tutor Tersedia</span>
+                    <div id="chat-contacts-container" class="space-y-1.5">
+                        <p class="text-center text-slate-400 py-6 text-[11px]">Memuat daftar tutor...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chat-view-room" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+                <div id="chat-messages-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-100/70 text-xs">
+                    <p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan.</p>
+                </div>
+
+                <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-3 bg-white border-t border-slate-100 flex gap-2">
+                    <input type="text" id="chat-input" required placeholder="Ketik pesan ala WhatsApp..." class="flex-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 bg-slate-50">
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+
         </div>
 
-        <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="bg-sky-600 hover:bg-sky-700 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all duration-300">
-            <i class="fa-solid fa-comments text-2xl"></i>
+        <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all duration-300">
+            <i class="fa-brands fa-whatsapp text-3xl"></i>
         </button>
     </div>
 
@@ -126,6 +155,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await checkStudentAuth();
             await loadStudentTutorData();
+            listenToRealtimeChat();
         });
 
         async function checkStudentAuth() {
@@ -167,6 +197,7 @@
 
             rawApprovedTutors = tutors || [];
             filterStudentTutors();
+            renderChatContacts();
         }
 
         function filterStudentTutors() {
@@ -217,8 +248,8 @@
                         <div class="flex justify-between items-center border-t border-slate-100 pt-3 gap-2">
                             <span class="font-bold text-sky-600 text-xs sm:text-sm">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
                             <div class="flex gap-1.5">
-                                <button onclick="openChatModal('${t.user_id}', '${t.name.replace(/'/g, "\\'")}', '${t.avatar || ''}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                                    <i class="fa-solid fa-comments"></i> Chat
+                                <button onclick="openChatWithTutor('${t.user_id}', '${t.name.replace(/'/g, "\\'")}', '${t.avatar || ''}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> Chat
                                 </button>
                                 <button onclick="bookTutor(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
                                     Pesan
@@ -230,38 +261,70 @@
             });
         }
 
+        function renderChatContacts() {
+            const container = document.getElementById('chat-contacts-container');
+            container.innerHTML = '';
+
+            if (rawApprovedTutors.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada tutor aktif.</p>`;
+                return;
+            }
+
+            rawApprovedTutors.forEach(t => {
+                container.innerHTML += `
+                    <div onclick="openChatWithTutor('${t.user_id}', '${t.name.replace(/'/g, "\\'")}', '${t.avatar || ''}')" class="p-2.5 bg-white border border-slate-200/80 rounded-2xl hover:bg-emerald-50/50 hover:border-emerald-200 transition cursor-pointer flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-10 h-10 rounded-full object-cover border border-slate-200">
+                            <div>
+                                <h5 class="font-bold text-xs text-slate-900">${t.name}</h5>
+                                <p class="text-[10px] text-emerald-600 font-semibold">${t.subject} (${t.level || 'Umum'})</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs pr-1"></i>
+                    </div>
+                `;
+            });
+        }
+
         function toggleFloatingChat() {
             const chatModal = document.getElementById('chat-modal');
             if (chatModal.classList.contains('hidden')) {
-                if (!currentChatTargetUserId && rawApprovedTutors.length > 0) {
-                    const firstTutor = rawApprovedTutors[0];
-                    openChatModal(firstTutor.user_id, firstTutor.name, firstTutor.avatar);
-                } else {
-                    chatModal.classList.remove('hidden');
-                }
+                chatModal.classList.remove('hidden');
+                showChatList();
             } else {
                 closeChatModal();
             }
         }
 
-        async function openChatModal(targetUserId, targetName, targetAvatar) {
+        function closeChatModal() {
+            document.getElementById('chat-modal').classList.add('hidden');
+        }
+
+        function showChatList() {
+            document.getElementById('chat-header-list').classList.remove('hidden');
+            document.getElementById('chat-header-room').classList.add('hidden');
+            document.getElementById('chat-view-list').classList.remove('hidden');
+            document.getElementById('chat-view-room').classList.add('hidden');
+            currentChatTargetUserId = null;
+        }
+
+        async function openChatWithTutor(targetUserId, targetName, targetAvatar) {
             if (!targetUserId || targetUserId === 'null' || targetUserId === 'undefined') {
-                alert('Tutor ini belum memiliki user_id aktif.');
+                alert('Tutor belum mengaktifkan akun user_id untuk chat.');
                 return;
             }
+
+            document.getElementById('chat-modal').classList.remove('hidden');
+            document.getElementById('chat-header-list').classList.add('hidden');
+            document.getElementById('chat-header-room').classList.remove('hidden');
+            document.getElementById('chat-view-list').classList.add('hidden');
+            document.getElementById('chat-view-room').classList.remove('hidden');
 
             currentChatTargetUserId = targetUserId;
             document.getElementById('chat-target-name').innerText = targetName;
             document.getElementById('chat-target-avatar').src = targetAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetName)}`;
-            document.getElementById('chat-modal').classList.remove('hidden');
 
             await loadChatHistory();
-            listenToRealtimeChat();
-        }
-
-        function closeChatModal() {
-            document.getElementById('chat-modal').classList.add('hidden');
-            if (chatSubscription) _supabase.removeChannel(chatSubscription);
         }
 
         async function loadChatHistory() {
@@ -280,7 +343,7 @@
             }
 
             if (!messages || messages.length === 0) {
-                box.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan. Silakan tanya-tanya seputar les privat!</p>`;
+                box.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada obrolan. Tulis pesan pertamamu!</p>`;
                 return;
             }
 
@@ -288,10 +351,10 @@
                 const isMe = msg.sender_id === currentStudent.id;
                 box.innerHTML += `
                     <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                        <div class="${isMe ? 'bg-sky-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'} px-3.5 py-2.5 rounded-2xl max-w-[85%] shadow-sm leading-relaxed">
+                        <div class="${isMe ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'} px-3.5 py-2 rounded-2xl max-w-[85%] shadow-sm leading-relaxed">
                             ${msg.message}
                         </div>
-                        <span class="text-[9px] text-slate-400 mt-1 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <span class="text-[9px] text-slate-400 mt-0.5 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
                 `;
             });
@@ -323,13 +386,15 @@
             chatSubscription = _supabase
                 .channel('public:messages')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                    loadChatHistory();
+                    if (currentChatTargetUserId) {
+                        loadChatHistory();
+                    }
                 })
                 .subscribe();
         }
 
         async function bookTutor(tutorId) {
-            alert('Fitur pemesanan sesi sedang disiapkan. Kamu bisa menghubungi tutor terlebih dahulu via fitur Chat!');
+            alert('Fitur pemesanan sesi sedang disiapkan. Kamu bisa menghubungi tutor via Chat terlebih dahulu!');
         }
 
         async function logout() {
