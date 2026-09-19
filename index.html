@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GO-LES - Platform Les Privat On-Demand</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS Custom Lokal -->
     <link rel="stylesheet" href="css/style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -17,7 +14,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen">
 
-    <!-- NAVBAR -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('search')">
@@ -30,7 +26,7 @@
                 <button onclick="switchTab('schedule')" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
                     <i class="fa-regular fa-calendar"></i> Jadwal Saya
                 </button>
-                <button id="btn-jadi-tutor" class="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
+                <button id="btn-jadi-tutor" onclick="openTutorModal()" class="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
                     <i class="fa-solid fa-user-plus"></i> Jadi Tutor
                 </button>
                 <a href="login.html" class="flex items-center gap-2 border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 transition">
@@ -40,7 +36,6 @@
         </div>
     </nav>
 
-    <!-- HEADER / HERO -->
     <header class="bg-sky-600 text-white py-12 px-4">
         <div class="max-w-3xl mx-auto text-center">
             <h1 class="text-3xl sm:text-4xl font-extrabold mb-3">Cari Tutor Les Privat Terbaik untuk Masa Depanmu</h1>
@@ -62,19 +57,15 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
-        <!-- TAB CARI TUTOR -->
         <section id="tabSearch">
             <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
                 <i class="fa-solid fa-user-graduate text-sky-600"></i> Rekomendasi Tutor
             </h2>
             <div id="tutorGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Data tutor di-render dinamis dari js/app.js -->
             </div>
         </section>
 
-        <!-- TAB JADWAL SAYA -->
         <section id="tabSchedule" class="hidden">
             <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
                 <i class="fa-regular fa-calendar-check text-sky-600"></i> Jadwal Les Saya
@@ -87,18 +78,14 @@
         </section>
     </main>
 
-    <!-- MODAL FORM REGISTRASI TUTOR BARU -->
     <div id="modal-tutor" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4 overflow-y-auto">
         <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden my-8">
             <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
                 <h3 class="font-bold text-lg">Pendaftaran Tutor Baru</h3>
-                <button id="btn-close-modal" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+                <button type="button" onclick="closeTutorModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
 
-            <!-- FORM HARUS MEMBUNGKUS SELURUH INPUT -->
             <form id="form-register-tutor" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-sm">
-                
-                <!-- INPUT AKUN LOGIN -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold mb-1">Email (Untuk Login)</label>
@@ -110,13 +97,11 @@
                     </div>
                 </div>
 
-                <!-- NAMA LENGKAP -->
                 <div>
                     <label class="block font-semibold mb-1">Nama Lengkap</label>
                     <input type="text" id="reg-name" required placeholder="Contoh: Dr. Budi Santoso" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
                 </div>
 
-                <!-- MAPEL & TINGKAT -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold mb-1">Mata Pelajaran</label>
@@ -128,7 +113,6 @@
                     </div>
                 </div>
 
-                <!-- HARGA & PHONE -->
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold mb-1">Tarif per Jam (Rp)</label>
@@ -140,20 +124,17 @@
                     </div>
                 </div>
 
-                <!-- LOKASI -->
                 <div>
                     <label class="block font-semibold mb-1">Lokasi Domisili (Kecamatan/Kota)</label>
                     <input type="text" id="reg-location" required placeholder="Contoh: Kebayoran Baru, Jakarta Selatan" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
                 </div>
 
-                <!-- LINK VIDEO DEMO -->
                 <div>
                     <label class="block font-semibold mb-1">Link Video Demo Mengajar (10-15 Menit)</label>
                     <input type="url" id="reg-video" required placeholder="https://youtube.com/watch?v=..." class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
                     <p class="text-xs text-slate-500 mt-1">Upload video simulasi caramu mengajar ke YouTube/Drive lalu masukkan link di sini.</p>
                 </div>
 
-                <!-- JAM OPERASIONAL -->
                 <div>
                     <label class="block font-semibold mb-1">Pilih Jam Operasional Mengajar</label>
                     <div class="grid grid-cols-3 gap-2 mt-2" id="reg-hours-container">
@@ -171,22 +152,18 @@
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" id="btn-cancel-modal" class="px-4 py-2 border border-slate-300 rounded-lg font-medium hover:bg-slate-100">Batal</button>
+                    <button type="button" onclick="closeTutorModal()" class="px-4 py-2 border border-slate-300 rounded-lg font-medium hover:bg-slate-100">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium">Kirim Pendaftaran</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- FOOTER -->
     <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm border-t border-slate-800">
         <p>&copy; 2026 GO-LES Platform. Prototype All Rights Reserved.</p>
     </footer>
 
-    <!-- SUPABASE SDK CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- LOAD FILE JS TERPISAH (URUTAN SANGAT PENTING) -->
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/app.js"></script>
