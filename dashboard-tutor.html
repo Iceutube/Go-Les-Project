@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - GO-LES</title>
+    <title>Dashboard Tutor - GO-LES</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -17,12 +17,12 @@
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
-                    <i class="fa-solid fa-user-shield"></i>
+                    <i class="fa-solid fa-chalkboard-user"></i>
                 </div>
-                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 font-normal text-sm">| Portal Admin</span></span>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 font-normal text-sm">| Area Tutor</span></span>
             </div>
             <div class="flex items-center gap-4">
-                <span id="admin-email" class="text-xs font-semibold text-slate-600">admin@goles.com</span>
+                <span id="tutor-email" class="text-xs font-semibold text-slate-600">Tutor</span>
                 <button onclick="handleLogout()" class="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-red-200">
                     <i class="fa-solid fa-right-from-bracket"></i> Keluar
                 </button>
@@ -31,37 +31,40 @@
     </nav>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold text-slate-900">Persetujuan & Verifikasi Tutor</h1>
-                <p class="text-xs text-slate-500 mt-1">Kelola permohonan pendaftaran tutor baru dan verifikasi status kelas offline.</p>
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+            <div class="flex items-center gap-4">
+                <img id="tutor-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
+                <div>
+                    <h1 id="tutor-name" class="text-xl font-bold text-slate-900">Nama Tutor</h1>
+                    <p id="tutor-subject" class="text-xs text-slate-500">Mata Pelajaran</p>
+                    <span id="tutor-status-badge" class="inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600">Status...</span>
+                </div>
             </div>
-            <button onclick="loadAdminData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg text-xs font-semibold transition">
-                <i class="fa-solid fa-rotate"></i> Refresh Data
-            </button>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-bold border-b border-slate-200">
-                            <th class="p-4">Tutor</th>
-                            <th class="p-4">Mata Pelajaran</th>
-                            <th class="p-4">Lokasi</th>
-                            <th class="p-4">Video Demo</th>
-                            <th class="p-4">Status Akun</th>
-                            <th class="p-4 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-tutor-list" class="text-sm divide-y divide-slate-100">
-                        <tr>
-                            <td colspan="6" class="p-8 text-center text-slate-400">Memuat data tutor...</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-slate-400 block mb-1">Total Sesi Mengajar</span>
+                <span id="total-sessions" class="text-2xl font-extrabold text-slate-900">0</span>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-slate-400 block mb-1">Rating Rata-Rata</span>
+                <span id="average-rating" class="text-2xl font-extrabold text-amber-500"><i class="fa-solid fa-star"></i> Baru</span>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-slate-400 block mb-1">Verifikasi Offline</span>
+                <span id="offline-status" class="text-2xl font-extrabold text-sky-600">Online Only</span>
             </div>
         </div>
+
+        <section class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                <i class="fa-solid fa-calendar-days text-sky-600"></i> Jadwal Pemesanan & Ulasan Siswa
+            </h3>
+            <div id="booking-list" class="space-y-3">
+                <p class="text-slate-400 text-sm text-center py-4">Belum ada siswa yang memesan sesi mengajar.</p>
+            </div>
+        </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -75,81 +78,77 @@
                 return;
             }
 
+            document.getElementById('tutor-email').innerText = user.email;
+
             const { data: profile } = await _supabase
                 .from('tutors')
-                .select('role')
+                .select('*')
                 .eq('user_id', user.id)
                 .maybeSingle();
 
-            if (!profile || profile.role !== 'admin') {
-                alert('Akses ditolak! Halaman ini khusus Admin.');
-                window.location.href = 'index.html';
-                return;
-            }
+            if (profile) {
+                document.getElementById('tutor-name').innerText = profile.name;
+                document.getElementById('tutor-subject').innerText = `${profile.subject} (${profile.level || 'Umum'})`;
+                document.getElementById('tutor-avatar').src = profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}`;
+                
+                const badge = document.getElementById('tutor-status-badge');
+                if (profile.status === 'approved') {
+                    badge.className = 'inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-600';
+                    badge.innerText = 'Akun Disetujui (Aktif)';
+                } else {
+                    badge.className = 'inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-600';
+                    badge.innerText = 'Menunggu Persetujuan Admin';
+                }
 
-            document.getElementById('admin-email').innerText = user.email;
-            await loadAdminData();
+                if (profile.is_offline_verified) {
+                    document.getElementById('offline-status').innerText = 'Online & Offline';
+                }
+
+                await loadTutorBookings(profile.id);
+            }
         });
 
-        async function loadAdminData() {
-            const tbody = document.getElementById('admin-tutor-list');
-            const { data: tutors, error } = await _supabase
-                .from('tutors')
+        async function loadTutorBookings(tutorId) {
+            const container = document.getElementById('booking-list');
+            const { data: bookings } = await _supabase
+                .from('bookings')
                 .select('*')
-                .neq('role', 'admin')
-                .order('id', { ascending: false });
+                .eq('tutor_id', tutorId);
 
-            if (error || !tutors || tutors.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Belum ada pendaftaran tutor.</td></tr>`;
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 text-sm text-center py-4">Belum ada siswa yang memesan sesi mengajar.</p>`;
                 return;
             }
 
-            tbody.innerHTML = '';
-            tutors.forEach(t => {
-                const statusBadge = t.status === 'approved' 
-                    ? `<span class="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-md text-xs font-bold">Disetujui</span>` 
-                    : `<span class="bg-amber-50 text-amber-600 px-2.5 py-1 rounded-md text-xs font-bold">Menunggu</span>`;
+            document.getElementById('total-sessions').innerText = bookings.length;
+            
+            let totalRating = 0;
+            let ratingCount = 0;
 
-                const videoBtn = t.teaching_video_url 
-                    ? `<a href="${t.teaching_video_url}" target="_blank" class="text-sky-600 hover:underline text-xs"><i class="fa-solid fa-circle-play"></i> Tonton Video</a>` 
-                    : `<span class="text-slate-400 text-xs">-</span>`;
+            container.innerHTML = '';
+            bookings.forEach(b => {
+                if (b.rating) {
+                    totalRating += b.rating;
+                    ratingCount++;
+                }
 
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-4 flex items-center gap-3">
-                            <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-10 h-10 rounded-xl object-cover">
-                            <div>
-                                <p class="font-bold text-slate-900">${t.name}</p>
-                                <p class="text-xs text-slate-500">${t.email || '-'}</p>
-                            </div>
-                        </td>
-                        <td class="p-4 text-slate-700 font-medium">${t.subject} (${t.level})</td>
-                        <td class="p-4 text-slate-600">${t.location || 'Online'}</td>
-                        <td class="p-4">${videoBtn}</td>
-                        <td class="p-4">${statusBadge}</td>
-                        <td class="p-4 text-center">
-                            ${t.status === 'pending' ? `
-                                <button onclick="updateStatus(${t.id}, 'approved')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition mr-1">
-                                    Setujui
-                                </button>
-                            ` : `
-                                <button onclick="updateStatus(${t.id}, 'pending')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
-                                    Batalkan
-                                </button>
-                            `}
-                        </td>
-                    </tr>
+                const reviewText = b.review ? `"${b.review}"` : 'Belum memberikan ulasan';
+                const ratingStars = b.rating ? `⭐ ${b.rating}.0` : 'Belum di-rating';
+
+                container.innerHTML += `
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-sky-600 block mb-1">ID Pesanan: #${b.id.substring(0, 8)}</span>
+                            <p class="text-xs text-slate-600">Status Review: <span class="font-semibold text-slate-800">${reviewText}</span></p>
+                        </div>
+                        <span class="text-xs font-bold bg-amber-50 text-amber-600 px-2.5 py-1 rounded-lg">${ratingStars}</span>
+                    </div>
                 `;
             });
-        }
 
-        async function updateStatus(id, newStatus) {
-            const { error } = await _supabase.from('tutors').update({ status: newStatus }).eq('id', id);
-            if (!error) {
-                alert(`Status tutor berhasil diperbarui menjadi: ${newStatus}`);
-                await loadAdminData();
-            } else {
-                alert(`Gagal memperbarui status: ${error.message}`);
+            if (ratingCount > 0) {
+                const avg = (totalRating / ratingCount).toFixed(1);
+                document.getElementById('average-rating').innerHTML = `<i class="fa-solid fa-star"></i> ${avg}`;
             }
         }
 
