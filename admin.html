@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - GO-LES</title>
+    <title>Portal Admin - GO-LES</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,62 +13,106 @@
 </head>
 <body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
 
+    <!-- Top Navigation Bar -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
-                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 font-normal text-sm">| Portal Admin</span></span>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Admin Portal</span></span>
             </div>
-            <div class="flex items-center gap-4">
-                <span id="admin-email" class="text-xs font-semibold text-slate-600">admin@goles.com</span>
-                <button onclick="handleLogout()" class="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-red-200">
-                    <i class="fa-solid fa-right-from-bracket"></i> Keluar
+            <div class="flex items-center gap-3">
+                <span id="admin-email-display" class="text-xs font-semibold text-slate-600">admin@goles.com</span>
+                <button onclick="logout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Keluar">
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
     </nav>
 
+    <!-- Main Content Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-            <div>
-                <h1 class="text-xl font-bold text-slate-900">Persetujuan & Verifikasi Tutor</h1>
-                <p class="text-xs text-slate-500 mt-1">Klik nama tutor untuk melihat detail pendaftaran dan memverifikasi akun.</p>
+        
+        <!-- Summary Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="bg-amber-100 text-amber-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Menunggu Verifikasi</span>
+                    <span id="stat-pending" class="text-2xl font-extrabold text-slate-900">0</span>
+                </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                <div class="flex items-center border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 focus-within:border-sky-500 text-xs">
-                    <i class="fa-solid fa-magnifying-glass text-slate-400 mr-2"></i>
-                    <input type="text" id="admin-search" onkeyup="filterAdminTutors()" placeholder="Cari nama tutor..." class="bg-transparent outline-none w-full sm:w-48">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-circle-check"></i>
                 </div>
-                <select id="admin-status-filter" onchange="filterAdminTutors()" class="border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 text-xs font-semibold outline-none">
-                    <option value="all">Semua Status</option>
-                    <option value="pending">Menunggu (Pending)</option>
-                    <option value="approved">Disetujui (Approved)</option>
-                </select>
-                <button onclick="loadAdminData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-semibold transition shrink-0">
-                    <i class="fa-solid fa-rotate"></i>
-                </button>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Tutor Aktif</span>
+                    <span id="stat-approved" class="text-2xl font-extrabold text-slate-900">0</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="bg-sky-100 text-sky-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-house-user"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Tutor Offline Verification</span>
+                    <span id="stat-offline" class="text-2xl font-extrabold text-slate-900">0</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="bg-indigo-100 text-indigo-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Total Terdaftar</span>
+                    <span id="stat-total" class="text-2xl font-extrabold text-slate-900">0</span>
+                </div>
             </div>
         </div>
 
+        <!-- Management Table Card -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Daftar Pendaftaran Tutor</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Kelola dan verifikasi berkas tutor pengajar GO-LES</p>
+                </div>
+
+                <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                    <select id="admin-filter-status" onchange="filterAdminTable()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 font-medium outline-none">
+                        <option value="all">Semua Status</option>
+                        <option value="pending" selected>Menunggu (Pending)</option>
+                        <option value="approved">Disetujui (Approved)</option>
+                        <option value="rejected">Ditolak (Rejected)</option>
+                    </select>
+
+                    <input type="text" id="admin-search" onkeyup="filterAdminTable()" placeholder="Cari nama / email / mapel..." class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 outline-none w-full sm:w-60">
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-bold border-b border-slate-200">
-                            <th class="p-4">Tutor (Klik Nama)</th>
-                            <th class="p-4">Mata Pelajaran</th>
-                            <th class="p-4">Rating</th>
-                            <th class="p-4">Mode Mengajar</th>
-                            <th class="p-4">Status Akun</th>
-                            <th class="p-4 text-center">Aksi Verifikasi</th>
+                <table class="w-full text-left text-xs text-slate-700">
+                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
+                        <tr>
+                            <th class="py-3.5 px-4">Tutor</th>
+                            <th class="py-3.5 px-4">Mata Pelajaran</th>
+                            <th class="py-3.5 px-4">Kontak / Domisili</th>
+                            <th class="py-3.5 px-4">Tarif</th>
+                            <th class="py-3.5 px-4 text-center">Verifikasi Offline</th>
+                            <th class="py-3.5 px-4 text-center">Status</th>
+                            <th class="py-3.5 px-4 text-right">Aksi Admin</th>
                         </tr>
                     </thead>
-                    <tbody id="admin-tutor-list" class="text-sm divide-y divide-slate-100">
+                    <tbody id="admin-tutor-table-body" class="divide-y divide-slate-100">
                         <tr>
-                            <td colspan="6" class="p-8 text-center text-slate-400">Memuat data tutor...</td>
+                            <td colspan="7" class="text-center py-8 text-slate-400">Memuat data pendaftaran tutor...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -76,70 +120,88 @@
         </div>
     </main>
 
-    <!-- MODAL DETAIL TUTOR -->
-    <div id="modal-tutor-detail" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden space-y-4">
-            <div class="bg-sky-600 text-white p-5 flex justify-between items-center">
-                <h3 class="font-bold text-base flex items-center gap-2">
-                    <i class="fa-solid fa-id-card"></i> Detail Pendaftaran Tutor
-                </h3>
-                <button type="button" onclick="closeDetailModal()" class="text-white hover:text-slate-200 text-xl font-bold">&times;</button>
-            </div>
+    <!-- Modal Detail & Verifikasi Tutor -->
+    <div id="modal-detail" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
 
-            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
-                    <img id="modal-avatar" src="" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
-                    <div>
-                        <h4 id="modal-name" class="font-bold text-lg text-slate-900">-</h4>
-                        <p id="modal-email" class="text-xs text-slate-500">-</p>
-                        <span id="modal-status-badge" class="inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600">-</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 text-xs">
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block font-semibold">Mata Pelajaran</span>
-                        <span id="modal-subject" class="font-bold text-slate-800 text-sm">-</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block font-semibold">Tingkat Pendidikan</span>
-                        <span id="modal-level" class="font-bold text-slate-800 text-sm">-</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block font-semibold">Lokasi Domisili</span>
-                        <span id="modal-location" class="font-bold text-slate-800 text-sm">-</span>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <span class="text-slate-400 block font-semibold">Nomor WhatsApp</span>
-                        <span id="modal-phone" class="font-bold text-slate-800 text-sm">-</span>
-                    </div>
-                </div>
-
-                <div class="space-y-2 pt-2">
-                    <h5 class="font-bold text-xs text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-video text-sky-600"></i> Video Demo Mengajar
-                    </h5>
-                    <div id="modal-video-container" class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
-                        <p class="text-xs text-slate-400">Tidak ada video demo.</p>
-                    </div>
+            <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+                <img id="modal-avatar" src="" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
+                <div>
+                    <h3 id="modal-name" class="font-extrabold text-slate-900 text-base"></h3>
+                    <p id="modal-email" class="text-xs text-slate-500"></p>
+                    <span id="modal-status-badge" class="inline-block px-2 py-0.5 rounded text-[10px] font-bold mt-1"></span>
                 </div>
             </div>
 
-            <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-between items-center">
-                <button type="button" onclick="closeDetailModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold bg-white hover:bg-slate-100">Tutup</button>
-                <div id="modal-action-buttons"></div>
+            <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                    <span class="text-slate-400 block font-semibold">Mata Pelajaran:</span>
+                    <span id="modal-subject" class="font-bold text-slate-800"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Tingkat:</span>
+                    <span id="modal-level" class="font-bold text-slate-800"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Domisili:</span>
+                    <span id="modal-location" class="font-bold text-slate-800"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Tarif / Jam:</span>
+                    <span id="modal-price" class="font-bold text-sky-600"></span>
+                </div>
+                <div class="col-span-2">
+                    <span class="text-slate-400 block font-semibold">Nomor WhatsApp:</span>
+                    <span id="modal-phone" class="font-bold text-slate-800"></span>
+                </div>
+                <div id="modal-video-container" class="col-span-2 hidden">
+                    <span class="text-slate-400 block font-semibold mb-1">Demo Mengajar:</span>
+                    <a id="modal-video-link" href="#" target="_blank" class="text-sky-600 font-bold hover:underline inline-flex items-center gap-1">
+                        <i class="fa-brands fa-youtube text-red-500"></i> Buka Link Video Demo
+                    </a>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 flex flex-col gap-2">
+                <div class="flex gap-2">
+                    <button id="btn-approve-online" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                        <i class="fa-solid fa-check"></i> Setujui (Online Only)
+                    </button>
+                    <button id="btn-approve-offline" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                        <i class="fa-solid fa-house-user"></i> Setujui (Online + Offline)
+                    </button>
+                </div>
+                <button id="btn-reject" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold py-2.5 rounded-xl text-xs transition">
+                    <i class="fa-solid fa-xmark"></i> Tolak Pendaftaran
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        &copy; 2026 GO-LES Admin Portal. Hak Cipta Dilindungi.
+    </footer>
+
+    <!-- Supabase JS & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
-        let rawTutorList = [];
+        let allTutorData = [];
+        let selectedTutorId = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
+            await checkAdminAuth();
+            await loadAdminTutorData();
+        });
+
+        async function checkAdminAuth() {
             const { data: { user } } = await _supabase.auth.getUser();
+
             if (!user) {
                 window.location.href = 'login.html';
                 return;
@@ -147,82 +209,107 @@
 
             const { data: profile } = await _supabase
                 .from('tutors')
-                .select('role')
-                .eq('user_id', user.id)
-                .maybeSingle();
+                .select('*')
+                .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+                .single();
 
             if (!profile || profile.role !== 'admin') {
-                alert('Akses ditolak! Halaman ini khusus Admin.');
-                window.location.href = 'index.html';
+                alert('Akses Ditolak! Halaman ini hanya untuk Administrator.');
+                window.location.href = 'login.html';
                 return;
             }
 
-            document.getElementById('admin-email').innerText = user.email;
-            await loadAdminData();
-        });
+            document.getElementById('admin-email-display').innerText = user.email;
+        }
 
-        async function loadAdminData() {
+        async function loadAdminTutorData() {
             const { data: tutors, error } = await _supabase
                 .from('tutors')
                 .select('*')
-                .neq('role', 'admin')
+                .eq('role', 'tutor') // HANYA AMBIL PERAN TUTOR
                 .order('id', { ascending: false });
 
             if (error) {
-                console.error("Error fetching tutors:", error);
+                console.error("Gagal memuat data tutor:", error);
                 return;
             }
 
-            rawTutorList = tutors || [];
-            filterAdminTutors();
+            allTutorData = tutors || [];
+            updateStats(allTutorData);
+            filterAdminTable();
         }
 
-        function filterAdminTutors() {
-            const tbody = document.getElementById('admin-tutor-list');
-            const searchVal = document.getElementById('admin-search').value.toLowerCase().trim();
-            const filterVal = document.getElementById('admin-status-filter').value;
+        function updateStats(list) {
+            const pending = list.filter(t => t.status === 'pending').length;
+            const approved = list.filter(t => t.status === 'approved').length;
+            const offline = list.filter(t => t.is_offline_verified === true).length;
 
-            const filtered = rawTutorList.filter(t => {
-                const matchesName = (t.name || '').toLowerCase().includes(searchVal);
-                const matchesStatus = filterVal === 'all' || t.status === filterVal;
-                return matchesName && matchesStatus;
+            document.getElementById('stat-pending').innerText = pending;
+            document.getElementById('stat-approved').innerText = approved;
+            document.getElementById('stat-offline').innerText = offline;
+            document.getElementById('stat-total').innerText = list.length;
+        }
+
+        function filterAdminTable() {
+            const statusFilter = document.getElementById('admin-filter-status').value;
+            const searchVal = document.getElementById('admin-search').value.toLowerCase().trim();
+
+            const filtered = allTutorData.filter(t => {
+                const matchStatus = statusFilter === 'all' || t.status === statusFilter;
+                const matchSearch = (t.name || '').toLowerCase().includes(searchVal) ||
+                                    (t.email || '').toLowerCase().includes(searchVal) ||
+                                    (t.subject || '').toLowerCase().includes(searchVal);
+                return matchStatus && matchSearch;
             });
 
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Tutor tidak ditemukan.</td></tr>`;
+            renderAdminTable(filtered);
+        }
+
+        function renderAdminTable(list) {
+            const tbody = document.getElementById('admin-tutor-table-body');
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Tidak ada data pendaftaran tutor.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = '';
-            filtered.forEach(t => {
-                const statusBadge = t.status === 'approved' 
-                    ? `<span class="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-md text-xs font-bold">Disetujui</span>` 
-                    : `<span class="bg-amber-50 text-amber-600 px-2.5 py-1 rounded-md text-xs font-bold">Menunggu</span>`;
+            list.forEach(t => {
+                let statusBadge = '';
+                if (t.status === 'approved') {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Approved</span>`;
+                } else if (t.status === 'rejected') {
+                    statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Rejected</span>`;
+                } else {
+                    statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
+                }
 
                 const offlineBadge = t.is_offline_verified
-                    ? `<span class="bg-sky-50 text-sky-600 px-2.5 py-1 rounded-md text-xs font-bold"><i class="fa-solid fa-house-user"></i> Online & Offline</span>`
-                    : `<span class="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-md text-xs font-medium">Online Only</span>`;
-
-                const ratingVal = t.rating || 'Baru';
+                    ? `<span class="bg-sky-50 text-sky-600 px-2 py-0.5 rounded font-bold text-[10px]"><i class="fa-solid fa-check"></i> Verified</span>`
+                    : `<span class="text-slate-400 text-[10px]">-</span>`;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-sky-50/50 transition">
-                        <td class="p-4 cursor-pointer" onclick="openDetailModal(${t.id})">
+                    <tr class="hover:bg-slate-50/80 transition border-b border-slate-100">
+                        <td class="py-3 px-4">
                             <div class="flex items-center gap-3">
                                 <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
                                 <div>
-                                    <p class="font-bold text-sky-700 hover:underline flex items-center gap-1">${t.name} <i class="fa-solid fa-up-right-from-square text-[10px] text-sky-500"></i></p>
-                                    <p class="text-xs text-slate-500">${t.email || '-'}</p>
+                                    <div class="font-bold text-slate-900">${t.name}</div>
+                                    <div class="text-[11px] text-slate-400">${t.email}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="p-4 text-slate-700 font-medium">${t.subject} (${t.level || 'Umum'})</td>
-                        <td class="p-4"><span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${ratingVal}</span></td>
-                        <td class="p-4">${offlineBadge}</td>
-                        <td class="p-4">${statusBadge}</td>
-                        <td class="p-4 text-center">
-                            <button type="button" onclick="openDetailModal(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm">
-                                Verifikasi Profil
+                        <td class="py-3 px-4 font-semibold text-slate-800">${t.subject} <span class="text-[10px] text-slate-400 font-normal">(${t.level || 'Umum'})</span></td>
+                        <td class="py-3 px-4">
+                            <div>${t.phone_number || '-'}</div>
+                            <div class="text-[11px] text-slate-400">${t.location || 'Online'}</div>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-sky-600">Rp ${(t.price || 0).toLocaleString('id-ID')}</td>
+                        <td class="py-3 px-4 text-center">${offlineBadge}</td>
+                        <td class="py-3 px-4 text-center">${statusBadge}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="openDetailModal(${t.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                                <i class="fa-solid fa-eye"></i> Detail
                             </button>
                         </td>
                     </tr>
@@ -230,82 +317,77 @@
             });
         }
 
-        window.openDetailModal = function(tutorId) {
-            const tutor = rawTutorList.find(t => t.id === tutorId);
+        function openDetailModal(id) {
+            const tutor = allTutorData.find(t => t.id === id);
             if (!tutor) return;
+
+            selectedTutorId = tutor.id;
 
             document.getElementById('modal-avatar').src = tutor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.name)}`;
             document.getElementById('modal-name').innerText = tutor.name;
-            document.getElementById('modal-email').innerText = tutor.email || '-';
-            document.getElementById('modal-subject').innerText = tutor.subject || '-';
-            document.getElementById('modal-level').innerText = tutor.level || 'Semua Tingkat';
+            document.getElementById('modal-email').innerText = tutor.email;
+            document.getElementById('modal-subject').innerText = tutor.subject;
+            document.getElementById('modal-level').innerText = tutor.level || 'Umum';
             document.getElementById('modal-location').innerText = tutor.location || 'Online';
+            document.getElementById('modal-price').innerText = `Rp ${(tutor.price || 0).toLocaleString('id-ID')}`;
             document.getElementById('modal-phone').innerText = tutor.phone_number || '-';
+
+            const videoContainer = document.getElementById('modal-video-container');
+            const videoLink = document.getElementById('modal-video-link');
+            if (tutor.teaching_video_url) {
+                videoLink.href = tutor.teaching_video_url;
+                videoContainer.classList.remove('hidden');
+            } else {
+                videoContainer.classList.add('hidden');
+            }
 
             const badge = document.getElementById('modal-status-badge');
             if (tutor.status === 'approved') {
-                badge.className = 'inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-600';
-                badge.innerText = 'Akun Disetujui (Online Active)';
+                badge.className = 'inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700';
+                badge.innerText = 'Approved';
+            } else if (tutor.status === 'rejected') {
+                badge.className = 'inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700';
+                badge.innerText = 'Rejected';
             } else {
-                badge.className = 'inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-600';
-                badge.innerText = 'Menunggu Verifikasi Admin';
+                badge.className = 'inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700';
+                badge.innerText = 'Pending Review';
             }
 
-            const videoContainer = document.getElementById('modal-video-container');
-            if (tutor.teaching_video_url) {
-                videoContainer.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs text-slate-600 truncate font-mono max-w-[200px]">${tutor.teaching_video_url}</span>
-                        <a href="${tutor.teaching_video_url}" target="_blank" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shrink-0 ml-2">
-                            <i class="fa-solid fa-play"></i> Buka Video
-                        </a>
-                    </div>
-                `;
-            } else {
-                videoContainer.innerHTML = `<p class="text-xs text-slate-400">Tidak ada video demo.</p>`;
-            }
+            // Bind aksi tombol modal tanpa menyentuh/mengubah kolom user_id/email
+            document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
+            document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
+            document.getElementById('btn-reject').onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
 
-            const actionContainer = document.getElementById('modal-action-buttons');
-            if (tutor.status === 'pending') {
-                actionContainer.innerHTML = `
-                    <button type="button" onclick="updateTutorStatus(${tutor.id}, 'approved')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
-                        <i class="fa-solid fa-circle-check"></i> Setujui Akun Online
-                    </button>
-                `;
-            } else {
-                actionContainer.innerHTML = `
-                    <button type="button" onclick="updateTutorStatus(${tutor.id}, 'pending')" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
-                        Batalkan Verifikasi
-                    </button>
-                `;
-            }
+            document.getElementById('modal-detail').classList.remove('hidden');
+        }
 
-            document.getElementById('modal-tutor-detail').classList.remove('hidden');
-        };
+        function closeDetailModal() {
+            document.getElementById('modal-detail').classList.add('hidden');
+            selectedTutorId = null;
+        }
 
-        window.closeDetailModal = function() {
-            document.getElementById('modal-tutor-detail').classList.add('hidden');
-        };
-
-        window.updateTutorStatus = async function(id, newStatus) {
+        // FUNGSI UPDATE STATUS AMAN: HANYA MENGUBAH `status` & `is_offline_verified`
+        async function updateTutorStatus(tutorId, newStatus, isOffline) {
             const { error } = await _supabase
                 .from('tutors')
-                .update({ status: newStatus })
-                .eq('id', id);
+                .update({ 
+                    status: newStatus,
+                    is_offline_verified: isOffline 
+                })
+                .eq('id', tutorId);
 
-            if (!error) {
-                alert(newStatus === 'approved' ? 'Akun berhasil diverifikasi!' : 'Status verifikasi dibatalkan.');
-                closeDetailModal();
-                await loadAdminData();
-            } else {
+            if (error) {
                 alert('Gagal memperbarui status: ' + error.message);
+            } else {
+                alert(`Status tutor berhasil diperbarui menjadi ${newStatus.toUpperCase()}!`);
+                closeDetailModal();
+                await loadAdminTutorData();
             }
-        };
+        }
 
-        async function handleLogout() {
+        async function logout() {
             await _supabase.auth.signOut();
-            alert('Berhasil keluar!');
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }
     </script>
 </body>
