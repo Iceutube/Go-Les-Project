@@ -219,19 +219,29 @@
 
         async function loadAdminData() {
             const { data: users, error } = await _supabase
-                .from('tutors')
-                .select('*')
-                .neq('role', 'admin') // Ambil Tutor dan Siswa (Kecuali Admin)
-                .order('id', { ascending: false });
+        .from('tutors')
+        .select('*')
+        .order('id', { ascending: false });
 
-            if (error) {
-                console.error("Gagal memuat data:", error);
-                return;
-            }
+    if (error) {
+        console.error("Gagal memuat data pengguna:", error);
+        return;
+    }
 
-            allUsersData = users || [];
-            updateStats(allUsersData);
-            filterAdminTable();
+    // Normalisasi role: Jika role kosong atau bukan admin/tutor, anggap sebagai siswa
+    allUsersData = (users || []).map(u => {
+        let userRole = (u.role || '').toLowerCase();
+        if (userRole !== 'admin' && userRole !== 'tutor') {
+            userRole = 'siswa';
+        }
+        return { ...u, role: userRole };
+    });
+
+    // Saring agar Admin tidak masuk ke daftar
+    allUsersData = allUsersData.filter(u => u.role !== 'admin');
+
+    updateStats(allUsersData);
+    filterAdminTable();
         }
 
         function updateStats(list) {
