@@ -160,5 +160,52 @@
             });
         }
     </script>
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 font-['Plus_Jakarta_Sans']">
+
+    <!-- WhatsApp Chat Card (Default: Hidden) -->
+    <div id="wa-card" class="hidden w-80 sm:w-88 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden transition-all duration-300 transform scale-95 opacity-0">
+        <!-- Header Chat -->
+        <div class="bg-emerald-600 p-4 text-white flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <div class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center font-bold text-lg">
+                        <i class="fa-brands fa-whatsapp text-white text-xl"></i>
+                    </div>
+                    <span class="w-3 h-3 bg-emerald-400 border-2 border-emerald-600 rounded-full absolute -bottom-0.5 -right-0.5"></span>
+                </div>
+                <div>
+                    <h4 class="font-extrabold text-sm leading-tight">Customer Service GO-LES</h4>
+                    <p class="text-[11px] text-emerald-100 font-medium mt-0.5">Biasanya membalas dalam beberapa menit</p>
+                </div>
+            </div>
+            <button onclick="toggleWaCard()" class="text-white/80 hover:text-white p-1 transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Chat Body / Bubble Message -->
+        <div class="p-4 bg-slate-100/70 space-y-3 text-xs">
+            <div class="bg-white p-3.5 rounded-2xl rounded-tl-none border border-slate-200/60 shadow-sm max-w-[88%] space-y-1">
+                <span class="font-bold text-[11px] text-emerald-700 block">GO-LES Support</span>
+                <p class="text-slate-700 leading-relaxed">Halo! 👋 Ada yang bisa kami bantu terkait pendaftaran, pencarian tutor, atau kendala akun?</p>
+                <span class="text-[9px] text-slate-400 block text-right">Baru saja</span>
+            </div>
+        </div>
+
+        <!-- Action / Input Area -->
+        <div class="p-3 bg-white border-t border-slate-100 flex flex-col gap-2">
+            <textarea id="wa-user-msg" rows="2" placeholder="Tulis pesan kamu disini..." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-500 resize-none bg-slate-50"></textarea>
+            <button onclick="sendToWhatsApp()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-md shadow-emerald-600/20">
+                <i class="fa-brands fa-whatsapp text-sm"></i> Kirim ke WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Floating Circular Trigger Button -->
+    <button onclick="toggleWaCard()" class="bg-emerald-500 hover:bg-emerald-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 relative group">
+        <i class="fa-brands fa-whatsapp text-3xl"></i>
+        <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-bounce">1</span>
+    </button>
+</div>
 </body>
 </html>
