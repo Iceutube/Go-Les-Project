@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupModalListeners();
 });
 
+// Fungsi Render Kartu Tutor
 function renderTutors() {
     const search = document.getElementById('searchInput').value.toLowerCase();
     const subject = document.getElementById('subjectFilter').value;
@@ -68,12 +69,14 @@ function renderTutors() {
     });
 }
 
+// Pemesanan Tutor
 function bookTutor(name, subject, price) {
     myBookings.push({ name, subject, price, date: new Date().toLocaleDateString('id-ID') });
     alert(`Berhasil memesan sesi dengan ${name}!`);
     renderSchedule();
 }
 
+// Render List Jadwal Saya
 function renderSchedule() {
     const list = document.getElementById('scheduleList');
     if (!list) return;
@@ -101,6 +104,7 @@ function renderSchedule() {
     });
 }
 
+// Navigasi Tab Browser
 function switchTab(tab) {
     if (tab === 'search') {
         document.getElementById('tabSearch').classList.remove('hidden');
@@ -111,6 +115,7 @@ function switchTab(tab) {
     }
 }
 
+// Logika Modal Pendaftaran "Jadi Tutor"
 function setupModalListeners() {
     const btnOpenModal = document.getElementById('btn-jadi-tutor');
     const btnCloseModal = document.getElementById('btn-close-modal');
@@ -129,6 +134,7 @@ function setupModalListeners() {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // Mengambil jam operasional yang dicentang
             const selectedHours = Array.from(document.querySelectorAll('.reg-hour-check:checked')).map(cb => cb.value);
 
             const newTutor = {
