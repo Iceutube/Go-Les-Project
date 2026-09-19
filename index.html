@@ -92,7 +92,6 @@
         });
 
         async function loadIndexTutorData() {
-            // Hanya mengambil akun dengan role 'tutor' dan status 'approved'
             const { data: tutors, error } = await _supabase
                 .from('tutors')
                 .select('*')
