@@ -61,7 +61,7 @@
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    // 1. Authenticate via Supabase Auth
+    // 1. Authenticate akun Auth Supabase
     const { data: authData, error: authError } = await _supabase.auth.signInWithPassword({
         email: email,
         password: password
@@ -75,37 +75,33 @@
     }
 
     if (authData.user) {
-        // 2. Fetch user profile from tutors table
-        const { data: profileData, error: profileError } = await _supabase
+        // 2. Cari profil di tabel tutors berdasarkan user_id ATAU email
+        const { data: profiles, error: profileError } = await _supabase
             .from('tutors')
             .select('*')
-            .eq('user_id', authData.user.id)
-            .single();
+            .or(`user_id.eq.${authData.user.id},email.eq.${email}`);
 
-        if (profileError) {
-            alert('Gagal mengambil profil: ' + profileError.message);
-            btnLogin.innerText = 'Masuk';
-            btnLogin.disabled = false;
-            return;
-        }
+        if (profiles && profiles.length > 0) {
+            const userProfile = profiles[0];
 
-        if (profileData) {
-            const role = profileData.role;
-            if (role === 'admin') {
+            // Jika user_id belum terhubung/kosong, perbaiki otomatis di background
+            if (!userProfile.user_id) {
+                await _supabase
+                    .from('tutors')
+                    .update({ user_id: authData.user.id })
+                    .eq('id', userProfile.id);
+            }
+
+            // Redireksi sesuai Role
+            if (userProfile.role === 'admin') {
                 window.location.href = 'admin.html';
-            } else if (role === 'tutor') {
+            } else if (userProfile.role === 'tutor') {
                 window.location.href = 'dashboard-tutor.html';
-            } else if (role === 'siswa') {
-                window.location.href = 'dashboard-siswa.html';
             } else {
-                // fallback
                 window.location.href = 'dashboard-siswa.html';
             }
         } else {
-            // No profile found
-            alert('Profil tidak ditemukan. Silakan hubungi administrator.');
-            btnLogin.innerText = 'Masuk';
-            btnLogin.disabled = false;
+            window.location.href = 'dashboard-siswa.html';
         }
     }
 });
