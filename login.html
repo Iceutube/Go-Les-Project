@@ -75,12 +75,6 @@
     }
 
     if (authData.user) {
-        // 2. Cari data profil berdasarkan email atau user_id di tabel tutors
-        const { data: profiles, error: profileError } = await _supabase
-            .from('tutors')
-            .select('*')
-            .or(`user_id.eq.${authData.user.id},email.eq.${email}`);
-
         if (profiles && profiles.length > 0) {
             const userProfile = profiles[0];
 
