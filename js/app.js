@@ -2,10 +2,37 @@ let tutorsData = [];
 let myBookings = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
+    await checkExistingSession();
     tutorsData = await fetchTutorsFromSQL();
     renderTutors();
     setupFormSubmitListener();
 });
+
+async function checkExistingSession() {
+    try {
+        const { data: { user } } = await _supabase.auth.getUser();
+
+        if (user) {
+            const { data: profile } = await _supabase
+                .from('tutors')
+                .select('role')
+                .eq('user_id', user.id)
+                .single();
+
+            if (profile) {
+                if (profile.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else if (profile.role === 'tutor') {
+                    window.location.href = 'dashboard-tutor.html';
+                }
+            } else {
+                window.location.href = 'dashboard-siswa.html';
+            }
+        }
+    } catch (err) {
+        console.log("Akses mode publik/tamu");
+    }
+}
 
 function openTutorModal() {
     const modal = document.getElementById('modal-tutor');
@@ -46,7 +73,7 @@ function setupFormSubmitListener() {
             const result = await registerTutorWithAuth(tutorProfile, email, password);
 
             if (result.success) {
-                alert('Pendaftaran Berhasil! Akun kamu sudah dibuat. Silakan login melalui tombol Login Tutor.');
+                alert('Pendaftaran Berhasil! Akun kamu sudah dibuat. Silakan login melalui tombol Login.');
                 formRegister.reset();
                 closeTutorModal();
                 tutorsData = await fetchTutorsFromSQL();
@@ -75,10 +102,9 @@ function renderTutors() {
         return;
     }
 
-    // FILTER HANYA UNTUK ROLE TUTOR & STATUS APPROVED (TIDAK MENAMPILKAN ADMIN)
     const filtered = tutorsData.filter(t => {
-        const isTutorOnly = (t.role === 'tutor' || !t.role); // Filter hanya role tutor
-        const isApproved = t.status === 'approved'; // Hanya tutor yang disetujui Admin
+        const isTutorOnly = (t.role === 'tutor' || !t.role);
+        const isApproved = t.status === 'approved';
         
         const name = t.name ? t.name.toLowerCase() : '';
         const subj = t.subject ? t.subject.toLowerCase() : '';
@@ -108,7 +134,7 @@ function renderTutors() {
                     <div class="flex gap-4 items-start mb-4">
                         <img src="${avatarUrl}" class="w-16 h-16 rounded-xl object-cover" alt="${t.name}">
                         <div>
-                            <span class="text-xs font-semibold bg-sky-50 text-sky-600 px-2 py-0.5 rounded-md">SQL Connected</span>
+                            <span class="text-xs font-semibold bg-sky-50 text-sky-600 px-2 py-0.5 rounded-md">Terverifikasi</span>
                             <h3 class="font-bold text-slate-900 mt-1">${t.name}</h3>
                             <p class="text-sm text-slate-500">${t.subject} (${levelText})</p>
                         </div>
@@ -134,9 +160,8 @@ function renderTutors() {
 }
 
 function bookTutor(name, subject, price) {
-    myBookings.push({ name, subject, price, date: new Date().toLocaleDateString('id-ID') });
-    alert(`Berhasil memesan sesi dengan ${name}!`);
-    renderSchedule();
+    alert(`Untuk memesan sesi dengan ${name}, kamu harus login sebagai Siswa terlebih dahulu!`);
+    window.location.href = 'login.html';
 }
 
 function renderSchedule() {
