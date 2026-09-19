@@ -75,7 +75,7 @@
 
             if (data.user) {
                 const { data: profile } = await _supabase
-                    .from('tutor')
+                    .from('tutors')
                     .select('*')
                     .eq('user_id', data.user.id)
                     .single();
