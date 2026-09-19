@@ -13,7 +13,6 @@
 </head>
 <body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
 
-    <!-- NAVBAR -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -31,18 +30,17 @@
         </div>
     </nav>
 
-    <!-- MAIN CONTENT -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
             <div>
                 <h1 class="text-xl font-bold text-slate-900">Persetujuan & Verifikasi Tutor</h1>
-                <p class="text-xs text-slate-500 mt-1">Klik pada nama/profil tutor untuk melihat detail pendaftaran dan memverifikasi akun.</p>
+                <p class="text-xs text-slate-500 mt-1">Klik nama tutor untuk melihat detail pendaftaran dan memverifikasi akun.</p>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                 <div class="flex items-center border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 focus-within:border-sky-500 text-xs">
                     <i class="fa-solid fa-magnifying-glass text-slate-400 mr-2"></i>
-                    <input type="text" id="admin-search" oninput="filterAdminTutors()" placeholder="Cari nama tutor..." class="bg-transparent outline-none w-full sm:w-48">
+                    <input type="text" id="admin-search" onkeyup="filterAdminTutors()" placeholder="Cari nama tutor..." class="bg-transparent outline-none w-full sm:w-48">
                 </div>
                 <select id="admin-status-filter" onchange="filterAdminTutors()" class="border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 text-xs font-semibold outline-none">
                     <option value="all">Semua Status</option>
@@ -55,18 +53,17 @@
             </div>
         </div>
 
-        <!-- TABEL TUTOR -->
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-bold border-b border-slate-200">
-                            <th class="p-4">Tutor (Klik Profil)</th>
+                            <th class="p-4">Tutor (Klik Nama)</th>
                             <th class="p-4">Mata Pelajaran</th>
-                            <th class="p-4">Rating & Ulasan</th>
-                            <th class="p-4">Akses Mengajar</th>
+                            <th class="p-4">Rating</th>
+                            <th class="p-4">Mode Mengajar</th>
                             <th class="p-4">Status Akun</th>
-                            <th class="p-4 text-center">Aksi Penuh</th>
+                            <th class="p-4 text-center">Aksi Verifikasi</th>
                         </tr>
                     </thead>
                     <tbody id="admin-tutor-list" class="text-sm divide-y divide-slate-100">
@@ -79,27 +76,27 @@
         </div>
     </main>
 
-    <!-- MODAL DETAIL PROFIL & VERIFIKASI AKUN -->
+    <!-- MODAL DETAIL TUTOR -->
     <div id="modal-tutor-detail" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4">
-        <div class="bg-white w-full max-w-xl rounded-2xl shadow-xl overflow-hidden space-y-4 my-8 max-h-[90vh] flex flex-col">
-            <div class="bg-sky-600 text-white p-5 flex justify-between items-center shrink-0">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden space-y-4">
+            <div class="bg-sky-600 text-white p-5 flex justify-between items-center">
                 <h3 class="font-bold text-base flex items-center gap-2">
                     <i class="fa-solid fa-id-card"></i> Detail Pendaftaran Tutor
                 </h3>
-                <button onclick="closeDetailModal()" class="text-white/80 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeDetailModal()" class="text-white hover:text-slate-200 text-xl font-bold">&times;</button>
             </div>
 
-            <div class="p-6 space-y-4 overflow-y-auto flex-1">
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                 <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
                     <img id="modal-avatar" src="" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
                     <div>
-                        <h4 id="modal-name" class="font-bold text-lg text-slate-900">Nama Tutor</h4>
-                        <p id="modal-email" class="text-xs text-slate-500">email@goles.com</p>
-                        <span id="modal-status-badge" class="inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md">Status</span>
+                        <h4 id="modal-name" class="font-bold text-lg text-slate-900">-</h4>
+                        <p id="modal-email" class="text-xs text-slate-500">-</p>
+                        <span id="modal-status-badge" class="inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600">-</span>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 text-xs">
+                <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
                         <span class="text-slate-400 block font-semibold">Mata Pelajaran</span>
                         <span id="modal-subject" class="font-bold text-slate-800 text-sm">-</span>
@@ -118,22 +115,19 @@
                     </div>
                 </div>
 
-                <!-- DOKUMEN / VIDEO DEMO MENGAJAR -->
                 <div class="space-y-2 pt-2">
                     <h5 class="font-bold text-xs text-slate-700 flex items-center gap-2">
                         <i class="fa-solid fa-video text-sky-600"></i> Video Demo Mengajar
                     </h5>
-                    <div id="modal-video-container" class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                        <p class="text-xs text-slate-400">Tidak ada video demo yang diunggah.</p>
+                    <div id="modal-video-container" class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                        <p class="text-xs text-slate-400">Tidak ada video demo.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-between items-center shrink-0">
-                <button onclick="closeDetailModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold bg-white hover:bg-slate-100">Tutup</button>
-                <div id="modal-action-buttons" class="flex gap-2">
-                    <!-- Tombol verifikasi di-render dinamis -->
-                </div>
+            <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-between items-center">
+                <button type="button" onclick="closeDetailModal()" class="px-4 py-2 border rounded-xl text-xs font-semibold bg-white hover:bg-slate-100">Tutup</button>
+                <div id="modal-action-buttons"></div>
             </div>
         </div>
     </div>
@@ -143,7 +137,6 @@
     <script src="js/supabase.js"></script>
     <script>
         let rawTutorList = [];
-        let selectedTutor = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { user } } = await _supabase.auth.getUser();
@@ -176,7 +169,7 @@
                 .order('id', { ascending: false });
 
             if (error) {
-                console.error(error);
+                console.error("Error fetching tutors:", error);
                 return;
             }
 
@@ -211,7 +204,6 @@
                     : `<span class="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-md text-xs font-medium">Online Only</span>`;
 
                 const ratingVal = t.rating || 'Baru';
-                const totalReviews = t.total_reviews || 0;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-sky-50/50 transition">
@@ -225,11 +217,11 @@
                             </div>
                         </td>
                         <td class="p-4 text-slate-700 font-medium">${t.subject} (${t.level || 'Umum'})</td>
-                        <td class="p-4"><span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${ratingVal} (${totalReviews} ulasan)</span></td>
+                        <td class="p-4"><span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${ratingVal}</span></td>
                         <td class="p-4">${offlineBadge}</td>
                         <td class="p-4">${statusBadge}</td>
                         <td class="p-4 text-center">
-                            <button onclick="openDetailModal(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
+                            <button type="button" onclick="openDetailModal(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shadow-sm">
                                 Verifikasi Profil
                             </button>
                         </td>
@@ -238,20 +230,20 @@
             });
         }
 
-        function openDetailModal(tutorId) {
-            selectedTutor = rawTutorList.find(t => t.id === tutorId);
-            if (!selectedTutor) return;
+        window.openDetailModal = function(tutorId) {
+            const tutor = rawTutorList.find(t => t.id === tutorId);
+            if (!tutor) return;
 
-            document.getElementById('modal-avatar').src = selectedTutor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedTutor.name)}`;
-            document.getElementById('modal-name').innerText = selectedTutor.name;
-            document.getElementById('modal-email').innerText = selectedTutor.email || '-';
-            document.getElementById('modal-subject').innerText = selectedTutor.subject || '-';
-            document.getElementById('modal-level').innerText = selectedTutor.level || 'Semua Tingkat';
-            document.getElementById('modal-location').innerText = selectedTutor.location || 'Online';
-            document.getElementById('modal-phone').innerText = selectedTutor.phone_number || '-';
+            document.getElementById('modal-avatar').src = tutor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.name)}`;
+            document.getElementById('modal-name').innerText = tutor.name;
+            document.getElementById('modal-email').innerText = tutor.email || '-';
+            document.getElementById('modal-subject').innerText = tutor.subject || '-';
+            document.getElementById('modal-level').innerText = tutor.level || 'Semua Tingkat';
+            document.getElementById('modal-location').innerText = tutor.location || 'Online';
+            document.getElementById('modal-phone').innerText = tutor.phone_number || '-';
 
             const badge = document.getElementById('modal-status-badge');
-            if (selectedTutor.status === 'approved') {
+            if (tutor.status === 'approved') {
                 badge.className = 'inline-block mt-1 text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-600';
                 badge.innerText = 'Akun Disetujui (Online Active)';
             } else {
@@ -260,55 +252,55 @@
             }
 
             const videoContainer = document.getElementById('modal-video-container');
-            if (selectedTutor.teaching_video_url) {
+            if (tutor.teaching_video_url) {
                 videoContainer.innerHTML = `
                     <div class="flex items-center justify-between">
-                        <span class="text-xs text-slate-600 truncate font-mono">${selectedTutor.teaching_video_url}</span>
-                        <a href="${selectedTutor.teaching_video_url}" target="_blank" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shrink-0 ml-2">
-                            <i class="fa-solid fa-play"></i> Buka Video Demo
+                        <span class="text-xs text-slate-600 truncate font-mono max-w-[200px]">${tutor.teaching_video_url}</span>
+                        <a href="${tutor.teaching_video_url}" target="_blank" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition shrink-0 ml-2">
+                            <i class="fa-solid fa-play"></i> Buka Video
                         </a>
                     </div>
                 `;
             } else {
-                videoContainer.innerHTML = `<p class="text-xs text-slate-400">Tidak ada video demo yang diunggah.</p>`;
+                videoContainer.innerHTML = `<p class="text-xs text-slate-400">Tidak ada video demo.</p>`;
             }
 
             const actionContainer = document.getElementById('modal-action-buttons');
-            if (selectedTutor.status === 'pending') {
+            if (tutor.status === 'pending') {
                 actionContainer.innerHTML = `
-                    <button onclick="updateTutorStatus(${selectedTutor.id}, 'approved')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
-                        <i class="fa-solid fa-circle-check"></i> Verifikasi & Setujui Akun Online
+                    <button type="button" onclick="updateTutorStatus(${tutor.id}, 'approved')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                        <i class="fa-solid fa-circle-check"></i> Setujui Akun Online
                     </button>
                 `;
             } else {
                 actionContainer.innerHTML = `
-                    <button onclick="updateTutorStatus(${selectedTutor.id}, 'pending')" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
-                        Batalkan Verifikasi Akun
+                    <button type="button" onclick="updateTutorStatus(${tutor.id}, 'pending')" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition">
+                        Batalkan Verifikasi
                     </button>
                 `;
             }
 
             document.getElementById('modal-tutor-detail').classList.remove('hidden');
-        }
+        };
 
-        function closeDetailModal() {
+        window.closeDetailModal = function() {
             document.getElementById('modal-tutor-detail').classList.add('hidden');
-        }
+        };
 
-        async function updateTutorStatus(id, newStatus) {
+        window.updateTutorStatus = async function(id, newStatus) {
             const { error } = await _supabase
                 .from('tutors')
                 .update({ status: newStatus })
                 .eq('id', id);
 
             if (!error) {
-                alert(newStatus === 'approved' ? 'Akun tutor berhasil diverifikasi menjadi Aktif (Online)!' : 'Status verifikasi akun dibatalkan.');
+                alert(newStatus === 'approved' ? 'Akun berhasil diverifikasi!' : 'Status verifikasi dibatalkan.');
                 closeDetailModal();
                 await loadAdminData();
             } else {
                 alert('Gagal memperbarui status: ' + error.message);
             }
-        }
+        };
 
         async function handleLogout() {
             await _supabase.auth.signOut();
