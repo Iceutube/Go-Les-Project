@@ -1,44 +1,29 @@
-// js/app.js
 let tutorsData = [];
 let myBookings = [];
 
-// 1. Inisialisasi saat Halaman Dimuat
 document.addEventListener('DOMContentLoaded', async () => {
     tutorsData = await fetchTutorsFromSQL();
     renderTutors();
-    setupModalListeners();
+    setupFormSubmitListener();
 });
 
-// 2. Fungsi Buka & Tutup Modal "Jadi Tutor"
-function setupModalListeners() {
-    const btnJadiTutor = document.getElementById('btn-jadi-tutor');
-    const modalTutor = document.getElementById('modal-tutor');
-    const btnCloseModal = document.getElementById('btn-close-modal');
-    const btnCancelModal = document.getElementById('btn-cancel-modal');
+function openTutorModal() {
+    const modal = document.getElementById('modal-tutor');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function closeTutorModal() {
+    const modal = document.getElementById('modal-tutor');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+function setupFormSubmitListener() {
     const formRegister = document.getElementById('form-register-tutor');
 
-    // Buka Modal
-    if (btnJadiTutor && modalTutor) {
-        btnJadiTutor.addEventListener('click', () => {
-            modalTutor.classList.remove('hidden');
-        });
-    }
-
-    // Tutup Modal (Tombol X)
-    if (btnCloseModal && modalTutor) {
-        btnCloseModal.addEventListener('click', () => {
-            modalTutor.classList.add('hidden');
-        });
-    }
-
-    // Tutup Modal (Tombol Batal)
-    if (btnCancelModal && modalTutor) {
-        btnCancelModal.addEventListener('click', () => {
-            modalTutor.classList.add('hidden');
-        });
-    }
-
-    // Submit Pendaftaran Tutor Baru
     if (formRegister) {
         formRegister.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -58,13 +43,12 @@ function setupModalListeners() {
                 available_hours: selectedHours
             };
 
-            // Panggil fungsi registrasi di js/supabase.js
             const result = await registerTutorWithAuth(tutorProfile, email, password);
 
             if (result.success) {
                 alert('Pendaftaran Berhasil! Akun kamu sudah dibuat. Silakan login melalui tombol Login Tutor.');
                 formRegister.reset();
-                modalTutor.classList.add('hidden');
+                closeTutorModal();
                 tutorsData = await fetchTutorsFromSQL();
                 renderTutors();
             } else {
@@ -74,7 +58,6 @@ function setupModalListeners() {
     }
 }
 
-// 3. Render Kartu Tutor di Halaman Depan
 function renderTutors() {
     const searchInput = document.getElementById('searchInput');
     const subjectFilter = document.getElementById('subjectFilter');
@@ -146,14 +129,12 @@ function renderTutors() {
     });
 }
 
-// 4. Pemesanan Sesi
 function bookTutor(name, subject, price) {
     myBookings.push({ name, subject, price, date: new Date().toLocaleDateString('id-ID') });
     alert(`Berhasil memesan sesi dengan ${name}!`);
     renderSchedule();
 }
 
-// 5. Render Jadwal Saya
 function renderSchedule() {
     const list = document.getElementById('scheduleList');
     if (!list) return;
@@ -181,7 +162,6 @@ function renderSchedule() {
     });
 }
 
-// 6. Switch Tab Navigasi
 function switchTab(tab) {
     if (tab === 'search') {
         document.getElementById('tabSearch').classList.remove('hidden');
