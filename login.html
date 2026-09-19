@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Portal - GO-LES</title>
+    <title>Portal Login - GO-LES</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -19,7 +19,7 @@
                 <i class="fa-solid fa-graduation-cap"></i>
             </div>
             <h2 class="text-2xl font-bold">Portal Login</h2>
-            <p class="text-sky-100 text-sm mt-1">Masuk ke akun Tutor atau Admin GO-LES</p>
+            <p class="text-sky-100 text-sm mt-1">Masuk ke akun Admin, Tutor, atau Siswa GO-LES</p>
         </div>
 
         <form id="form-login" class="p-6 space-y-4 text-sm">
@@ -27,7 +27,7 @@
                 <label class="block font-semibold mb-1 text-slate-700">Email</label>
                 <div class="flex items-center border border-slate-300 rounded-lg px-3 py-2 focus-within:border-sky-500">
                     <i class="fa-regular fa-envelope text-slate-400 mr-2"></i>
-                    <input type="email" id="login-email" required placeholder="nama@gmail.com" class="w-full outline-none bg-transparent">
+                    <input type="email" id="login-email" required placeholder="admin@goles.com" class="w-full outline-none bg-transparent">
                 </div>
             </div>
 
@@ -39,7 +39,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-lg transition shadow-md">
+            <button type="submit" id="btn-submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-lg transition shadow-md">
                 Masuk
             </button>
 
@@ -51,15 +51,31 @@
         </form>
     </div>
 
+    <!-- SUPABASE SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (user) {
+                    await redirectByRole(user.id);
+                }
+            } catch (e) {
+                console.log("Belum ada sesi login.");
+            }
+        });
+
         document.getElementById('form-login').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('login-email').value;
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = true;
+            btn.innerText = 'Memproses...';
+
+            const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
 
-            // 1. Authenticate dengan Supabase Auth
             const { data: authData, error: authError } = await _supabase.auth.signInWithPassword({
                 email: email,
                 password: password
@@ -67,27 +83,32 @@
 
             if (authError) {
                 alert(`Gagal Login: ${authError.message}`);
+                btn.disabled = false;
+                btn.innerText = 'Masuk';
                 return;
             }
 
-            const userId = authData.user.id;
+            await redirectByRole(authData.user.id);
+        });
 
-            // 2. Cek Role Pengguna di Database
-            const { data: profile, error: dbError } = await _supabase
+        async function redirectByRole(userId) {
+            const { data: profile, error } = await _supabase
                 .from('tutors')
                 .select('role')
                 .eq('user_id', userId)
-                .single();
+                .maybeSingle();
 
-            // 3. Pengarahan Otomatis Berdasarkan Role
             if (profile && profile.role === 'admin') {
                 alert('Login Berhasil sebagai Admin!');
                 window.location.href = 'admin.html';
-            } else {
+            } else if (profile && profile.role === 'tutor') {
                 alert('Login Berhasil sebagai Tutor!');
                 window.location.href = 'dashboard-tutor.html';
+            } else {
+                alert('Login Berhasil sebagai Siswa!');
+                window.location.href = 'dashboard-siswa.html';
             }
-        });
+        }
     </script>
 </body>
 </html>
