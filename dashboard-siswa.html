@@ -121,8 +121,9 @@
                 .from('tutors')
                 .select('*')
                 .eq('status', 'approved')
-                .neq('role', 'admin');
-            
+                .neq('role', 'admin')
+                .eq('role', 'tutor')
+
             rawApprovedTutors = tutors || [];
             filterTutors();
         }
