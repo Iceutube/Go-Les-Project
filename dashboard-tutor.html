@@ -89,33 +89,62 @@
             </button>
 
             <div class="border-b border-slate-100 pb-3">
-                <h3 class="font-extrabold text-slate-900 text-base">Pengaturan Profil & Jadwal Mengajar</h3>
-                <p class="text-xs text-slate-500">Perbarui informasi pribadi dan ketersediaan mengajar kamu</p>
+                <h3 class="font-extrabold text-slate-900 text-base">Pengaturan Akun Tutor</h3>
+                <p class="text-xs text-slate-500">Atur profil pribadi dan ketersediaan waktu mengajar</p>
             </div>
 
-            <form id="form-settings" onsubmit="saveTutorSettings(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
-                    <input type="text" id="edit-name" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+            <div class="flex border-b border-slate-200 gap-2">
+                <button id="tab-btn-profile" onclick="switchSettingsTab('profile')" class="py-2 px-4 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition">
+                    Data Profil & Tarif
+                </button>
+                <button id="tab-btn-schedule" onclick="switchSettingsTab('schedule')" class="py-2 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent transition">
+                    Jadwal & Ketersediaan Jam
+                </button>
+            </div>
+
+            <form id="form-settings" onsubmit="saveTutorSettings(event)">
+                <div id="tab-content-profile" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
+                        <input type="text" id="edit-name" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran Utama</label>
+                            <select id="edit-subject" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                                <option value="Matematika">Matematika</option>
+                                <option value="B. Indonesia">B. Indonesia</option>
+                                <option value="B. Inggris">B. Inggris</option>
+                                <option value="Fisika">Fisika</option>
+                                <option value="Kimia">Kimia</option>
+                                <option value="Biologi">Biologi</option>
+                                <option value="Sosiologi">Sosiologi</option>
+                                <option value="Sejarah">Sejarah</option>
+                                <option value="Pancasila">Pancasila</option>
+                                <option value="Geografi">Geografi</option>
+                                <option value="Informatika">Informatika</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tarif / Jam (Rp)</label>
+                            <input type="number" id="edit-price" required min="10000" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kota / Domisili</label>
+                            <input type="text" id="edit-location" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
+                            <input type="tel" id="edit-phone" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran</label>
-                        <select id="edit-subject" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
-                            <option value="Matematika">Matematika</option>
-                            <option value="B. Indonesia">B. Indonesia</option>
-                            <option value="B. Inggris">B. Inggris</option>
-                            <option value="Fisika">Fisika</option>
-                            <option value="Kimia">Kimia</option>
-                            <option value="Biologi">Biologi</option>
-                            <option value="Sosiologi">Sosiologi</option>
-                            <option value="Sejarah">Sejarah</option>
-                            <option value="Pancasila">Pancasila</option>
-                            <option value="Geografi">Geografi</option>
-                            <option value="Informatika">Informatika</option>
-                        </select>
-                    </div>
+                <div id="tab-content-schedule" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Sekolah</label>
                         <select id="edit-level" onchange="renderGradeEditOptions()" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
@@ -125,48 +154,37 @@
                             <option value="Umum">Umum</option>
                         </select>
                     </div>
-                </div>
 
-                <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
-                    <label class="block text-xs font-bold text-slate-700">Pilih Kelas yang Bisa Diajar:</label>
-                    <div id="edit-grades-checkboxes" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs font-medium text-slate-700">
+                    <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
+                        <label class="block text-xs font-bold text-slate-700">Pilih Kelas yang Bisa Diajar:</label>
+                        <div id="edit-grades-checkboxes" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs font-medium text-slate-700">
+                        </div>
                     </div>
-                </div>
 
-                <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
-                    <label class="block text-xs font-bold text-slate-700">Ketersediaan Jam Mengajar:</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-medium text-slate-700">
-                        <label class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                            <input type="checkbox" name="edit_teaching_hours" value="Pagi (08:00 - 12:00)" class="accent-sky-600"> Pagi
-                        </label>
-                        <label class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                            <input type="checkbox" name="edit_teaching_hours" value="Siang (12:00 - 15:00)" class="accent-sky-600"> Siang
-                        </label>
-                        <label class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                            <input type="checkbox" name="edit_teaching_hours" value="Sore (15:00 - 18:00)" class="accent-sky-600"> Sore
-                        </label>
-                        <label class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                            <input type="checkbox" name="edit_teaching_hours" value="Malam (18:30 - 21:00)" class="accent-sky-600"> Malam
-                        </label>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Domisili</label>
-                        <input type="text" id="edit-location" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Tarif/Jam (Rp)</label>
-                        <input type="number" id="edit-price" required min="10000" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp</label>
-                        <input type="tel" id="edit-phone" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
+                        <label class="block text-xs font-bold text-slate-700">Ketersediaan Jam Belajar:</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-700">
+                            <label class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer">
+                                <span>Pagi <span class="text-[10px] text-slate-400 block font-normal">(08:00 - 11:30 WIB)</span></span>
+                                <input type="checkbox" name="edit_teaching_hours" value="Pagi (08:00 - 11:30)" class="accent-sky-600">
+                            </label>
+                            <label class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer">
+                                <span>Siang <span class="text-[10px] text-slate-400 block font-normal">(12:30 - 15:00 WIB)</span></span>
+                                <input type="checkbox" name="edit_teaching_hours" value="Siang (12:30 - 15:00)" class="accent-sky-600">
+                            </label>
+                            <label class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer">
+                                <span>Sore <span class="text-[10px] text-slate-400 block font-normal">(15:30 - 17:30 WIB)</span></span>
+                                <input type="checkbox" name="edit_teaching_hours" value="Sore (15:30 - 17:30)" class="accent-sky-600">
+                            </label>
+                            <label class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer">
+                                <span>Malam <span class="text-[10px] text-slate-400 block font-normal">(18:30 - 21:00 WIB)</span></span>
+                                <input type="checkbox" name="edit_teaching_hours" value="Malam (18:30 - 21:00)" class="accent-sky-600">
+                            </label>
+                        </div>
                     </div>
                 </div>
 
-                <div class="pt-3 flex gap-2 border-t border-slate-100">
+                <div class="pt-4 flex gap-2 border-t border-slate-100 mt-4">
                     <button type="button" onclick="closeSettingsModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl text-xs transition">
                         Batal
                     </button>
@@ -354,6 +372,25 @@
             `;
         }
 
+        function switchSettingsTab(tabName) {
+            const btnProfile = document.getElementById('tab-btn-profile');
+            const btnSchedule = document.getElementById('tab-btn-schedule');
+            const contentProfile = document.getElementById('tab-content-profile');
+            const contentSchedule = document.getElementById('tab-content-schedule');
+
+            if (tabName === 'profile') {
+                btnProfile.className = 'py-2 px-4 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition';
+                btnSchedule.className = 'py-2 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent transition';
+                contentProfile.classList.remove('hidden');
+                contentSchedule.classList.add('hidden');
+            } else {
+                btnSchedule.className = 'py-2 px-4 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition';
+                btnProfile.className = 'py-2 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent transition';
+                contentSchedule.classList.remove('hidden');
+                contentProfile.classList.add('hidden');
+            }
+        }
+
         function openSettingsModal() {
             if (!currentTutorProfile) return;
 
@@ -374,9 +411,11 @@
 
             const hoursStr = currentTutorProfile.available_hours || '';
             document.querySelectorAll('input[name="edit_teaching_hours"]').forEach(cb => {
-                cb.checked = hoursStr.includes(cb.value.split(' ')[0]);
+                const keyword = cb.value.split(' ')[0];
+                cb.checked = hoursStr.includes(keyword);
             });
 
+            switchSettingsTab('profile');
             document.getElementById('settings-modal').classList.remove('hidden');
         }
 
