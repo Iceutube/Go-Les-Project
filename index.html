@@ -3,169 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GO-LES - Platform Les Privat On-Demand</title>
+    <title>GO-LES | Platform Les Privat Terpercaya</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('search')">
-                <div class="bg-sky-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold">
+            <div class="flex items-center gap-2">
+                <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
-                <span class="font-extrabold text-xl tracking-tight text-slate-900">GO<span class="text-sky-600">-LES</span></span>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES</span>
             </div>
             <div class="flex items-center gap-3">
-                <button onclick="switchTab('schedule')" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
-                    <i class="fa-regular fa-calendar"></i> Jadwal Saya
-                </button>
-                <button id="btn-jadi-tutor" onclick="openTutorModal()" class="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-user-plus"></i> Jadi Tutor
-                </button>
-                <a href="login.html" class="flex items-center gap-2 border border-slate-300 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 transition">
-                    <i class="fa-solid fa-right-to-bracket"></i> Login
-                </a>
+                <a href="login.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-xs font-bold transition">Masuk</a>
+                <a href="register-tutor.html" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition">Daftar Tutor</a>
             </div>
         </div>
     </nav>
 
-    <header class="bg-sky-600 text-white py-12 px-4">
-        <div class="max-w-3xl mx-auto text-center">
-            <h1 class="text-3xl sm:text-4xl font-extrabold mb-3">Cari Tutor Les Privat Terbaik untuk Masa Depanmu</h1>
-            <p class="text-sky-100 mb-6">Pilihan privat Online atau Offline (Tutor Datang ke Rumah) secara fleksibel.</p>
-            
-            <div class="bg-white p-2 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-2 text-slate-800">
-                <div class="flex-1 flex items-center px-3 gap-2 border-b sm:border-b-0 sm:border-r border-slate-200 py-2">
-                    <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
-                    <input type="text" id="searchInput" oninput="renderTutors()" placeholder="Cari mata pelajaran atau nama tutor..." class="w-full outline-none text-sm">
-                </div>
-                <select id="subjectFilter" onchange="renderTutors()" class="px-4 py-2 outline-none text-sm bg-transparent cursor-pointer font-medium">
-                    <option value="Semua">Semua Pelajaran</option>
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-8">
+        <div class="bg-sky-600 text-white p-8 rounded-3xl shadow-xl flex flex-col md:flex-row gap-6 items-center justify-between">
+            <div class="space-y-2">
+                <h1 class="text-2xl md:text-3xl font-extrabold">Temukan Tutor Les Privat Terbaik</h1>
+                <p class="text-sky-100 text-xs md:text-sm">Tingkatkan prestasi belajar bersama guru berpengalaman untuk semua mata pelajaran.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <select id="filter-mapel" onchange="filterIndexTutors()" class="px-3 py-2.5 rounded-xl text-slate-800 text-xs font-semibold outline-none bg-white border border-slate-200">
+                    <option value="all">Semua Mata Pelajaran</option>
+                    <option value="B. Indonesia">B. Indonesia</option>
+                    <option value="B. Inggris">B. Inggris</option>
                     <option value="Matematika">Matematika</option>
-                    <option value="Bahasa Inggris">Bahasa Inggris</option>
                     <option value="Fisika">Fisika</option>
                     <option value="Kimia">Kimia</option>
+                    <option value="Biologi">Biologi</option>
+                    <option value="Sosiologi">Sosiologi</option>
+                    <option value="Sejarah">Sejarah</option>
+                    <option value="Pancasila">Pancasila</option>
+                    <option value="Geografi">Geografi</option>
+                    <option value="Informatika">Informatika</option>
                 </select>
+
+                <input type="text" id="filter-lokasi" onkeyup="filterIndexTutors()" placeholder="Cari lokasi/kota..." class="px-4 py-2.5 rounded-xl text-slate-800 text-xs outline-none w-full sm:w-48 bg-white">
             </div>
         </div>
-    </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
-        <section id="tabSearch">
-            <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
-                <i class="fa-solid fa-user-graduate text-sky-600"></i> Rekomendasi Tutor
+        <section>
+            <h2 class="font-bold text-slate-900 text-xl mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-star text-amber-400"></i> Katalog Tutor Terverifikasi
             </h2>
-            <div id="tutorGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            </div>
-        </section>
-
-        <section id="tabSchedule" class="hidden">
-            <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
-                <i class="fa-regular fa-calendar-check text-sky-600"></i> Jadwal Les Saya
-            </h2>
-            <div id="scheduleList" class="space-y-4">
-                <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500">
-                    Belum ada jadwal les yang dipesan.
-                </div>
+            <div id="index-tutor-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class="col-span-full text-center text-slate-400 py-8">Memuat katalog tutor...</p>
             </div>
         </section>
     </main>
 
-    <div id="modal-tutor" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4 overflow-y-auto">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl overflow-hidden my-8">
-            <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
-                <h3 class="font-bold text-lg">Pendaftaran Tutor Baru</h3>
-                <button type="button" onclick="closeTutorModal()" class="text-slate-400 hover:text-white text-xl font-bold">&times;</button>
-            </div>
-
-            <form id="form-register-tutor" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-sm">
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold mb-1">Email (Untuk Login)</label>
-                        <input type="email" id="reg-email" required placeholder="tutor@gmail.com" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold mb-1">Password</label>
-                        <input type="password" id="reg-password" required minlength="6" placeholder="Min. 6 karakter" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">Nama Lengkap</label>
-                    <input type="text" id="reg-name" required placeholder="Contoh: Dr. Budi Santoso" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold mb-1">Mata Pelajaran</label>
-                        <input type="text" id="reg-subject" required placeholder="Contoh: Matematika" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold mb-1">Tingkat Kelas</label>
-                        <input type="text" id="reg-level" required placeholder="Contoh: SMA / UTBK" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block font-semibold mb-1">Tarif per Jam (Rp)</label>
-                        <input type="number" id="reg-price" required placeholder="150000" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                    </div>
-                    <div>
-                        <label class="block font-semibold mb-1">No. WhatsApp</label>
-                        <input type="tel" id="reg-phone" required placeholder="081234567890" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">Lokasi Domisili (Kecamatan/Kota)</label>
-                    <input type="text" id="reg-location" required placeholder="Contoh: Kebayoran Baru, Jakarta Selatan" class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">Link Video Demo Mengajar (10-15 Menit)</label>
-                    <input type="url" id="reg-video" required placeholder="https://youtube.com/watch?v=..." class="w-full border border-slate-300 rounded-lg p-2.5 outline-none focus:border-sky-500">
-                    <p class="text-xs text-slate-500 mt-1">Upload video simulasi caramu mengajar ke YouTube/Drive lalu masukkan link di sini.</p>
-                </div>
-
-                <div>
-                    <label class="block font-semibold mb-1">Pilih Jam Operasional Mengajar</label>
-                    <div class="grid grid-cols-3 gap-2 mt-2" id="reg-hours-container">
-                        <label class="flex items-center gap-1.5 border p-2 rounded-lg cursor-pointer hover:bg-slate-50"><input type="checkbox" value="08:00" class="reg-hour-check"> 08:00</label>
-                        <label class="flex items-center gap-1.5 border p-2 rounded-lg cursor-pointer hover:bg-slate-50"><input type="checkbox" value="10:00" class="reg-hour-check"> 10:00</label>
-                        <label class="flex items-center gap-1.5 border p-2 rounded-lg cursor-pointer hover:bg-slate-50"><input type="checkbox" value="13:00" class="reg-hour-check"> 13:00</label>
-                        <label class="flex items-center gap-1.5 border p-2 rounded-lg cursor-pointer hover:bg-slate-50"><input type="checkbox" value="15:00" class="reg-hour-check"> 15:00</label>
-                        <label class="flex items-center gap-1.5 border p-2 rounded-lg cursor-pointer hover:bg-slate-50"><input type="checkbox" value="17:00" class="reg-hour-check"> 17:00</label>
-                        <label class="flex items-center gap-1.5 border p-2 rounded-lg cursor-pointer hover:bg-slate-50"><input type="checkbox" value="19:00" class="reg-hour-check"> 19:00</label>
-                    </div>
-                </div>
-
-                <div class="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-xs leading-relaxed">
-                    ℹ️ <strong>Catatan:</strong> Pengajar baru otomatis terdaftar untuk kelas <strong>Online</strong>. Fitur <strong>Offline</strong> akan diverifikasi oleh Admin setelah kamu mendapatkan minimal 10 ulasan dengan rating rata-rata &ge; 4.0.
-                </div>
-
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeTutorModal()" class="px-4 py-2 border border-slate-300 rounded-lg font-medium hover:bg-slate-100">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-medium">Kirim Pendaftaran</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm border-t border-slate-800">
-        <p>&copy; 2026 GO-LES Platform. Prototype All Rights Reserved.</p>
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        &copy; 2026 GO-LES. Hak Cipta Dilindungi.
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
-    <script src="js/app.js"></script>
+    <script>
+        let rawApprovedTutors = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadIndexTutorData();
+        });
+
+        async function loadIndexTutorData() {
+            const { data: tutors, error } = await _supabase
+                .from('tutors')
+                .select('*')
+                .eq('status', 'approved')
+                .neq('role', 'admin')
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            rawApprovedTutors = tutors || [];
+            filterIndexTutors();
+        }
+
+        function filterIndexTutors() {
+            const selectedMapel = document.getElementById('filter-mapel').value;
+            const locVal = document.getElementById('filter-lokasi').value.toLowerCase().trim();
+
+            const filtered = rawApprovedTutors.filter(t => {
+                const matchMapel = selectedMapel === 'all' || t.subject === selectedMapel;
+                const matchLoc = (t.location || '').toLowerCase().includes(locVal);
+                return matchMapel && matchLoc;
+            });
+
+            renderIndexTutors(filtered);
+        }
+
+        function renderIndexTutors(list) {
+            const grid = document.getElementById('index-tutor-grid');
+            grid.innerHTML = '';
+
+            if (list.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center text-slate-400 py-8">Tidak ada tutor yang sesuai kriteria.</p>`;
+                return;
+            }
+
+            list.forEach(t => {
+                const modeBadge = t.is_offline_verified 
+                    ? `<span class="bg-sky-50 text-sky-600 text-[10px] font-bold px-2 py-0.5 rounded"><i class="fa-solid fa-house-user"></i> Online & Offline</span>`
+                    : `<span class="bg-slate-100 text-slate-500 text-[10px] font-medium px-2 py-0.5 rounded">Online Only</span>`;
+
+                const ratingBadge = `<span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${t.rating || 'Baru'}</span>`;
+
+                grid.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition">
+                        <div class="flex gap-4 items-start mb-3">
+                            <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-14 h-14 rounded-xl object-cover border border-slate-200">
+                            <div>
+                                <h4 class="font-bold text-slate-900">${t.name}</h4>
+                                <p class="text-xs text-slate-500">${t.subject} (${t.level || 'Umum'})</p>
+                                <p class="text-xs text-sky-600 font-semibold mt-1"><i class="fa-solid fa-location-dot"></i> ${t.location || 'Online'}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mb-4">
+                            ${modeBadge}
+                            ${ratingBadge}
+                        </div>
+                        <div class="flex justify-between items-center border-t border-slate-100 pt-3">
+                            <span class="font-bold text-sky-600 text-sm">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
+                            <a href="login.html" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                                Pesan Sesi
+                            </a>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    </script>
 </body>
 </html>
