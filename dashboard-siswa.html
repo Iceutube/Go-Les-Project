@@ -19,25 +19,29 @@
                 <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
-                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 font-normal text-sm">| Area Siswa</span></span>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Siswa</span></span>
             </div>
-            <div class="flex items-center gap-4">
-                <span id="student-email" class="text-xs font-semibold text-slate-600">Siswa</span>
-                <button onclick="handleLogout()" class="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-3.5 py-2 rounded-xl text-xs font-bold transition border border-red-200">
-                    <i class="fa-solid fa-right-from-bracket"></i> Keluar
+
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <img id="student-avatar" src="https://ui-avatars.com/api/?name=Siswa" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                    <span id="student-name" class="font-bold text-xs text-slate-800">Siswa</span>
+                </div>
+                <button onclick="logout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Keluar">
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
     </nav>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-8">
-        <div class="bg-sky-600 text-white p-6 rounded-2xl shadow-lg flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div>
-                <h2 class="text-xl font-bold">Cari Tutor Berdasarkan Mata Pelajaran & Lokasi</h2>
-                <p class="text-sky-100 text-sm mt-1">Saring tutor les privat pilihanmu dengan mudah.</p>
+        <div class="bg-sky-600 text-white p-8 rounded-3xl shadow-xl flex flex-col md:flex-row gap-6 items-center justify-between">
+            <div class="space-y-2">
+                <h1 class="text-2xl md:text-3xl font-extrabold">Cari & Pesan Tutor Privat</h1>
+                <p class="text-sky-100 text-xs md:text-sm">Pilih guru les terbaik sesuai tingkat sekolah dan mata pelajaran pilihanmu.</p>
             </div>
             <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                <select id="filter-mapel" onchange="filterTutors()" class="px-3 py-2.5 rounded-xl text-slate-800 text-xs font-semibold outline-none bg-white border border-slate-200">
+                <select id="filter-mapel" onchange="filterStudentTutors()" class="px-3 py-2.5 rounded-xl text-slate-800 text-xs font-semibold outline-none bg-white border border-slate-200">
                     <option value="all">Semua Mata Pelajaran</option>
                     <option value="B. Indonesia">B. Indonesia</option>
                     <option value="B. Inggris">B. Inggris</option>
@@ -52,90 +56,123 @@
                     <option value="Informatika">Informatika</option>
                 </select>
 
-                <input type="text" id="filter-lokasi" onkeyup="filterTutors()" placeholder="Lokasi domisili..." class="px-4 py-2.5 rounded-xl text-slate-800 text-xs outline-none w-full sm:w-48 bg-white">
+                <select id="filter-level" onchange="filterStudentTutors()" class="px-3 py-2.5 rounded-xl text-slate-800 text-xs font-semibold outline-none bg-white border border-slate-200">
+                    <option value="all">Semua Tingkat Kelas</option>
+                    <option value="SD">SD</option>
+                    <option value="SMP">SMP</option>
+                    <option value="SMA">SMA</option>
+                    <option value="Umum">Umum</option>
+                </select>
+
+                <input type="text" id="filter-lokasi" onkeyup="filterStudentTutors()" placeholder="Cari lokasi/kota..." class="px-4 py-2.5 rounded-xl text-slate-800 text-xs outline-none w-full sm:w-48 bg-white">
             </div>
         </div>
 
         <section>
-            <h3 class="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-chalkboard-user text-sky-600"></i> Rekomendasi Tutor Terverifikasi
-            </h3>
+            <h2 class="font-bold text-slate-900 text-xl mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-star text-amber-400"></i> Rekomendasi Tutor Terverifikasi
+            </h2>
             <div id="student-tutor-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <p class="col-span-full text-center text-slate-400 py-8">Memuat katalog tutor...</p>
             </div>
         </section>
     </main>
 
-    <div id="modal-review" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center hidden p-4">
-        <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6">
-            <div class="text-center mb-4">
-                <div class="bg-amber-100 text-amber-600 w-12 h-12 rounded-full flex items-center justify-center text-xl mx-auto mb-2">
-                    <i class="fa-solid fa-star"></i>
+    <div id="chat-modal" class="fixed bottom-4 right-4 w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 hidden flex flex-col overflow-hidden h-[450px]">
+        <div class="bg-sky-600 text-white p-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=User" class="w-8 h-8 rounded-full border border-white/30 object-cover">
+                <div>
+                    <h4 id="chat-target-name" class="font-bold text-xs">Obrolan Tutor</h4>
+                    <span class="text-[9px] text-sky-100 flex items-center gap-1"><i class="fa-solid fa-circle text-emerald-400 text-[6px]"></i> Online</span>
                 </div>
-                <h3 class="font-bold text-lg text-slate-900">Beri Ulasan Sesi Sebelumnya</h3>
-                <p class="text-xs text-slate-500 mt-1">Berikan ulasan terlebih dahulu sebelum memesan sesi baru.</p>
             </div>
-
-            <form id="form-review" class="space-y-4">
-                <div>
-                    <label class="block font-semibold text-xs text-slate-700 mb-1">Pilih Rating</label>
-                    <select id="review-rating" required class="w-full border border-slate-300 rounded-lg p-2 text-sm bg-white outline-none focus:border-sky-500">
-                        <option value="5">⭐⭐⭐⭐⭐ (5.0 - Sangat Bagus)</option>
-                        <option value="4">⭐⭐⭐⭐ (4.0 - Bagus)</option>
-                        <option value="3">⭐⭐⭐ (3.0 - Cukup)</option>
-                        <option value="2">⭐⭐ (2.0 - Kurang)</option>
-                        <option value="1">⭐ (1.0 - Sangat Kurang)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-semibold text-xs text-slate-700 mb-1">Ulasan</label>
-                    <textarea id="review-text" required rows="3" placeholder="Penyampaian materi sangat mudah dipahami..." class="w-full border border-slate-300 rounded-lg p-2.5 text-sm outline-none focus:border-sky-500"></textarea>
-                </div>
-                <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                    Kirim Ulasan & Lanjutkan
-                </button>
-            </form>
+            <button onclick="closeChatModal()" class="text-white hover:text-sky-200 text-base px-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
+
+        <div id="chat-messages-box" class="flex-1 p-3 overflow-y-auto space-y-2.5 bg-slate-50 text-xs">
+            <p class="text-center text-slate-400 py-4 text-[11px]">Memuat percakapan...</p>
+        </div>
+
+        <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-2.5 bg-white border-t border-slate-200 flex gap-2">
+            <input type="text" id="chat-input" required placeholder="Tulis pesan..." class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs outline-none focus:border-sky-500">
+            <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition">
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
+        </form>
     </div>
+
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        &copy; 2026 GO-LES. Hak Cipta Dilindungi.
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
         let rawApprovedTutors = [];
-        let currentSelectedTutor = null;
-        let pendingReviewBookingId = null;
+        let currentStudent = null;
+        let currentChatTargetUserId = null;
+        let chatSubscription = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
+            await checkStudentAuth();
+            await loadStudentTutorData();
+        });
+
+        async function checkStudentAuth() {
             const { data: { user } } = await _supabase.auth.getUser();
+
             if (!user) {
-                alert('Silakan login terlebih dahulu!');
                 window.location.href = 'login.html';
                 return;
             }
-            document.getElementById('student-email').innerText = user.email;
-            await loadStudentDashboardData();
-        });
 
-        async function loadStudentDashboardData() {
-            const { data: tutors } = await _supabase
+            currentStudent = user;
+
+            const { data: profile } = await _supabase
+                .from('tutors')
+                .select('*')
+                .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+                .single();
+
+            if (profile) {
+                document.getElementById('student-name').innerText = profile.name;
+                document.getElementById('student-avatar').src = profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}`;
+            } else {
+                document.getElementById('student-name').innerText = user.email.split('@')[0];
+            }
+        }
+
+        async function loadStudentTutorData() {
+            const { data: tutors, error } = await _supabase
                 .from('tutors')
                 .select('*')
                 .eq('status', 'approved')
-                .neq('role', 'admin')
                 .eq('role', 'tutor')
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                return;
+            }
 
             rawApprovedTutors = tutors || [];
-            filterTutors();
+            filterStudentTutors();
         }
 
-        function filterTutors() {
+        function filterStudentTutors() {
             const selectedMapel = document.getElementById('filter-mapel').value;
+            const selectedLevel = document.getElementById('filter-level').value;
             const locVal = document.getElementById('filter-lokasi').value.toLowerCase().trim();
 
             const filtered = rawApprovedTutors.filter(t => {
                 const matchMapel = selectedMapel === 'all' || t.subject === selectedMapel;
+                const matchLevel = selectedLevel === 'all' || t.level === selectedLevel;
                 const matchLoc = (t.location || '').toLowerCase().includes(locVal);
-                return matchMapel && matchLoc;
+                return matchMapel && matchLevel && matchLoc;
             });
 
             renderStudentTutors(filtered);
@@ -155,6 +192,8 @@
                     ? `<span class="bg-sky-50 text-sky-600 text-[10px] font-bold px-2 py-0.5 rounded"><i class="fa-solid fa-house-user"></i> Online & Offline</span>`
                     : `<span class="bg-slate-100 text-slate-500 text-[10px] font-medium px-2 py-0.5 rounded">Online Only</span>`;
 
+                const ratingBadge = `<span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${t.rating || 'Baru'} (${t.total_reviews || 0})</span>`;
+
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition">
                         <div class="flex gap-4 items-start mb-3">
@@ -165,78 +204,117 @@
                                 <p class="text-xs text-sky-600 font-semibold mt-1"><i class="fa-solid fa-location-dot"></i> ${t.location || 'Online'}</p>
                             </div>
                         </div>
-                        <div class="mb-4">${modeBadge}</div>
-                        <div class="flex justify-between items-center border-t border-slate-100 pt-3">
-                            <span class="font-bold text-sky-600 text-sm">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
-                            <button onclick="attemptBooking('${t.id}', '${t.name}')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
-                                Pesan Sesi
-                            </button>
+                        <div class="flex items-center justify-between mb-4">
+                            ${modeBadge}
+                            ${ratingBadge}
+                        </div>
+                        <div class="flex justify-between items-center border-t border-slate-100 pt-3 gap-2">
+                            <span class="font-bold text-sky-600 text-xs sm:text-sm">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
+                            <div class="flex gap-1.5">
+                                <button onclick="openChatModal('${t.user_id}', '${t.name.replace(/'/g, "\\'")}', '${t.avatar || ''}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold px-2.5 py-2 rounded-lg transition">
+                                    <i class="fa-solid fa-comments"></i> Chat
+                                </button>
+                                <button onclick="bookTutor(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                                    Pesan
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
             });
         }
 
-        async function attemptBooking(tutorId, tutorName) {
-            const { data: { user } } = await _supabase.auth.getUser();
-            
-            const { data: unreviewedBookings } = await _supabase
-                .from('bookings')
-                .select('*')
-                .eq('student_id', user.id)
-                .eq('has_reviewed', false)
-                .limit(1);
-
-            if (unreviewedBookings && unreviewedBookings.length > 0) {
-                pendingReviewBookingId = unreviewedBookings[0].id;
-                currentSelectedTutor = { id: tutorId, name: tutorName };
-                document.getElementById('modal-review').classList.remove('hidden');
-            } else {
-                await createNewBooking(tutorId, tutorName);
+        async function openChatModal(targetUserId, targetName, targetAvatar) {
+            if (!targetUserId || targetUserId === 'null' || targetUserId === 'undefined') {
+                alert('Tutor ini belum memiliki akun user_id aktif untuk menerima pesan.');
+                return;
             }
+
+            currentChatTargetUserId = targetUserId;
+            document.getElementById('chat-target-name').innerText = targetName;
+            document.getElementById('chat-target-avatar').src = targetAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetName)}`;
+            document.getElementById('chat-modal').classList.remove('hidden');
+
+            await loadChatHistory();
+            listenToRealtimeChat();
         }
 
-        document.getElementById('form-review').addEventListener('submit', async (e) => {
+        function closeChatModal() {
+            document.getElementById('chat-modal').classList.add('hidden');
+            if (chatSubscription) _supabase.removeChannel(chatSubscription);
+        }
+
+        async function loadChatHistory() {
+            const box = document.getElementById('chat-messages-box');
+            box.innerHTML = '';
+
+            const { data: messages, error } = await _supabase
+                .from('messages')
+                .select('*')
+                .or(`and(sender_id.eq.${currentStudent.id},receiver_id.eq.${currentChatTargetUserId}),and(sender_id.eq.${currentChatTargetUserId},receiver_id.eq.${currentStudent.id})`)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                box.innerHTML = `<p class="text-center text-rose-500 py-2">Gagal memuat pesan.</p>`;
+                return;
+            }
+
+            if (!messages || messages.length === 0) {
+                box.innerHTML = `<p class="text-center text-slate-400 py-4 text-[11px]">Belum ada pesan. Mulai sapa tutor ini!</p>`;
+                return;
+            }
+
+            messages.forEach(msg => {
+                const isMe = msg.sender_id === currentStudent.id;
+                box.innerHTML += `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <div class="${isMe ? 'bg-sky-600 text-white' : 'bg-white border border-slate-200 text-slate-800'} px-3 py-2 rounded-2xl max-w-[80%] shadow-sm">
+                            ${msg.message}
+                        </div>
+                        <span class="text-[9px] text-slate-400 mt-0.5 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                `;
+            });
+
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function sendChatMessage(e) {
             e.preventDefault();
-            const rating = document.getElementById('review-rating').value;
-            const reviewText = document.getElementById('review-text').value;
+            const input = document.getElementById('chat-input');
+            const msgText = input.value.trim();
+            if (!msgText) return;
 
-            if (pendingReviewBookingId) {
-                await _supabase.from('bookings').update({ 
-                    has_reviewed: true, 
-                    rating: parseInt(rating), 
-                    review: reviewText 
-                }).eq('id', pendingReviewBookingId);
-            }
-
-            document.getElementById('modal-review').classList.add('hidden');
-            alert('Ulasan berhasil dikirim!');
-
-            if (currentSelectedTutor) {
-                await createNewBooking(currentSelectedTutor.id, currentSelectedTutor.name);
-            }
-        });
-
-        async function createNewBooking(tutorId, tutorName) {
-            const { data: { user } } = await _supabase.auth.getUser();
-            const { error } = await _supabase.from('bookings').insert([{
-                student_id: user.id,
-                tutor_id: tutorId,
-                has_reviewed: false
+            const { error } = await _supabase.from('messages').insert([{
+                sender_id: currentStudent.id,
+                receiver_id: currentChatTargetUserId,
+                message: msgText
             }]);
 
             if (!error) {
-                alert(`Berhasil memesan sesi dengan ${tutorName}! Sesi mengajar telah ditambahkan.`);
-                loadStudentDashboardData();
+                input.value = '';
+                await loadChatHistory();
             } else {
-                alert(`Gagal memesan: ${error.message}`);
+                alert('Gagal mengirim pesan: ' + error.message);
             }
         }
 
-        async function handleLogout() {
+        function listenToRealtimeChat() {
+            chatSubscription = _supabase
+                .channel('public:messages')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+                    loadChatHistory();
+                })
+                .subscribe();
+        }
+
+        async function bookTutor(tutorId) {
+            alert('Fitur pemesanan sesi sedang disiapkan. Kamu bisa menghubungi tutor terlebih dahulu via fitur Chat!');
+        }
+
+        async function logout() {
             await _supabase.auth.signOut();
-            alert('Berhasil keluar!');
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }
     </script>
 </body>
