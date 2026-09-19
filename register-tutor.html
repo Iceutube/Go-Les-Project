@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Tutor - GO-LES</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white w-full max-w-xl rounded-2xl border border-slate-200 shadow-xl p-8 space-y-6">
+        <div class="text-center">
+            <div class="bg-sky-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center font-bold mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-chalkboard-user"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold text-slate-900">Daftar Sebagai Tutor</h1>
+            <p class="text-xs text-slate-500 mt-1">Bergabung menjadi pengajar les privat di GO-LES</p>
+        </div>
+
+        <form id="form-register-tutor" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="reg-name" required placeholder="Budi Santoso" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Email</label>
+                    <input type="email" id="reg-email" required placeholder="tutor@gmail.com" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs outline-none focus:border-sky-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Password</label>
+                    <input type="password" id="reg-password" required placeholder="••••••••" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Nomor WhatsApp</label>
+                    <input type="tel" id="reg-phone" required placeholder="081234567890" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs outline-none focus:border-sky-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Mata Pelajaran</label>
+                    <select id="reg-subject" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-white outline-none focus:border-sky-500">
+                        <option value="" disabled selected>-- Pilih Mata Pelajaran --</option>
+                        <option value="B. Indonesia">B. Indonesia</option>
+                        <option value="B. Inggris">B. Inggris</option>
+                        <option value="Matematika">Matematika</option>
+                        <option value="Fisika">Fisika</option>
+                        <option value="Kimia">Kimia</option>
+                        <option value="Biologi">Biologi</option>
+                        <option value="Sosiologi">Sosiologi</option>
+                        <option value="Sejarah">Sejarah</option>
+                        <option value="Pancasila">Pancasila</option>
+                        <option value="Geografi">Geografi</option>
+                        <option value="Informatika">Informatika</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Tingkat Pendidikan</label>
+                    <select id="reg-level" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs bg-white outline-none focus:border-sky-500">
+                        <option value="SD">SD</option>
+                        <option value="SMP">SMP</option>
+                        <option value="SMA">SMA</option>
+                        <option value="Umum">Umum</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Lokasi Domisili</label>
+                    <input type="text" id="reg-location" required placeholder="Jakarta Selatan" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-xs text-slate-700 mb-1">Tarif Per Jam (Rp)</label>
+                    <input type="number" id="reg-price" required placeholder="50000" class="w-full border border-slate-300 rounded-xl p-2.5 text-xs outline-none focus:border-sky-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-xs text-slate-700 mb-1">URL Video Demo Mengajar (YouTube/Drive)</label>
+                <input type="url" id="reg-video" placeholder="https://youtube.com/watch?v=..." class="w-full border border-slate-300 rounded-xl p-2.5 text-xs outline-none focus:border-sky-500">
+            </div>
+
+            <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
+                Daftar Sebagai Tutor
+            </button>
+        </form>
+
+        <p class="text-center text-xs text-slate-500">
+            Sudah punya akun? <a href="login.html" class="text-sky-600 font-bold hover:underline">Masuk disini</a>
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script>
+        document.getElementById('form-register-tutor').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const phone = document.getElementById('reg-phone').value;
+            const subject = document.getElementById('reg-subject').value;
+            const level = document.getElementById('reg-level').value;
+            const location = document.getElementById('reg-location').value;
+            const price = parseInt(document.getElementById('reg-price').value) || 0;
+            const video = document.getElementById('reg-video').value;
+
+            const { data: authData, error: authError } = await _supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (authError) {
+                alert('Gagal pendaftaran: ' + authError.message);
+                return;
+            }
+
+            if (authData.user) {
+                const { error: profileError } = await _supabase.from('tutors').insert([{
+                    user_id: authData.user.id,
+                    name: name,
+                    email: email,
+                    role: 'tutor',
+                    status: 'pending',
+                    is_offline_verified: false,
+                    subject: subject,
+                    level: level,
+                    type: 'Online',
+                    location: location,
+                    phone_number: phone,
+                    teaching_video_url: video,
+                    price: price,
+                    avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`
+                }]);
+
+                if (!profileError) {
+                    alert('Pendaftaran berhasil! Akun kamu sedang dalam status Menunggu Verifikasi Admin.');
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Gagal menyimpan profil: ' + profileError.message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
