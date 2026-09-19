@@ -75,19 +75,37 @@
     }
 
     if (authData.user) {
-        if (profiles && profiles.length > 0) {
-            const userProfile = profiles[0];
+        // 2. Fetch user profile from tutors table
+        const { data: profileData, error: profileError } = await _supabase
+            .from('tutors')
+            .select('*')
+            .eq('user_id', authData.user.id)
+            .single();
 
-            if (userProfile.role === 'admin') {
+        if (profileError) {
+            alert('Gagal mengambil profil: ' + profileError.message);
+            btnLogin.innerText = 'Masuk';
+            btnLogin.disabled = false;
+            return;
+        }
+
+        if (profileData) {
+            const role = profileData.role;
+            if (role === 'admin') {
                 window.location.href = 'admin.html';
-            } else if (userProfile.role === 'tutor') {
+            } else if (role === 'tutor') {
                 window.location.href = 'dashboard-tutor.html';
+            } else if (role === 'siswa') {
+                window.location.href = 'dashboard-siswa.html';
             } else {
+                // fallback
                 window.location.href = 'dashboard-siswa.html';
             }
         } else {
-            // Default fallback jika profil tabel belum terbuat
-            window.location.href = 'dashboard-siswa.html';
+            // No profile found
+            alert('Profil tidak ditemukan. Silakan hubungi administrator.');
+            btnLogin.innerText = 'Masuk';
+            btnLogin.disabled = false;
         }
     }
 });
