@@ -34,10 +34,9 @@
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
             <div>
                 <h1 class="text-xl font-bold text-slate-900">Persetujuan & Verifikasi Tutor</h1>
-                <p class="text-xs text-slate-500 mt-1">Kelola permohonan pendaftaran tutor baru dan pantau performa mengajar.</p>
+                <p class="text-xs text-slate-500 mt-1">Kelola permohonan tutor baru dan verifikasi kelayakan mode mengajar offline (face-to-face).</p>
             </div>
 
-            <!-- FILTER & SEARCH BAR -->
             <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                 <div class="flex items-center border border-slate-300 rounded-xl px-3 py-2 bg-slate-50 focus-within:border-sky-500 text-xs">
                     <i class="fa-solid fa-magnifying-glass text-slate-400 mr-2"></i>
@@ -61,16 +60,15 @@
                         <tr class="bg-slate-50 text-slate-500 text-xs uppercase font-bold border-b border-slate-200">
                             <th class="p-4">Tutor</th>
                             <th class="p-4">Mata Pelajaran</th>
-                            <th class="p-4">Rating</th>
-                            <th class="p-4">Lokasi</th>
-                            <th class="p-4">Video Demo</th>
+                            <th class="p-4">Rating & Ulasan</th>
+                            <th class="p-4">Mode Mengajar</th>
                             <th class="p-4">Status Akun</th>
-                            <th class="p-4 text-center">Aksi</th>
+                            <th class="p-4 text-center">Aksi Verifikasi</th>
                         </tr>
                     </thead>
                     <tbody id="admin-tutor-list" class="text-sm divide-y divide-slate-100">
                         <tr>
-                            <td colspan="7" class="p-8 text-center text-slate-400">Memuat data tutor...</td>
+                            <td colspan="6" class="p-8 text-center text-slate-400">Memuat data tutor...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -135,7 +133,7 @@
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Tutor tidak ditemukan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">Tutor tidak ditemukan.</td></tr>`;
                 return;
             }
 
@@ -145,11 +143,12 @@
                     ? `<span class="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-md text-xs font-bold">Disetujui</span>` 
                     : `<span class="bg-amber-50 text-amber-600 px-2.5 py-1 rounded-md text-xs font-bold">Menunggu</span>`;
 
-                const videoBtn = t.teaching_video_url 
-                    ? `<a href="${t.teaching_video_url}" target="_blank" class="text-sky-600 hover:underline text-xs"><i class="fa-solid fa-circle-play"></i> Tonton Video</a>` 
-                    : `<span class="text-slate-400 text-xs">-</span>`;
+                const offlineBadge = t.is_offline_verified
+                    ? `<span class="bg-sky-50 text-sky-600 px-2.5 py-1 rounded-md text-xs font-bold"><i class="fa-solid fa-house-user"></i> Online & Offline</span>`
+                    : `<span class="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-md text-xs font-medium">Online Only</span>`;
 
-                const ratingBadge = `<span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${t.rating || 'Baru'}</span>`;
+                const ratingVal = t.rating || 'Baru';
+                const totalReviews = t.total_reviews || 0;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
@@ -161,18 +160,17 @@
                             </div>
                         </td>
                         <td class="p-4 text-slate-700 font-medium">${t.subject} (${t.level || 'Umum'})</td>
-                        <td class="p-4">${ratingBadge}</td>
-                        <td class="p-4 text-slate-600">${t.location || 'Online'}</td>
-                        <td class="p-4">${videoBtn}</td>
+                        <td class="p-4"><span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${ratingVal} (${totalReviews} ulasan)</span></td>
+                        <td class="p-4">${offlineBadge}</td>
                         <td class="p-4">${statusBadge}</td>
-                        <td class="p-4 text-center">
-                            ${t.status === 'pending' ? `
-                                <button onclick="updateStatus(${t.id}, 'approved')" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition mr-1">
-                                    Setujui
+                        <td class="p-4 text-center space-x-1">
+                            ${!t.is_offline_verified ? `
+                                <button onclick="verifyOffline(${t.id}, true)" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg transition" title="Setujui Mode Offline">
+                                    <i class="fa-solid fa-circle-check"></i> Setujui Offline
                                 </button>
                             ` : `
-                                <button onclick="updateStatus(${t.id}, 'pending')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg transition">
-                                    Batalkan
+                                <button onclick="verifyOffline(${t.id}, false)" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold px-2.5 py-1.5 rounded-lg transition" title="Cabut Akses Offline">
+                                    Cabut Offline
                                 </button>
                             `}
                         </td>
@@ -181,13 +179,20 @@
             });
         }
 
-        async function updateStatus(id, newStatus) {
-            const { error } = await _supabase.from('tutors').update({ status: newStatus }).eq('id', id);
+        async function verifyOffline(tutorId, statusBool) {
+            const { error } = await _supabase
+                .from('tutors')
+                .update({ 
+                    is_offline_verified: statusBool,
+                    type: statusBool ? 'Online & Offline' : 'Online'
+                })
+                .eq('id', tutorId);
+
             if (!error) {
-                alert(`Status tutor berhasil diperbarui menjadi: ${newStatus}`);
+                alert(statusBool ? 'Verifikasi mengajar Offline berhasil disetujui!' : 'Akses mengajar Offline telah dicabut.');
                 await loadAdminData();
             } else {
-                alert(`Gagal memperbarui status: ${error.message}`);
+                alert('Gagal memperbarui verifikasi: ' + error.message);
             }
         }
 
