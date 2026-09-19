@@ -90,7 +90,7 @@
 
             <div class="border-b border-slate-100 pb-3">
                 <h3 class="font-extrabold text-slate-900 text-base">Pengaturan Akun Tutor</h3>
-                <p class="text-xs text-slate-500">Atur profil pribadi dan ketersediaan waktu mengajar</p>
+                <p class="text-xs text-slate-500">Atur profil pribadi dan ketersediaan waktu mengajar per jam</p>
             </div>
 
             <div class="flex border-b border-slate-200 gap-2">
@@ -98,7 +98,7 @@
                     Data Profil & Tarif
                 </button>
                 <button id="tab-btn-schedule" onclick="switchSettingsTab('schedule')" class="py-2 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent transition">
-                    Jadwal & Ketersediaan Jam
+                    Jadwal & Slot Jam Mengajar
                 </button>
             </div>
 
@@ -156,30 +156,63 @@
                     </div>
 
                     <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">Pilih Kelas yang Bisa Diajar:</label>
+                        <label class="block text-xs font-bold text-slate-700">Pilih Kelas Spesifik:</label>
                         <div id="edit-grades-checkboxes" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs font-medium text-slate-700">
                         </div>
                     </div>
 
-                    <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">Ketersediaan Jam Belajar:</label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-700">
-                            <label class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer">
-                                <span>Pagi <span class="text-[10px] text-slate-400 block font-normal">(08:00 - 11:30 WIB)</span></span>
-                                <input type="checkbox" name="edit_teaching_hours" value="Pagi (08:00 - 11:30)" class="accent-sky-600">
-                            </label>
-                            <label class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer">
-                                <span>Siang <span class="text-[10px] text-slate-400 block font-normal">(12:30 - 15:00 WIB)</span></span>
-                                <input type="checkbox" name="edit_teaching_hours" value="Siang (12:30 - 15:00)" class="accent-sky-600">
-                            </label>
-                            <label class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer">
-                                <span>Sore <span class="text-[10px] text-slate-400 block font-normal">(15:30 - 17:30 WIB)</span></span>
-                                <input type="checkbox" name="edit_teaching_hours" value="Sore (15:30 - 17:30)" class="accent-sky-600">
-                            </label>
-                            <label class="flex items-center justify-between bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer">
-                                <span>Malam <span class="text-[10px] text-slate-400 block font-normal">(18:30 - 21:00 WIB)</span></span>
-                                <input type="checkbox" name="edit_teaching_hours" value="Malam (18:30 - 21:00)" class="accent-sky-600">
-                            </label>
+                    <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-3">
+                        <label class="block text-xs font-bold text-slate-700">Slot Jam Belajar per Jam:</label>
+
+                        <div class="space-y-2">
+                            <span class="text-[11px] font-bold text-sky-700 block"><i class="fa-regular fa-sun"></i> Sesi Pagi</span>
+                            <div class="grid grid-cols-3 gap-2 text-xs font-medium">
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="08:00 - 09:00" class="accent-sky-600"> 08:00-09:00
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="09:00 - 10:00" class="accent-sky-600"> 09:00-10:00
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="10:00 - 11:00" class="accent-sky-600"> 10:00-11:00
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-slate-200/60">
+                            <span class="text-[11px] font-bold text-amber-600 block"><i class="fa-solid fa-sun"></i> Sesi Siang</span>
+                            <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="12:30 - 13:30" class="accent-sky-600"> 12:30-13:30
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="13:30 - 14:30" class="accent-sky-600"> 13:30-14:30
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-slate-200/60">
+                            <span class="text-[11px] font-bold text-orange-600 block"><i class="fa-solid fa-cloud-sun"></i> Sesi Sore</span>
+                            <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="15:30 - 16:30" class="accent-sky-600"> 15:30-16:30
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="16:30 - 17:30" class="accent-sky-600"> 16:30-17:30
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-slate-200/60">
+                            <span class="text-[11px] font-bold text-indigo-600 block"><i class="fa-solid fa-moon"></i> Sesi Malam</span>
+                            <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="18:30 - 19:30" class="accent-sky-600"> 18:30-19:30
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="19:30 - 20:30" class="accent-sky-600"> 19:30-20:30
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -410,9 +443,8 @@
             renderGradeEditOptions(levelStr);
 
             const hoursStr = currentTutorProfile.available_hours || '';
-            document.querySelectorAll('input[name="edit_teaching_hours"]').forEach(cb => {
-                const keyword = cb.value.split(' ')[0];
-                cb.checked = hoursStr.includes(keyword);
+            document.querySelectorAll('input[name="edit_hourly_slots"]').forEach(cb => {
+                cb.checked = hoursStr.includes(cb.value);
             });
 
             switchSettingsTab('profile');
@@ -459,7 +491,7 @@
             const phone = document.getElementById('edit-phone').value.trim();
 
             const selectedGrades = Array.from(document.querySelectorAll('input[name="edit_specific_grades"]:checked')).map(cb => cb.value);
-            const selectedHours = Array.from(document.querySelectorAll('input[name="edit_teaching_hours"]:checked')).map(cb => cb.value);
+            const selectedHours = Array.from(document.querySelectorAll('input[name="edit_hourly_slots"]:checked')).map(cb => cb.value);
 
             const fullLevelStr = `${level} (${selectedGrades.join(', ')})`;
             const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
@@ -483,7 +515,7 @@
                 btnSave.innerText = 'Simpan Perubahan';
                 btnSave.disabled = false;
             } else {
-                alert('Profil & jadwal mengajar berhasil diperbarui!');
+                alert('Profil & jadwal slot jam mengajar berhasil diperbarui!');
                 btnSave.innerText = 'Simpan Perubahan';
                 btnSave.disabled = false;
                 closeSettingsModal();
