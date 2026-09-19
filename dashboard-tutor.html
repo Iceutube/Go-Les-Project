@@ -65,56 +65,71 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-check text-sky-600"></i> Sesi Les Siswa
-                </h3>
-                <div id="booking-list" class="space-y-3">
-                    <p class="text-center text-xs text-slate-400 py-6">Memuat sesi les...</p>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                    <i class="fa-solid fa-comments text-emerald-600"></i> Pesan Masuk Siswa
-                </h3>
-                <div id="chat-inbox-list" class="space-y-2">
-                    <p class="text-center text-xs text-slate-400 py-6">Memuat percakapan...</p>
-                </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-calendar-check text-sky-600"></i> Sesi Les Siswa
+            </h3>
+            <div id="booking-list" class="space-y-3">
+                <p class="text-center text-xs text-slate-400 py-6">Memuat sesi les...</p>
             </div>
         </div>
     </main>
 
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[480px] transition-all duration-300">
-            <div class="bg-sky-600 text-white p-4 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=Siswa" class="w-10 h-10 rounded-2xl border border-white/30 object-cover">
+        <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all duration-300">
+            
+            <div id="chat-header-list" class="bg-emerald-600 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i>
                     <div>
-                        <h4 id="chat-target-name" class="font-bold text-xs leading-tight">Obrolan Siswa</h4>
-                        <span class="text-[10px] text-sky-100 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-emerald-400 text-[6px]"></i> Aktif Dalam Aplikasi</span>
+                        <h4 class="font-bold text-sm leading-tight">Kotak Masuk Chat</h4>
+                        <p class="text-[10px] text-emerald-100">Daftar siswa yang mengirim pesan</p>
                     </div>
                 </div>
-                <button onclick="closeChatModal()" class="text-white hover:text-sky-200 text-lg p-1 transition">
+                <button onclick="closeChatModal()" class="text-white hover:text-emerald-200 text-lg p-1 transition">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div id="chat-messages-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/70 text-xs">
-                <p class="text-center text-slate-400 py-6 text-[11px]">Pilih siswa dari kotak masuk untuk memulai chat.</p>
+            <div id="chat-header-room" class="hidden bg-emerald-600 text-white p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <button onclick="showChatList()" class="text-white hover:text-emerald-200 text-sm mr-1">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=Siswa" class="w-9 h-9 rounded-full border border-white/30 object-cover">
+                    <div>
+                        <h4 id="chat-target-name" class="font-bold text-xs leading-tight">Nama Siswa</h4>
+                        <span class="text-[9px] text-emerald-100 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-emerald-300 text-[6px]"></i> Online</span>
+                    </div>
+                </div>
+                <button onclick="closeChatModal()" class="text-white hover:text-emerald-200 text-lg p-1 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
-            <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-3 bg-white border-t border-slate-100 flex gap-2">
-                <input type="text" id="chat-input" required placeholder="Tulis balasan..." class="flex-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-sky-500 bg-slate-50">
-                <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </form>
+            <div id="chat-view-list" class="flex-1 p-3 overflow-y-auto space-y-2 bg-slate-50 text-xs">
+                <div id="chat-contacts-container" class="space-y-1.5">
+                    <p class="text-center text-slate-400 py-6 text-[11px]">Memuat pesan masuk...</p>
+                </div>
+            </div>
+
+            <div id="chat-view-room" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+                <div id="chat-messages-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-100/70 text-xs">
+                    <p class="text-center text-slate-400 py-6 text-[11px]">Belum ada percakapan.</p>
+                </div>
+
+                <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-3 bg-white border-t border-slate-100 flex gap-2">
+                    <input type="text" id="chat-input" required placeholder="Tulis balasan..." class="flex-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 bg-slate-50">
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+
         </div>
 
-        <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="bg-sky-600 hover:bg-sky-700 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all duration-300">
-            <i class="fa-solid fa-comments text-2xl"></i>
+        <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all duration-300">
+            <i class="fa-brands fa-whatsapp text-3xl"></i>
         </button>
     </div>
 
@@ -129,10 +144,11 @@
         let currentUser = null;
         let currentTutorProfile = null;
         let currentChatTargetUserId = null;
-        let recentChatUsers = [];
+        let chatSubscription = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             await checkTutorAuth();
+            listenToRealtimeChat();
         });
 
         async function checkTutorAuth() {
@@ -160,8 +176,7 @@
             currentTutorProfile = profile;
             renderTutorProfile(profile);
             await loadTutorBookings(profile.id);
-            await loadChatInbox();
-            listenToGlobalMessages();
+            await loadChatContacts();
         }
 
         function renderTutorProfile(p) {
@@ -236,8 +251,8 @@
             });
         }
 
-        async function loadChatInbox() {
-            const inboxBox = document.getElementById('chat-inbox-list');
+        async function loadChatContacts() {
+            const container = document.getElementById('chat-contacts-container');
 
             const { data: messages, error } = await _supabase
                 .from('messages')
@@ -246,7 +261,7 @@
                 .order('created_at', { ascending: false });
 
             if (error || !messages || messages.length === 0) {
-                inboxBox.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Belum ada pesan dari siswa.</p>`;
+                container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan dari siswa.</p>`;
                 return;
             }
 
@@ -257,23 +272,21 @@
                 .select('*')
                 .in('user_id', uniqueSenderIds);
 
-            recentChatUsers = senders || [];
-
-            inboxBox.innerHTML = '';
+            container.innerHTML = '';
             uniqueSenderIds.forEach(uid => {
                 const senderProfile = (senders || []).find(s => s.user_id === uid) || { name: 'Siswa GO-LES', avatar: '' };
                 const lastMsg = messages.find(m => m.sender_id === uid || m.receiver_id === uid);
 
-                inboxBox.innerHTML += `
-                    <div onclick="openChatModal('${uid}', '${senderProfile.name.replace(/'/g, "\\'")}', '${senderProfile.avatar || ''}')" class="p-3 border border-slate-200 rounded-xl hover:bg-slate-50 transition cursor-pointer flex items-center justify-between">
+                container.innerHTML += `
+                    <div onclick="openChatWithStudent('${uid}', '${senderProfile.name.replace(/'/g, "\\'")}', '${senderProfile.avatar || ''}')" class="p-3 bg-white border border-slate-200 rounded-2xl hover:bg-emerald-50/50 transition cursor-pointer flex items-center justify-between">
                         <div class="flex items-center gap-3">
-                            <img src="${senderProfile.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(senderProfile.name)}" class="w-9 h-9 rounded-full object-cover border border-slate-200">
+                            <img src="${senderProfile.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(senderProfile.name)}" class="w-10 h-10 rounded-full object-cover border border-slate-200">
                             <div>
-                                <h4 class="font-bold text-xs text-slate-900">${senderProfile.name}</h4>
-                                <p class="text-[11px] text-slate-500 truncate max-w-[160px]">${lastMsg ? lastMsg.message : ''}</p>
+                                <h5 class="font-bold text-xs text-slate-900">${senderProfile.name}</h5>
+                                <p class="text-[11px] text-slate-500 truncate max-w-[170px]">${lastMsg ? lastMsg.message : ''}</p>
                             </div>
                         </div>
-                        <span class="text-[9px] text-slate-400"><i class="fa-solid fa-chevron-right"></i></span>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs pr-1"></i>
                     </div>
                 `;
             });
@@ -282,38 +295,42 @@
         function toggleFloatingChat() {
             const chatModal = document.getElementById('chat-modal');
             if (chatModal.classList.contains('hidden')) {
-                if (!currentChatTargetUserId && recentChatUsers.length > 0) {
-                    const firstStudent = recentChatUsers[0];
-                    openChatModal(firstStudent.user_id, firstStudent.name, firstStudent.avatar);
-                } else {
-                    chatModal.classList.remove('hidden');
-                }
+                chatModal.classList.remove('hidden');
+                showChatList();
             } else {
                 closeChatModal();
             }
-        }
-
-        async function openChatModal(targetUserId, targetName, targetAvatar) {
-            currentChatTargetUserId = targetUserId;
-            document.getElementById('chat-target-name').innerText = targetName;
-            document.getElementById('chat-target-avatar').src = targetAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetName)}`;
-            document.getElementById('chat-modal').classList.remove('hidden');
-
-            await loadChatHistory();
         }
 
         function closeChatModal() {
             document.getElementById('chat-modal').classList.add('hidden');
         }
 
+        function showChatList() {
+            document.getElementById('chat-header-list').classList.remove('hidden');
+            document.getElementById('chat-header-room').classList.add('hidden');
+            document.getElementById('chat-view-list').classList.remove('hidden');
+            document.getElementById('chat-view-room').classList.add('hidden');
+            currentChatTargetUserId = null;
+        }
+
+        async function openChatWithStudent(targetUserId, targetName, targetAvatar) {
+            document.getElementById('chat-modal').classList.remove('hidden');
+            document.getElementById('chat-header-list').classList.add('hidden');
+            document.getElementById('chat-header-room').classList.remove('hidden');
+            document.getElementById('chat-view-list').classList.add('hidden');
+            document.getElementById('chat-view-room').classList.remove('hidden');
+
+            currentChatTargetUserId = targetUserId;
+            document.getElementById('chat-target-name').innerText = targetName;
+            document.getElementById('chat-target-avatar').src = targetAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetName)}`;
+
+            await loadChatHistory();
+        }
+
         async function loadChatHistory() {
             const box = document.getElementById('chat-messages-box');
             box.innerHTML = '';
-
-            if (!currentChatTargetUserId) {
-                box.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Pilih siswa dari kotak masuk untuk memulai chat.</p>`;
-                return;
-            }
 
             const { data: messages, error } = await _supabase
                 .from('messages')
@@ -327,7 +344,7 @@
             }
 
             if (!messages || messages.length === 0) {
-                box.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan.</p>`;
+                box.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada percakapan.</p>`;
                 return;
             }
 
@@ -335,10 +352,10 @@
                 const isMe = msg.sender_id === currentUser.id;
                 box.innerHTML += `
                     <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                        <div class="${isMe ? 'bg-sky-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'} px-3.5 py-2.5 rounded-2xl max-w-[85%] shadow-sm leading-relaxed">
+                        <div class="${isMe ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'} px-3.5 py-2 rounded-2xl max-w-[85%] shadow-sm leading-relaxed">
                             ${msg.message}
                         </div>
-                        <span class="text-[9px] text-slate-400 mt-1 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <span class="text-[9px] text-slate-400 mt-0.5 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
                 `;
             });
@@ -361,20 +378,20 @@
             if (!error) {
                 input.value = '';
                 await loadChatHistory();
-                await loadChatInbox();
+                await loadChatContacts();
             } else {
                 alert('Gagal mengirim pesan: ' + error.message);
             }
         }
 
-        function listenToGlobalMessages() {
-            _supabase
+        function listenToRealtimeChat() {
+            chatSubscription = _supabase
                 .channel('public:messages')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                    if (currentChatTargetUserId && (payload.new.sender_id === currentChatTargetUserId || payload.new.receiver_id === currentChatTargetUserId)) {
+                    if (currentChatTargetUserId) {
                         loadChatHistory();
                     }
-                    loadChatInbox();
+                    loadChatContacts();
                 })
                 .subscribe();
         }
