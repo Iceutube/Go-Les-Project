@@ -59,7 +59,7 @@
                     <span id="card-price" class="text-sm font-extrabold text-slate-900">Rp 0/jam</span>
                 </div>
                 <div>
-                    <span class="text-[10px] text-slate-400 block font-semibold">Status</span>
+                    <span class="text-[10px] text-slate-400 block font-semibold">Status Profil</span>
                     <span id="card-status-badge" class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">Pending</span>
                 </div>
             </div>
@@ -164,8 +164,7 @@
             const { data: profile, error } = await _supabase
                 .from('tutors')
                 .select('*')
-                .eq('user_id', user.id)
-                .eq('role', 'tutor')
+                .or(`user_id.eq.${user.id},email.eq.${user.email}`)
                 .single();
 
             if (error || !profile) {
@@ -173,10 +172,22 @@
                 return;
             }
 
+            if (!profile.user_id) {
+                await _supabase
+                    .from('tutors')
+                    .update({ user_id: user.id })
+                    .eq('id', profile.id);
+            }
+
             currentTutorProfile = profile;
             renderTutorProfile(profile);
-            await loadTutorBookings(profile.id);
-            await loadChatContacts();
+
+            if (profile.status === 'approved') {
+                await loadTutorBookings(profile.id);
+                await loadChatContacts();
+            } else {
+                restrictUnapprovedFeatures();
+            }
         }
 
         function renderTutorProfile(p) {
@@ -200,24 +211,43 @@
                 alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-emerald-50 border-emerald-200 text-emerald-800';
                 alertIcon.className = 'fa-solid fa-circle-check text-emerald-600 text-lg';
                 alertTitle.innerText = 'Akun Tutor Terverifikasi';
-                alertDesc.innerText = 'Profil kamu sudah disetujui Admin dan sudah tampil di katalog utama.';
+                alertDesc.innerText = 'Profil kamu telah disetujui Admin. Katalog les privat dan fitur percakapan sudah aktif fully!';
                 statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700';
-                statusBadge.innerText = 'Aktif / Approved';
+                statusBadge.innerText = 'Approved / Aktif';
             } else if (p.status === 'rejected') {
                 alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-rose-50 border-rose-200 text-rose-800';
                 alertIcon.className = 'fa-solid fa-circle-xmark text-rose-600 text-lg';
-                alertTitle.innerText = 'Verifikasi Ditolak';
-                alertDesc.innerText = 'Mohon periksa kembali data profil atau hubungi Admin GO-LES.';
+                alertTitle.innerText = 'Pendaftaran Ditolak';
+                alertDesc.innerText = 'Mohon maaf, berkas pendaftaran kamu belum memenuhi kriteria. Silakan hubungi Admin GO-LES.';
                 statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700';
                 statusBadge.innerText = 'Ditolak';
             } else {
                 alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-amber-50 border-amber-200 text-amber-800';
                 alertIcon.className = 'fa-solid fa-clock text-amber-600 text-lg';
-                alertTitle.innerText = 'Menunggu Verifikasi Admin';
-                alertDesc.innerText = 'Tim Admin GO-LES sedang meninjau kelengkapan profil dan foto formal kamu.';
+                alertTitle.innerText = 'Pendaftaran Dalam Peninjauan';
+                alertDesc.innerText = 'Akun kamu berhasil masuk tetapi fitur aplikasi masih dikunci hingga Admin menyetujui (approve) pendaftaranmu.';
                 statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700';
                 statusBadge.innerText = 'Pending Review';
             }
+        }
+
+        function restrictUnapprovedFeatures() {
+            document.getElementById('booking-list').innerHTML = `
+                <div class="text-center py-8 space-y-2">
+                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto font-bold text-lg">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <p class="font-bold text-xs text-slate-700">Fitur Sesi Belajar Masih Dikunci</p>
+                    <p class="text-[11px] text-slate-400 max-w-sm mx-auto">Tunggu hingga Admin menyetujui profil kamu agar siswa dapat memesan sesi les privat.</p>
+                </div>
+            `;
+
+            document.getElementById('chat-contacts-container').innerHTML = `
+                <div class="text-center py-8 space-y-2">
+                    <p class="font-bold text-xs text-slate-700">Fitur Chat Dikunci</p>
+                    <p class="text-[11px] text-slate-400">Kamu belum bisa berkirim pesan sampai akun di-approve oleh Admin.</p>
+                </div>
+            `;
         }
 
         async function loadTutorBookings(tutorId) {
@@ -293,6 +323,11 @@
         }
 
         function toggleFloatingChat() {
+            if (currentTutorProfile && currentTutorProfile.status !== 'approved') {
+                alert('Fitur Chat hanya dapat digunakan setelah akun kamu disetujui (Approved) oleh Admin.');
+                return;
+            }
+
             const chatModal = document.getElementById('chat-modal');
             if (chatModal.classList.contains('hidden')) {
                 chatModal.classList.remove('hidden');
@@ -315,6 +350,11 @@
         }
 
         async function openChatWithStudent(targetUserId, targetName, targetAvatar) {
+            if (currentTutorProfile && currentTutorProfile.status !== 'approved') {
+                alert('Akun kamu masih dalam peninjauan Admin.');
+                return;
+            }
+
             document.getElementById('chat-modal').classList.remove('hidden');
             document.getElementById('chat-header-list').classList.add('hidden');
             document.getElementById('chat-header-room').classList.remove('hidden');
@@ -388,10 +428,12 @@
             chatSubscription = _supabase
                 .channel('public:messages')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                    if (currentChatTargetUserId) {
-                        loadChatHistory();
+                    if (currentTutorProfile && currentTutorProfile.status === 'approved') {
+                        if (currentChatTargetUserId) {
+                            loadChatHistory();
+                        }
+                        loadChatContacts();
                     }
-                    loadChatContacts();
                 })
                 .subscribe();
         }
