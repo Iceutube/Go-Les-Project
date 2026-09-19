@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GO-LES - Platform Les Privat On-Demand</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen">
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('search')">
+                <div class="bg-sky-600 text-white w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <span class="font-extrabold text-xl tracking-tight text-slate-900">GO<span class="text-sky-600">-LES</span></span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="switchTab('schedule')" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition">
+                    <i class="fa-regular fa-calendar"></i> Jadwal Saya
+                </button>
+                <button onclick="alert('Formulir pendaftaran tutor akan dibuka!')" class="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-user-plus"></i> Jadi Tutor
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-sky-600 text-white py-12 px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-3">Cari Tutor Les Privat Terbaik untuk Masa Depanmu</h1>
+            <p class="text-sky-100 mb-6">Pilihan privat Online atau Offline (Tutor Datang ke Rumah) secara fleksibel.</p>
+            
+            <div class="bg-white p-2 rounded-2xl shadow-xl flex flex-col sm:flex-row gap-2 text-slate-800">
+                <div class="flex-1 flex items-center px-3 gap-2 border-b sm:border-b-0 sm:border-r border-slate-200 py-2">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+                    <input type="text" id="searchInput" oninput="renderTutors()" placeholder="Cari mata pelajaran atau nama tutor..." class="w-full outline-none text-sm">
+                </div>
+                <select id="subjectFilter" onchange="renderTutors()" class="px-4 py-2 outline-none text-sm bg-transparent cursor-pointer font-medium">
+                    <option value="Semua">Semua Pelajaran</option>
+                    <option value="Matematika">Matematika</option>
+                    <option value="Bahasa Inggris">Bahasa Inggris</option>
+                    <option value="Fisika">Fisika & Kimia</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
+
+        <section id="tabSearch">
+            <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-user-graduate text-sky-600"></i> Rekomendasi Tutor
+            </h2>
+            <div id="tutorGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               
+            </div>
+        </section>
+
+        <section id="tabSchedule" class="hidden">
+            <h2 class="text-xl font-bold mb-6 text-slate-800 flex items-center gap-2">
+                <i class="fa-regular fa-calendar-check text-sky-600"></i> Jadwal Les Saya
+            </h2>
+            <div id="scheduleList" class="space-y-4">
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500">
+                    Belum ada jadwal les yang dipesan.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-sm border-t border-slate-800">
+        <p>&copy; 2026 GO-LES Platform. Prototype All Rights Reserved.</p>
+    </footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const SUPABASE_URL = "https://hgnreqkvpqnkdvcadtis.supabase.com";
+    const SUPABASE_KEY = "sb_publishable_PWz9QppEsZdEKrvLnaysfA_PUZ_vzzQ";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let tutorsData = [];
+    let myBookings = [];
+
+    async function fetchTutorsFromSQL() {
+        const grid = document.getElementById('tutorGrid');
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Memuat data dari Database SQL...</p>`;
+
+        const { data, error } = await _supabase.from('tutors').select('*');
+
+        if (error) {
+            console.error("Error SQL:", error);
+            grid.innerHTML = `<p class="col-span-full text-center text-red-500 py-8">Gagal mengambil data dari database.</p>`;
+            return;
+        }
+
+        tutorsData = data;
+        renderTutors();
+    }
+
+    function renderTutors() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const subject = document.getElementById('subjectFilter').value;
+        const grid = document.getElementById('tutorGrid');
+        grid.innerHTML = '';
+
+        const filtered = tutorsData.filter(t => {
+            const matchSearch = t.name.toLowerCase().includes(search) || t.subject.toLowerCase().includes(search);
+            const matchSubject = subject === 'Semua' || t.subject.includes(subject);
+            return matchSearch && matchSubject;
+        });
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Tutor tidak ditemukan.</p>`;
+            return;
+        }
+
+        filtered.forEach(t => {
+            grid.innerHTML += `
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div class="p-5">
+                        <div class="flex gap-4 items-start mb-4">
+                            <img src="${t.avatar}" class="w-16 h-16 rounded-xl object-cover">
+                            <div>
+                                <span class="text-xs font-semibold bg-sky-50 text-sky-600 px-2 py-0.5 rounded-md">SQL Connected</span>
+                                <h3 class="font-bold text-slate-900 mt-1">${t.name}</h3>
+                                <p class="text-sm text-slate-500">${t.subject} (${t.level})</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-slate-600 mb-4 bg-slate-50 p-3 rounded-xl">
+                            <div><i class="fa-solid fa-star text-amber-400"></i> <b>${t.rating}</b></div>
+                            <div><i class="fa-solid fa-location-dot text-slate-400"></i> ${t.location}</div>
+                            <div><i class="fa-solid fa-video text-slate-400"></i> ${t.type}</div>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-slate-100 pt-4">
+                            <div>
+                                <span class="text-xs text-slate-400 block">Tarif per sesi</span>
+                                <span class="text-base font-bold text-sky-600">Rp ${t.price.toLocaleString('id-ID')}</span>
+                            </div>
+                            <button onclick="bookTutor('${t.name}', '${t.subject}', ${t.price})" class="bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition">
+                                Pesan Sesi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function bookTutor(name, subject, price) {
+        myBookings.push({ name, subject, price, date: new Date().toLocaleDateString('id-ID') });
+        alert(`Berhasil memesan sesi dengan ${name}!`);
+        renderSchedule();
+    }
+
+    function renderSchedule() {
+        const list = document.getElementById('scheduleList');
+        if (myBookings.length === 0) return;
+        
+        list.innerHTML = '';
+        myBookings.forEach((b) => {
+            list.innerHTML += `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 flex items-center justify-between shadow-sm">
+                    <div>
+                        <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Terkonfirmasi</span>
+                        <h4 class="font-bold text-slate-900 mt-1">${b.name}</h4>
+                        <p class="text-sm text-slate-500">${b.subject} • Dipesan tanggal ${b.date}</p>
+                    </div>
+                    <span class="font-bold text-sky-600">Rp ${b.price.toLocaleString('id-ID')}</span>
+                </div>
+            `;
+        });
+    }
+
+    function switchTab(tab) {
+        if (tab === 'search') {
+            document.getElementById('tabSearch').classList.remove('hidden');
+            document.getElementById('tabSchedule').classList.add('hidden');
+        } else {
+            document.getElementById('tabSearch').classList.add('hidden');
+            document.getElementById('tabSchedule').classList.remove('hidden');
+        }
+    }
+
+    fetchTutorsFromSQL();
+</script>
+</body>
+</html>
