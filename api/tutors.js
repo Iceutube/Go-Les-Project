@@ -5,7 +5,6 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
-    // Hanya izinkan method GET
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -18,7 +17,6 @@ export default async function handler(req, res) {
 
         if (error) throw error;
 
-        // Kembalikan data ke frontend tanpa mengekspos API Key
         return res.status(200).json(data);
     } catch (err) {
         return res.status(500).json({ error: err.message });
