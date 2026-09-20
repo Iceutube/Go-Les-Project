@@ -180,13 +180,10 @@
     const rawVideoPrice = parseInt(document.getElementById('reg-video-price').value) || 0;
     const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
 
-    // 1. Coba Mendaftar ke Supabase Auth
     let { data: authData, error: authError } = await _supabase.auth.signUp({
         email: email,
         password: password
     });
-
-    // 2. Jika user sudah terdaftar di Auth, coba Login otomatis untuk mendapatkan user_id
     if (authError && authError.message.includes('already registered')) {
         const { data: signInData, error: signInError } = await _supabase.auth.signInWithPassword({
             email: email,
@@ -204,8 +201,6 @@
         btnSubmit.disabled = false;
         return;
     }
-
-    // 3. Masukkan / Update Data Profil ke Tabel tutors
     if (authData.user) {
         const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
         
