@@ -162,72 +162,82 @@
         }
 
         document.getElementById('form-register-tutor').addEventListener('submit', async (e) => {
-            e.preventDefault();
+    e.preventDefault();
+    const btnSubmit = document.getElementById('btn-submit');
+    btnSubmit.innerText = 'Memproses Pendaftaran...';
+    btnSubmit.disabled = true;
 
-            const btnSubmit = document.getElementById('btn-submit');
-            btnSubmit.innerText = 'Memproses Pendaftaran...';
-            btnSubmit.disabled = true;
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const subject = document.getElementById('reg-subject').value;
+    const level = document.getElementById('reg-level').value;
+    const location = document.getElementById('reg-location').value.trim();
+    const price = parseInt(document.getElementById('reg-price').value) || 0;
+    const phone = document.getElementById('reg-phone').value.trim();
+    const selectedGrades = Array.from(document.querySelectorAll('input[name="specific_grades"]:checked')).map(cb => cb.value);
+    const selectedHours = Array.from(document.querySelectorAll('input[name="teaching_hours"]:checked')).map(cb => cb.value);
+    const rawVideoPrice = parseInt(document.getElementById('reg-video-price').value) || 0;
+    const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
 
-            const name = document.getElementById('reg-name').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
-            const password = document.getElementById('reg-password').value;
-            const subject = document.getElementById('reg-subject').value;
-            const level = document.getElementById('reg-level').value;
-            const location = document.getElementById('reg-location').value.trim();
-            const price = parseInt(document.getElementById('reg-price').value) || 0;
-            const phone = document.getElementById('reg-phone').value.trim();
+    // 1. Coba Mendaftar ke Supabase Auth
+    let { data: authData, error: authError } = await _supabase.auth.signUp({
+        email: email,
+        password: password
+    });
 
-            const selectedGrades = Array.from(document.querySelectorAll('input[name="specific_grades"]:checked')).map(cb => cb.value);
-            const selectedHours = Array.from(document.querySelectorAll('input[name="teaching_hours"]:checked')).map(cb => cb.value);
-
-            // Harga langganan video mengajar tidak boleh melebihi Rp20.000/bulan.
-            const rawVideoPrice = parseInt(document.getElementById('reg-video-price').value) || 0;
-            const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
-
-            const { data: authData, error: authError } = await _supabase.auth.signUp({
-                email: email,
-                password: password
-            });
-
-            if (authError) {
-                alert('Gagal mendaftarkan akun autentikasi: ' + authError.message);
-                btnSubmit.innerText = 'Daftar Sebagai Tutor';
-                btnSubmit.disabled = false;
-                return;
-            }
-
-            if (authData.user) {
-                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
-
-                const { error: profileError } = await _supabase
-                    .from('tutors')
-                    .insert([{
-                        user_id: authData.user.id,
-                        name: name,
-                        email: email,
-                        role: 'tutor',
-                        status: 'pending',
-                        subject: subject,
-                        level: `${level} (${selectedGrades.join(', ')})`,
-                        available_hours: selectedHours.join(', '),
-                        location: location,
-                        price: price,
-                        phone_number: phone,
-                        avatar: avatarUrl,
-                        is_offline_verified: false,
-                        video_subscription_price: videoSubscriptionPrice
-                    }]);
-
-                if (profileError) {
-                    alert('Gagal menyimpan profil tutor: ' + profileError.message);
-                    btnSubmit.innerText = 'Daftar Sebagai Tutor';
-                    btnSubmit.disabled = false;
-                } else {
-                    alert('Pendaftaran tutor berhasil! Silakan masuk ke akun kamu.');
-                    window.location.href = 'login.html';
-                }
-            }
+    // 2. Jika user sudah terdaftar di Auth, coba Login otomatis untuk mendapatkan user_id
+    if (authError && authError.message.includes('already registered')) {
+        const { data: signInData, error: signInError } = await _supabase.auth.signInWithPassword({
+            email: email,
+            password: password
         });
+        if (!signInError) {
+            authData = signInData;
+            authError = null;
+        }
+    }
+
+    if (authError) {
+        alert('Gagal mendaftarkan akun autentikasi: ' + authError.message);
+        btnSubmit.innerText = 'Daftar Sebagai Tutor';
+        btnSubmit.disabled = false;
+        return;
+    }
+
+    // 3. Masukkan / Update Data Profil ke Tabel tutors
+    if (authData.user) {
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
+        
+        const { error: profileError } = await _supabase
+            .from('tutors')
+            .upsert([{
+                user_id: authData.user.id,
+                name: name,
+                email: email,
+                role: 'tutor',
+                status: 'pending',
+                subject: subject,
+                level: `${level} (${selectedGrades.join(', ')})`,
+                available_hours: selectedHours.join(', '),
+                location: location,
+                price: price,
+                phone_number: phone,
+                avatar: avatarUrl,
+                is_offline_verified: false,
+                video_subscription_price: videoSubscriptionPrice
+            }], { onConflict: 'email' });
+
+        if (profileError) {
+            alert('Gagal menyimpan profil tutor: ' + profileError.message);
+            btnSubmit.innerText = 'Daftar Sebagai Tutor';
+            btnSubmit.disabled = false;
+        } else {
+            alert('Pendaftaran tutor berhasil! Silakan masuk ke akun kamu.');
+            window.location.href = 'login.html';
+        }
+    }
+});
     </script>
 </body>
 </html>
