@@ -1,5 +1,5 @@
-let tutorsData = [];
-let myBookings = [];
+let tutorsData = []; 
+let myBookings = []; 
 
 document.addEventListener('DOMContentLoaded', async () => {
     await checkExistingSession();
@@ -11,14 +11,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function checkExistingSession() {
     try {
         const { data: { user } } = await _supabase.auth.getUser();
-
         if (user) {
             const { data: profile } = await _supabase
                 .from('tutors')
                 .select('role')
                 .eq('user_id', user.id)
                 .single();
-
             if (profile) {
                 if (profile.role === 'admin') {
                     window.location.href = 'admin.html';
@@ -33,6 +31,7 @@ async function checkExistingSession() {
         console.log("Akses mode publik/tamu");
     }
 }
+
 async function handleLogout() {
     try {
         const { error } = await _supabase.auth.signOut();
@@ -50,29 +49,22 @@ async function handleLogout() {
 
 function openTutorModal() {
     const modal = document.getElementById('modal-tutor');
-    if (modal) {
-        modal.classList.remove('hidden');
-    }
+    if (modal) modal.classList.remove('hidden');
 }
 
 function closeTutorModal() {
     const modal = document.getElementById('modal-tutor');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
+    if (modal) modal.classList.add('hidden');
 }
 
 function setupFormSubmitListener() {
     const formRegister = document.getElementById('form-register-tutor');
-
     if (formRegister) {
         formRegister.addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const email = document.getElementById('reg-email').value;
             const password = document.getElementById('reg-password').value;
             const selectedHours = Array.from(document.querySelectorAll('.reg-hour-check:checked')).map(cb => cb.value);
-
             const tutorProfile = {
                 name: document.getElementById('reg-name').value,
                 subject: document.getElementById('reg-subject').value,
@@ -83,9 +75,7 @@ function setupFormSubmitListener() {
                 teaching_video_url: document.getElementById('reg-video').value,
                 available_hours: selectedHours
             };
-
             const result = await registerTutorWithAuth(tutorProfile, email, password);
-
             if (result.success) {
                 alert('Pendaftaran Berhasil! Akun kamu sudah dibuat. Silakan login melalui tombol Login.');
                 formRegister.reset();
@@ -103,29 +93,24 @@ function renderTutors() {
     const searchInput = document.getElementById('searchInput');
     const subjectFilter = document.getElementById('subjectFilter');
     const grid = document.getElementById('tutorGrid');
-    
+         
     if (!grid) return;
-
     const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
     const subject = subjectFilter ? subjectFilter.value : 'Semua';
-    
+         
     grid.innerHTML = '';
-
     if (!tutorsData || tutorsData.length === 0) {
         grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Belum ada data tutor di database.</p>`;
         return;
     }
-
     const filtered = tutorsData.filter(t => {
         const isTutorOnly = (t.role === 'tutor' || !t.role);
         const isApproved = t.status === 'approved';
-        
         const name = t.name ? t.name.toLowerCase() : '';
         const subj = t.subject ? t.subject.toLowerCase() : '';
-        
         const matchSearch = search === '' || name.includes(search) || subj.includes(search);
         const matchSubject = subject === 'Semua' || (t.subject && t.subject.toLowerCase().includes(subject.toLowerCase()));
-        
+                 
         return isTutorOnly && isApproved && matchSearch && matchSubject;
     });
 
@@ -141,7 +126,6 @@ function renderTutors() {
         const ratingVal = t.rating || 'Baru';
         const levelText = t.level || 'Umum';
         const priceVal = t.price || 0;
-
         grid.innerHTML += `
             <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition">
                 <div class="p-5">
@@ -181,7 +165,7 @@ function bookTutor(name, subject, price) {
 function renderSchedule() {
     const list = document.getElementById('scheduleList');
     if (!list) return;
-    
+         
     if (myBookings.length === 0) {
         list.innerHTML = `
             <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500">
@@ -189,7 +173,7 @@ function renderSchedule() {
             </div>`;
         return;
     }
-    
+         
     list.innerHTML = '';
     myBookings.forEach((b) => {
         list.innerHTML += `
@@ -197,7 +181,7 @@ function renderSchedule() {
                 <div>
                     <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Terkonfirmasi</span>
                     <h4 class="font-bold text-slate-900 mt-1">${b.name}</h4>
-                    <p class="text-sm text-slate-500">${b.subject} • Dipesan tanggal ${b.date}</p>
+                    <p class="text-sm text-slate-500">${b.subject}   Dipesan tanggal ${b.date}</p>
                 </div>
                 <span class="font-bold text-sky-600">Rp ${b.price.toLocaleString('id-ID')}</span>
             </div>
