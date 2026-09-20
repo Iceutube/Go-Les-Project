@@ -1,25 +1,7 @@
-// =============================================================================
-// GO-LES: Langganan Video Mengajar Bulanan
-// -----------------------------------------------------------------------------
-// Modul terpisah (tetap di folder js/ yang sama) untuk fitur:
-//   - Siswa berlangganan video mengajar seorang tutor per bulan
-//   - Harga langganan dibatasi maksimal Rp20.000/bulan (VIDEO_SUB_MAX_PRICE)
-//   - Setelah berlangganan, siswa bisa memberi 1 ulasan per periode langganan
-//   - Ulasan ini terkumpul jadi salah satu syarat tutor memenuhi kelayakan
-//     mengajar offline (offline_eligible), yang jadi rekomendasi buat Admin
-//     sebelum menekan tombol "Approve + Offline" di admin.html
-// Dipakai oleh: dashboard-siswa.html (berlangganan + ulasan)
-//               dashboard-tutor.html (lihat statistik pelanggan & kelayakan)
-// =============================================================================
-
 const VIDEO_SUB_MAX_PRICE = 20000;
 
 let videoSubTargetTutor = null;
 let activeVideoSubscription = null;
-
-// ---------------------------------------------------------------------------
-// SISI SISWA (dashboard-siswa.html)
-// ---------------------------------------------------------------------------
 
 function openVideoSubscriptionModal(tutorId) {
     const tutor = rawApprovedTutors.find(t => t.id === tutorId);
@@ -30,7 +12,17 @@ function openVideoSubscriptionModal(tutorId) {
 
     document.getElementById('video-sub-tutor-name').innerText = tutor.name;
     document.getElementById('video-sub-tutor-avatar').src = tutor.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(tutor.name)}`;
-    document.getElementById('video-sub-video-link').href = tutor.teaching_video_url || '#';
+
+    // Video perkenalan (dari field lama teaching_video_url) tetap gratis & publik,
+    // dianggap sebagai "trailer". Video mengajar sesungguhnya ada di tutor_videos
+    // dan HANYA terbuka untuk siswa dengan langganan aktif (lihat renderGatedVideoList).
+    const introLink = document.getElementById('video-sub-intro-link');
+    if (tutor.teaching_video_url) {
+        introLink.href = tutor.teaching_video_url;
+        introLink.classList.remove('hidden');
+    } else {
+        introLink.classList.add('hidden');
+    }
 
     const btnSubscribe = document.getElementById('btn-subscribe-video');
     if (price > 0) {
@@ -44,6 +36,7 @@ function openVideoSubscriptionModal(tutorId) {
     document.getElementById('video-sub-review-box').classList.add('hidden');
     document.getElementById('video-sub-subscribe-box').classList.remove('hidden');
     activeVideoSubscription = null;
+    renderLockedVideoNotice(); // default: anggap terkunci sampai terbukti berlangganan
 
     checkExistingVideoSubscription(tutor.id);
 
@@ -79,7 +72,57 @@ async function checkExistingVideoSubscription(tutorId) {
     document.getElementById('video-sub-expiry-info').innerText =
         `Langganan aktif sampai ${new Date(sub.expires_at).toLocaleDateString('id-ID')}`;
 
+    await renderGatedVideoList(tutorId);
     await checkExistingReview(sub.id);
+}
+
+/**
+ * Tampilan default (belum terbukti berlangganan): tampilkan notice terkunci.
+ */
+function renderLockedVideoNotice() {
+    const box = document.getElementById('video-sub-gated-list');
+    box.innerHTML = `
+        <div class="text-center text-[11px] text-slate-400 bg-slate-50 border border-dashed border-slate-200 rounded-xl py-6">
+            <i class="fa-solid fa-lock text-lg mb-1 block"></i>
+            Berlangganan dulu untuk membuka semua video mengajar tutor ini.
+        </div>
+    `;
+}
+
+/**
+ * Ambil daftar video tutor dari tabel `tutor_videos`. Berkat RLS di
+ * supabase/2026_02_tutor_video_library.sql, query ini HANYA akan
+ * mengembalikan baris kalau siswa memang punya langganan aktif -- jadi
+ * ini bukan sekadar disembunyikan di tampilan, tapi memang tidak terbaca
+ * dari sisi database kalau belum bayar.
+ */
+async function renderGatedVideoList(tutorId) {
+    const box = document.getElementById('video-sub-gated-list');
+    box.innerHTML = `<p class="text-center text-[11px] text-slate-400 py-4">Memuat video...</p>`;
+
+    const { data: videos, error } = await _supabase
+        .from('tutor_videos')
+        .select('*')
+        .eq('tutor_id', tutorId)
+        .order('created_at', { ascending: false });
+
+    if (error || !videos || videos.length === 0) {
+        box.innerHTML = `<p class="text-center text-[11px] text-slate-400 py-4">Tutor ini belum menambahkan video mengajar.</p>`;
+        return;
+    }
+
+    box.innerHTML = '';
+    videos.forEach(v => {
+        box.innerHTML += `
+            <a href="${v.video_url}" target="_blank" rel="noopener" class="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl p-3 hover:bg-emerald-100 transition">
+                <div class="w-9 h-9 bg-emerald-600 text-white rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-play text-xs"></i>
+                </div>
+                <span class="text-xs font-bold text-emerald-800 flex-1">${v.title}</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400 text-[10px]"></i>
+            </a>
+        `;
+    });
 }
 
 async function subscribeToVideo() {
@@ -175,6 +218,104 @@ async function submitVideoReview(e) {
     alert('Terima kasih! Ulasanmu membantu tutor ini memenuhi syarat mengajar offline.');
     // Trigger Postgres di file SQL migrasi otomatis update rating & offline_eligible tutor.
     await checkExistingReview(activeVideoSubscription.id);
+}
+
+// ---------------------------------------------------------------------------
+// SISI TUTOR (dashboard-tutor.html) - kelola video mengajar (konten berlangganan)
+// ---------------------------------------------------------------------------
+
+/**
+ * Muat daftar video milik tutor yang sedang login (untuk dikelola: lihat & hapus).
+ * Ini beda dari renderGatedVideoList di atas -- yang ini selalu bisa dilihat
+ * pemiliknya sendiri berkat policy "tutor_videos_owner_all".
+ */
+async function loadTutorVideoList(tutorId) {
+    const list = document.getElementById('tutor-video-list');
+    if (!list) return; // elemen ini hanya ada di dashboard-tutor.html
+
+    const { data: videos, error } = await _supabase
+        .from('tutor_videos')
+        .select('*')
+        .eq('tutor_id', tutorId)
+        .order('created_at', { ascending: false });
+
+    if (error || !videos || videos.length === 0) {
+        list.innerHTML = `<p class="text-center text-[11px] text-slate-400 py-4">Belum ada video. Tambahkan video pertamamu di atas.</p>`;
+        return;
+    }
+
+    list.innerHTML = '';
+    videos.forEach(v => {
+        list.innerHTML += `
+            <div class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                <div class="w-9 h-9 bg-sky-600 text-white rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i class="fa-solid fa-video text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-slate-800 truncate">${v.title}</p>
+                    <a href="${v.video_url}" target="_blank" rel="noopener" class="text-[10px] text-sky-600 hover:underline truncate block">${v.video_url}</a>
+                </div>
+                <button type="button" onclick="deleteTutorVideo(${v.id}, ${tutorId})" class="text-rose-500 hover:text-rose-700 text-xs flex-shrink-0" title="Hapus video">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+        `;
+    });
+}
+
+/**
+ * Tambah video baru untuk siswa yang sudah berlangganan (dipanggil dari form
+ * "Tambah Video Mengajar" di dashboard-tutor.html).
+ */
+async function addTutorVideo(e) {
+    e.preventDefault();
+    if (!currentTutorProfile) return;
+
+    const title = document.getElementById('new-video-title').value.trim();
+    const url = document.getElementById('new-video-url').value.trim();
+
+    if (!title || !url) {
+        alert('Isi judul dan link video terlebih dahulu.');
+        return;
+    }
+    if (!/^https?:\/\//i.test(url)) {
+        alert('Link video harus berupa URL yang valid (contoh: link YouTube atau Google Drive), diawali http:// atau https://');
+        return;
+    }
+
+    const btn = document.getElementById('btn-add-video');
+    btn.disabled = true;
+    btn.innerText = 'Menambahkan...';
+
+    const { error } = await _supabase.from('tutor_videos').insert([{
+        tutor_id: currentTutorProfile.id,
+        title: title,
+        video_url: url
+    }]);
+
+    btn.disabled = false;
+    btn.innerText = 'Tambah Video';
+
+    if (error) {
+        alert('Gagal menambahkan video: ' + error.message);
+        return;
+    }
+
+    document.getElementById('form-add-video').reset();
+    await loadTutorVideoList(currentTutorProfile.id);
+}
+
+async function deleteTutorVideo(videoId, tutorId) {
+    if (!confirm('Hapus video ini? Siswa yang berlangganan tidak akan bisa mengaksesnya lagi.')) return;
+
+    const { error } = await _supabase.from('tutor_videos').delete().eq('id', videoId);
+
+    if (error) {
+        alert('Gagal menghapus video: ' + error.message);
+        return;
+    }
+
+    await loadTutorVideoList(tutorId);
 }
 
 // ---------------------------------------------------------------------------
