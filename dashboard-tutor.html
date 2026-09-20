@@ -659,43 +659,69 @@
 
         async function loadChatContacts() {
             const container = document.getElementById('chat-contacts-container');
+            container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Memuat pesan masuk...</p>`;
 
-            const { data: messages, error } = await _supabase
-                .from('messages')
-                .select('*')
-                .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-                .order('created_at', { ascending: false });
+            try {
+                const { data: messages, error } = await _supabase
+                    .from('messages')
+                    .select('*')
+                    .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+                    .order('created_at', { ascending: false });
 
-            if (error || !messages || messages.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan dari siswa.</p>`;
-                return;
-            }
+                if (error) {
+                    console.error('Gagal memuat daftar chat (query messages):', error);
+                    container.innerHTML = `<p class="text-center text-rose-400 py-6 text-[11px]">Gagal memuat pesan: ${error.message}</p>`;
+                    return;
+                }
 
-            const uniqueSenderIds = [...new Set(messages.map(m => m.sender_id === currentUser.id ? m.receiver_id : m.sender_id))];
+                if (!messages || messages.length === 0) {
+                    container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan dari siswa.</p>`;
+                    return;
+                }
 
-            const { data: senders } = await _supabase
-                .from('tutors')
-                .select('*')
-                .in('user_id', uniqueSenderIds);
+                // Kelompokkan pesan per lawan bicara (siswa), buang ID kosong/diri sendiri.
+                const uniqueSenderIds = [...new Set(
+                    messages.map(m => m.sender_id === currentUser.id ? m.receiver_id : m.sender_id)
+                )].filter(uid => uid && uid !== currentUser.id);
 
-            container.innerHTML = '';
-            uniqueSenderIds.forEach(uid => {
-                const senderProfile = (senders || []).find(s => s.user_id === uid) || { name: 'Siswa GO-LES', avatar: '' };
-                const lastMsg = messages.find(m => m.sender_id === uid || m.receiver_id === uid);
+                if (uniqueSenderIds.length === 0) {
+                    container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan dari siswa.</p>`;
+                    return;
+                }
 
-                container.innerHTML += `
-                    <div onclick="openChatWithStudent('${uid}', '${senderProfile.name.replace(/'/g, "\\'")}', '${senderProfile.avatar || ''}')" class="p-3 bg-white border border-slate-200 rounded-2xl hover:bg-emerald-50/50 transition cursor-pointer flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <img src="${senderProfile.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(senderProfile.name)}" class="w-10 h-10 rounded-full object-cover border border-slate-200">
-                            <div>
-                                <h5 class="font-bold text-xs text-slate-900">${senderProfile.name}</h5>
-                                <p class="text-[11px] text-slate-500 truncate max-w-[170px]">${lastMsg ? lastMsg.message : ''}</p>
+                const { data: senders, error: sendersError } = await _supabase
+                    .from('tutors')
+                    .select('*')
+                    .in('user_id', uniqueSenderIds);
+
+                if (sendersError) {
+                    console.error('Gagal memuat profil pengirim:', sendersError);
+                }
+
+                container.innerHTML = '';
+                uniqueSenderIds.forEach(uid => {
+                    const senderProfile = (senders || []).find(s => s.user_id === uid) || { name: 'Siswa GO-LES', avatar: '' };
+                    const lastMsg = messages.find(m => m.sender_id === uid || m.receiver_id === uid);
+
+                    container.innerHTML += `
+                        <div onclick="openChatWithStudent('${uid}', '${senderProfile.name.replace(/'/g, "\\'")}', '${senderProfile.avatar || ''}')" class="p-3 bg-white border border-slate-200 rounded-2xl hover:bg-emerald-50/50 transition cursor-pointer flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <img src="${senderProfile.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(senderProfile.name)}" class="w-10 h-10 rounded-full object-cover border border-slate-200">
+                                <div>
+                                    <h5 class="font-bold text-xs text-slate-900">${senderProfile.name}</h5>
+                                    <p class="text-[11px] text-slate-500 truncate max-w-[170px]">${lastMsg ? lastMsg.message : ''}</p>
+                                </div>
                             </div>
+                            <i class="fa-solid fa-chevron-right text-slate-300 text-xs pr-1"></i>
                         </div>
-                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs pr-1"></i>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            } catch (err) {
+                // Menangkap kegagalan tak terduga (mis. network/CORS) supaya UI tidak
+                // pernah stuck selamanya di "Memuat pesan masuk...".
+                console.error('Error tak terduga saat memuat kontak chat:', err);
+                container.innerHTML = `<p class="text-center text-rose-400 py-6 text-[11px]">Terjadi kesalahan saat memuat pesan. Coba refresh halaman.</p>`;
+            }
         }
 
         function toggleFloatingChat() {
