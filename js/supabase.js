@@ -12,6 +12,9 @@ async function fetchTutorsFromSQL() {
     }
 }
 
+// Harga langganan video mengajar bulanan tidak boleh lebih dari ini.
+const VIDEO_SUB_MAX_PRICE = 20000;
+
 async function registerTutorWithAuth(tutorData, email, password) {
     try {
         const { data: authData, error: authError } = await _supabase.auth.signUp({
@@ -22,6 +25,12 @@ async function registerTutorWithAuth(tutorData, email, password) {
         if (authError) throw authError;
 
         const userId = authData.user ? authData.user.id : null;
+
+        // Pastikan harga langganan video tidak pernah melewati batas Rp20.000/bulan.
+        const videoSubPrice = Math.min(
+            Math.max(parseInt(tutorData.video_subscription_price) || 0, 0),
+            VIDEO_SUB_MAX_PRICE
+        );
 
         const { data, error: dbError } = await _supabase
             .from('tutors')
@@ -36,6 +45,8 @@ async function registerTutorWithAuth(tutorData, email, password) {
                 location: tutorData.location,
                 teaching_video_url: tutorData.teaching_video_url,
                 available_hours: tutorData.available_hours,
+                video_subscription_price: videoSubPrice,
+                is_offline_verified: false,
                 status: 'pending'
             }]);
 

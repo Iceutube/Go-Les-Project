@@ -78,6 +78,131 @@
         </section>
     </main>
 
+    <!-- ===================== Modal Pemesanan Sesi (Online/Offline) ===================== -->
+    <div id="booking-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeBookingModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+                <img id="booking-modal-avatar" src="" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
+                <div>
+                    <h3 id="booking-modal-tutor-name" class="font-extrabold text-slate-900 text-base"></h3>
+                    <p id="booking-modal-tutor-subject" class="text-xs text-slate-500"></p>
+                    <p id="booking-modal-price" class="text-xs font-bold text-sky-600 mt-0.5"></p>
+                </div>
+            </div>
+
+            <form id="booking-form" onsubmit="submitBooking(event)" class="space-y-4">
+                <input type="hidden" id="booking-form-mode" value="online">
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-2">Pilih Mode Belajar</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" id="booking-mode-btn-online" onclick="setBookingMode('online')" class="border-2 border-slate-200 text-slate-600 rounded-xl p-3 text-xs font-bold flex flex-col items-center gap-1.5 transition">
+                            <i class="fa-solid fa-video"></i> Online
+                        </button>
+                        <button type="button" id="booking-mode-btn-offline" onclick="setBookingMode('offline')" class="border-2 border-slate-200 text-slate-600 rounded-xl p-3 text-xs font-bold flex flex-col items-center gap-1.5 transition">
+                            <i class="fa-solid fa-house-user"></i> Offline (Tatap Muka)
+                        </button>
+                    </div>
+                    <p id="booking-offline-locked-notice" class="hidden text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2">
+                        <i class="fa-solid fa-lock"></i> Tutor ini belum diverifikasi Admin untuk sesi offline. Sementara hanya bisa Online.
+                    </p>
+                </div>
+
+                <div id="booking-offline-location-row" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                    <label class="block text-xs font-bold text-slate-700">Pilih Lokasi Les Offline</label>
+                    <label class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-medium">
+                        <input type="radio" name="offline-location-choice" value="rumah_siswa" class="accent-sky-600">
+                        Tutor datang ke rumah siswa
+                    </label>
+                    <label class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-medium">
+                        <input type="radio" name="offline-location-choice" value="rumah_tutor" class="accent-sky-600">
+                        Siswa datang ke rumah tutor
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Sesi</label>
+                        <input type="date" id="booking-date" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Jam Sesi</label>
+                        <input type="time" id="booking-time" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp Kamu</label>
+                    <input type="tel" id="booking-phone" required placeholder="08123456789" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                </div>
+
+                <button type="submit" id="btn-submit-booking" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                    Konfirmasi Pesan Sesi
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================== Modal Langganan Video Mengajar Bulanan ===================== -->
+    <div id="video-sub-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeVideoSubscriptionModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
+                <img id="video-sub-tutor-avatar" src="" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
+                <div>
+                    <h3 class="font-extrabold text-slate-900 text-base">Langganan Video Mengajar</h3>
+                    <p id="video-sub-tutor-name" class="text-xs text-indigo-600 font-semibold"></p>
+                </div>
+            </div>
+
+            <a id="video-sub-video-link" href="#" target="_blank" class="block text-center text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 rounded-xl py-2.5 hover:bg-indigo-100 transition">
+                <i class="fa-solid fa-play"></i> Lihat Video Mengajar
+            </a>
+
+            <div id="video-sub-subscribe-box" class="space-y-3">
+                <p class="text-[11px] text-slate-500">Berlangganan untuk mendukung tutor ini dan membuka akses memberi ulasan bulanan (maks. harga Rp20.000/bulan).</p>
+                <button type="button" id="btn-subscribe-video" onclick="subscribeToVideo()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
+                    Langganan Sekarang
+                </button>
+            </div>
+
+            <div id="video-sub-review-box" class="hidden space-y-3">
+                <p id="video-sub-expiry-info" class="text-[11px] text-emerald-600 font-semibold bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2"></p>
+
+                <form id="video-review-form" onsubmit="submitVideoReview(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Beri Rating</label>
+                        <div class="flex gap-2 text-xl text-amber-400">
+                            <label><input type="radio" name="video-review-rating" value="1" class="hidden peer"><i class="fa-regular fa-star peer-checked:fa-solid cursor-pointer"></i></label>
+                            <label><input type="radio" name="video-review-rating" value="2" class="hidden peer"><i class="fa-regular fa-star peer-checked:fa-solid cursor-pointer"></i></label>
+                            <label><input type="radio" name="video-review-rating" value="3" class="hidden peer"><i class="fa-regular fa-star peer-checked:fa-solid cursor-pointer"></i></label>
+                            <label><input type="radio" name="video-review-rating" value="4" class="hidden peer"><i class="fa-regular fa-star peer-checked:fa-solid cursor-pointer"></i></label>
+                            <label><input type="radio" name="video-review-rating" value="5" class="hidden peer"><i class="fa-regular fa-star peer-checked:fa-solid cursor-pointer"></i></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Ulasan (opsional)</label>
+                        <textarea id="video-review-comment" rows="3" placeholder="Bagaimana kualitas video mengajarnya?" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50"></textarea>
+                    </div>
+                    <button type="submit" id="btn-submit-video-review" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition">
+                        Kirim Ulasan
+                    </button>
+                </form>
+
+                <div id="video-review-done" class="hidden text-center text-xs text-emerald-600 font-semibold bg-emerald-50 border border-emerald-200 rounded-xl py-3">
+                    <i class="fa-solid fa-circle-check"></i> Terima kasih, ulasan bulan ini sudah terkirim.
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all duration-300">
             
@@ -146,6 +271,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
+    <script src="js/offline-mode.js"></script>
+    <script src="js/video-subscription.js"></script>
     <script>
         let rawApprovedTutors = [];
         let currentStudent = null;
@@ -248,10 +375,13 @@
                         <div class="flex justify-between items-center border-t border-slate-100 pt-3 gap-2">
                             <span class="font-bold text-sky-600 text-xs sm:text-sm">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
                             <div class="flex gap-1.5">
-                                <button onclick="openChatWithTutor('${t.user_id}', '${t.name.replace(/'/g, "\\'")}', '${t.avatar || ''}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i> Chat
+                                <button onclick="openChatWithTutor('${t.user_id}', '${t.name.replace(/'/g, "\\'")}', '${t.avatar || ''}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5" title="Chat">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
                                 </button>
-                                <button onclick="bookTutor(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                                <button onclick="openVideoSubscriptionModal(${t.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5" title="Langganan Video Mengajar">
+                                    <i class="fa-solid fa-video text-sm"></i>
+                                </button>
+                                <button onclick="openBookingModal(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
                                     Pesan
                                 </button>
                             </div>
@@ -391,10 +521,6 @@
                     }
                 })
                 .subscribe();
-        }
-
-        async function bookTutor(tutorId) {
-            alert('Fitur pemesanan sesi sedang disiapkan. Kamu bisa menghubungi tutor via Chat terlebih dahulu!');
         }
 
         async function logout() {

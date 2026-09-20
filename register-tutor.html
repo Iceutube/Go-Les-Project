@@ -110,6 +110,14 @@
                 </div>
             </div>
 
+            <div class="bg-sky-50 border border-sky-200 p-3.5 rounded-xl space-y-2">
+                <label class="block text-xs font-bold text-sky-700">
+                    <i class="fa-solid fa-video"></i> Harga Langganan Video Mengajar (per bulan)
+                </label>
+                <input type="number" id="reg-video-price" min="0" max="20000" step="1000" placeholder="Contoh: 15000" class="w-full text-xs p-3 border border-sky-200 rounded-xl outline-none focus:border-sky-600 bg-white">
+                <p class="text-[10px] text-sky-600">Maksimal Rp20.000/bulan. Siswa yang berlangganan bisa menonton video mengajarmu dan memberi ulasan — ulasan ini jadi salah satu syarat mendapat verifikasi mengajar <b>offline</b> dari Admin.</p>
+            </div>
+
             <button type="submit" id="btn-submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
                 Daftar Sebagai Tutor
             </button>
@@ -172,6 +180,10 @@
             const selectedGrades = Array.from(document.querySelectorAll('input[name="specific_grades"]:checked')).map(cb => cb.value);
             const selectedHours = Array.from(document.querySelectorAll('input[name="teaching_hours"]:checked')).map(cb => cb.value);
 
+            // Harga langganan video mengajar tidak boleh melebihi Rp20.000/bulan.
+            const rawVideoPrice = parseInt(document.getElementById('reg-video-price').value) || 0;
+            const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
+
             const { data: authData, error: authError } = await _supabase.auth.signUp({
                 email: email,
                 password: password
@@ -202,7 +214,8 @@
                         price: price,
                         phone_number: phone,
                         avatar: avatarUrl,
-                        is_offline_verified: false
+                        is_offline_verified: false,
+                        video_subscription_price: videoSubscriptionPrice
                     }]);
 
                 if (profileError) {

@@ -85,6 +85,29 @@
             </div>
         </div>
 
+        <div id="video-stats-box" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-video text-sky-600"></i> Langganan Video Mengajar
+                </h3>
+                <span id="offline-eligible-badge" class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 border border-slate-200 text-[11px] font-semibold px-3 py-1.5 rounded-full">-</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-center">
+                <div class="bg-slate-50 rounded-xl p-3">
+                    <span id="stat-video-subscribers" class="block text-lg font-extrabold text-slate-900">0</span>
+                    <span class="text-[10px] text-slate-500 font-semibold">Pelanggan Aktif</span>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-3">
+                    <span id="stat-video-reviews" class="block text-lg font-extrabold text-slate-900">0</span>
+                    <span class="text-[10px] text-slate-500 font-semibold">Total Ulasan</span>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-3">
+                    <span id="stat-video-rating" class="block text-lg font-extrabold text-slate-900">-</span>
+                    <span class="text-[10px] text-slate-500 font-semibold">Rating Rata-rata</span>
+                </div>
+            </div>
+        </div>
+
         <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
             <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
                 <i class="fa-solid fa-calendar-check text-sky-600"></i> Sesi Les Siswa
@@ -154,6 +177,14 @@
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
                             <input type="tel" id="edit-phone" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                         </div>
+                    </div>
+
+                    <div class="bg-sky-50 border border-sky-200 p-3.5 rounded-xl space-y-1">
+                        <label class="block text-xs font-bold text-sky-700">
+                            <i class="fa-solid fa-video"></i> Harga Langganan Video Mengajar (per bulan)
+                        </label>
+                        <input type="number" id="edit-video-price" min="0" max="20000" step="1000" class="w-full text-xs p-3 border border-sky-200 rounded-xl outline-none focus:border-sky-600 bg-white">
+                        <p class="text-[10px] text-sky-600">Maksimal Rp20.000/bulan. Ulasan dari pelanggan video jadi salah satu syarat kelayakan mengajar offline.</p>
                     </div>
                 </div>
 
@@ -307,6 +338,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
+    <script src="js/video-subscription.js"></script>
     <script>
         let currentUser = null;
         let currentTutorProfile = null;
@@ -348,6 +380,7 @@
 
             currentTutorProfile = profile;
             renderTutorProfile(profile);
+            await loadVideoSubscriptionStats(profile.id);
 
             if (profile.status === 'approved') {
                 await loadTutorBookings(profile.id);
@@ -480,6 +513,7 @@
             document.getElementById('edit-location').value = currentTutorProfile.location || '';
             document.getElementById('edit-price').value = currentTutorProfile.price || 0;
             document.getElementById('edit-phone').value = currentTutorProfile.phone_number || '';
+            document.getElementById('edit-video-price').value = currentTutorProfile.video_subscription_price || 0;
 
             const levelStr = currentTutorProfile.level || 'SD';
             let mainLevel = 'SD';
@@ -543,6 +577,10 @@
 
             const fullLevelStr = `${level} (${selectedGrades.join(', ')})`;
 
+            // Harga langganan video mengajar tidak boleh melebihi Rp20.000/bulan.
+            const rawVideoPrice = parseInt(document.getElementById('edit-video-price').value) || 0;
+            const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
+
             const { error } = await _supabase
                 .from('tutors')
                 .update({
@@ -552,7 +590,8 @@
                     available_hours: selectedHours.join(', '),
                     location: location,
                     price: price,
-                    phone_number: phone
+                    phone_number: phone,
+                    video_subscription_price: videoSubscriptionPrice
                 })
                 .eq('id', currentTutorProfile.id);
 

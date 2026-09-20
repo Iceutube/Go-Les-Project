@@ -167,6 +167,8 @@
                 </div>
             </div>
 
+            <div id="modal-offline-eligibility" class="hidden text-[11px] font-bold px-3 py-2.5 rounded-xl border"></div>
+
             <div id="modal-tutor-actions" class="pt-4 border-t border-slate-100 flex flex-col gap-2">
                 <div class="flex gap-2">
                     <button id="btn-approve-online" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
@@ -416,13 +418,26 @@
             document.getElementById('modal-phone').innerText = user.phone_number || '-';
 
             const actionsBox = document.getElementById('modal-tutor-actions');
+            const eligibilityBox = document.getElementById('modal-offline-eligibility');
             if (user.role === 'tutor') {
                 actionsBox.classList.remove('hidden');
                 document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
                 document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
                 document.getElementById('btn-reject').onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
+
+                // Rekomendasi kelayakan offline, dihitung dari ulasan langganan video mengajar
+                // (kolom offline_eligible di-update otomatis oleh trigger Postgres).
+                eligibilityBox.classList.remove('hidden');
+                if (user.offline_eligible) {
+                    eligibilityBox.className = 'text-[11px] font-bold px-3 py-2.5 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-700';
+                    eligibilityBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> Sudah memenuhi syarat ulasan video untuk direkomendasikan offline (${user.total_reviews || 0} ulasan, rating ${user.rating || 0}).`;
+                } else {
+                    eligibilityBox.className = 'text-[11px] font-bold px-3 py-2.5 rounded-xl border bg-slate-50 border-slate-200 text-slate-500';
+                    eligibilityBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> Belum cukup ulasan langganan video (${user.total_reviews || 0} ulasan) untuk direkomendasikan offline secara otomatis. Admin tetap bisa menyetujui offline secara manual.`;
+                }
             } else {
                 actionsBox.classList.add('hidden');
+                eligibilityBox.classList.add('hidden');
             }
 
             document.getElementById('modal-detail').classList.remove('hidden');
