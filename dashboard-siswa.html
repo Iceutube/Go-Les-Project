@@ -339,7 +339,6 @@
 
     const filtered = rawApprovedTutors.filter(t => {
         const matchMapel = selectedMapel === 'all' || t.subject === selectedMapel;
-
         const tutorLevel = t.level || '';
         const matchLevel = selectedLevel === 'all' || tutorLevel.includes(selectedLevel);
 
@@ -349,7 +348,7 @@
     });
 
     renderStudentTutors(filtered);
-        }
+}
 
         function renderStudentTutors(list) {
             const grid = document.getElementById('student-tutor-grid');
