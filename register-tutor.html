@@ -184,6 +184,7 @@
         email: email,
         password: password
     });
+
     if (authError && authError.message.includes('already registered')) {
         const { data: signInData, error: signInError } = await _supabase.auth.signInWithPassword({
             email: email,
@@ -201,27 +202,45 @@
         btnSubmit.disabled = false;
         return;
     }
+
     if (authData.user) {
         const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
-        
-        const { error: profileError } = await _supabase
+        const profileData = {
+            user_id: authData.user.id,
+            name: name,
+            email: email,
+            role: 'tutor',
+            status: 'pending',
+            subject: subject,
+            level: `${level} (${selectedGrades.join(', ')})`,
+            available_hours: selectedHours.join(', '),
+            location: location,
+            price: price,
+            phone_number: phone,
+            avatar: avatarUrl,
+            is_offline_verified: false,
+            video_subscription_price: videoSubscriptionPrice
+        };
+
+        const { data: existingProfiles } = await _supabase
             .from('tutors')
-            .upsert([{
-                user_id: authData.user.id,
-                name: name,
-                email: email,
-                role: 'tutor',
-                status: 'pending',
-                subject: subject,
-                level: `${level} (${selectedGrades.join(', ')})`,
-                available_hours: selectedHours.join(', '),
-                location: location,
-                price: price,
-                phone_number: phone,
-                avatar: avatarUrl,
-                is_offline_verified: false,
-                video_subscription_price: videoSubscriptionPrice
-            }], { onConflict: 'email' });
+            .select('id')
+            .eq('email', email);
+
+        let profileError = null;
+
+        if (existingProfiles && existingProfiles.length > 0) {
+            const res = await _supabase
+                .from('tutors')
+                .update(profileData)
+                .eq('email', email);
+            profileError = res.error;
+        } else {
+            const res = await _supabase
+                .from('tutors')
+                .insert([profileData]);
+            profileError = res.error;
+        }
 
         if (profileError) {
             alert('Gagal menyimpan profil tutor: ' + profileError.message);
