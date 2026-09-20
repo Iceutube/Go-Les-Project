@@ -590,7 +590,10 @@
             const price = parseInt(document.getElementById('edit-price').value) || 0;
             const phone = document.getElementById('edit-phone').value.trim();
 
-            const selectedGrades = Array.from(document.querySelectorAll('input[name="edit_specific_grades"]:checked')).map(cb => cb.value);
+            const selectedGrades = Array.from(document.querySelectorAll('input[name="specific_grades"]:checked')).map(cb => cb.value);
+            const fullLevelStr = selectedGrades.length > 0 
+            ? `${level} (${selectedGrades.join(', ')})` 
+            : level;
             const selectedHours = Array.from(document.querySelectorAll('input[name="edit_hourly_slots"]:checked')).map(cb => cb.value);
 
             const fullLevelStr = `${level} (${selectedGrades.join(', ')})`;
