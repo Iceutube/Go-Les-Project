@@ -106,6 +106,23 @@
                     <span class="text-[10px] text-slate-500 font-semibold">Rating Rata-rata</span>
                 </div>
             </div>
+
+            <div class="border-t border-slate-100 pt-4 space-y-3">
+                <p class="text-xs font-bold text-slate-700">Kelola Video Mengajar</p>
+                <p class="text-[10px] text-slate-400 -mt-2">Video ini hanya bisa dibuka oleh siswa yang sedang berlangganan aktif ke kamu.</p>
+
+                <form id="form-add-video" onsubmit="addTutorVideo(event)" class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="new-video-title" required placeholder="Judul video, contoh: Aljabar Dasar Bab 1" class="flex-1 text-xs p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    <input type="url" id="new-video-url" required placeholder="Link video (YouTube/Drive)" class="flex-1 text-xs p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    <button type="submit" id="btn-add-video" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition whitespace-nowrap">
+                        Tambah Video
+                    </button>
+                </form>
+
+                <div id="tutor-video-list" class="space-y-2">
+                    <p class="text-center text-[11px] text-slate-400 py-4">Memuat video...</p>
+                </div>
+            </div>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
@@ -381,6 +398,7 @@
             currentTutorProfile = profile;
             renderTutorProfile(profile);
             await loadVideoSubscriptionStats(profile.id);
+            await loadTutorVideoList(profile.id);
 
             if (profile.status === 'approved') {
                 await loadTutorBookings(profile.id);
