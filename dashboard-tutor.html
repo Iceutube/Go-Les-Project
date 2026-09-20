@@ -590,15 +590,12 @@
             const price = parseInt(document.getElementById('edit-price').value) || 0;
             const phone = document.getElementById('edit-phone').value.trim();
 
-            const selectedGrades = Array.from(document.querySelectorAll('input[name="specific_grades"]:checked')).map(cb => cb.value);
-            const fullLevelStr = selectedGrades.length > 0 
-            ? `${level} (${selectedGrades.join(', ')})` 
+            const selectedGrades = Array.from(document.querySelectorAll('input[name="edit_specific_grades"]:checked')).map(cb => cb.value);
+            const fullLevelStr = selectedGrades.length > 0
+            ? `${level} (${selectedGrades.join(', ')})`
             : level;
             const selectedHours = Array.from(document.querySelectorAll('input[name="edit_hourly_slots"]:checked')).map(cb => cb.value);
 
-            const fullLevelStr = `${level} (${selectedGrades.join(', ')})`;
-
-            // Harga langganan video mengajar tidak boleh melebihi Rp20.000/bulan.
             const rawVideoPrice = parseInt(document.getElementById('edit-video-price').value) || 0;
             const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
 
