@@ -93,7 +93,6 @@
             <form id="booking-form" onsubmit="submitBooking(event)" class="space-y-4">
     <input type="hidden" id="booking-form-mode" value="online">
     
-    <!-- Mode Belajar -->
     <div>
         <label class="block text-xs font-bold text-slate-700 mb-2">Pilih Mode Belajar</label>
         <div class="grid grid-cols-2 gap-2">
@@ -109,7 +108,6 @@
         </p>
     </div>
 
-    <!-- Lokasi & Alamat Siswa -->
     <div id="booking-offline-location-row" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
         <label class="block text-xs font-bold text-slate-700">Pilih Lokasi Sesi Offline</label>
         <label class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-medium">
@@ -121,14 +119,11 @@
             Siswa datang ke rumah tutor
         </label>
 
-        <!-- Input Alamat Lengkap Siswa -->
         <div id="student-address-container" class="hidden space-y-1 pt-1">
             <label class="block text-[11px] font-bold text-slate-700">Alamat Lengkap Rumah Siswa <span class="text-rose-500">*</span></label>
             <textarea id="booking-student-address" rows="2" placeholder="Contoh: Jl. Mawar No. 12, RT 02/RW 05, Kel. Rungkut, Surabaya" class="w-full text-xs p-2.5 border border-slate-200 rounded-lg outline-none focus:border-sky-600 bg-white"></textarea>
         </div>
     </div>
-
-    <!-- Tanggal & Jam -->
     <div>
         <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Sesi</label>
         <input type="date" id="booking-date" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
@@ -163,7 +158,6 @@
         </div>
     </div>
 
-    <!-- ===================== Modal Langganan Video Mengajar Bulanan ===================== -->
     <div id="video-sub-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeVideoSubscriptionModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg">
@@ -218,8 +212,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Floating Chat WhatsApp -->
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all duration-300">
             <div id="chat-header-list" class="bg-emerald-600 text-white p-4 flex items-center justify-between">
