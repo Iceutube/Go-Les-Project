@@ -357,8 +357,8 @@
 
                 const tutorName = b.tutors ? b.tutors.name : 'Tutor GO-LES';
                 const proofLink = b.payment_proof 
-                    ? `<a href="${b.payment_proof}" target="_blank" class="text-xs text-sky-600 font-bold hover:underline"><i class="fa-solid fa-file-invoice-dollar"></i> Bukti Bayar</a>`
-                    : `<span class="text-xs text-slate-400">Tidak ada bukti</span>`;
+                ? `<a href="${b.payment_proof}" target="_blank" class="text-xs text-sky-600 font-bold hover:underline inline-flex items-center gap-1"><i class="fa-solid fa-image"></i> Lihat Foto Bukti Bayar</a>`
+                : `<span class="text-xs text-slate-400">Tidak ada foto bukti</span>`;
 
                 let modeInfo = b.session_mode === 'online'
                     ? '<span class="text-sky-600 font-bold"><i class="fa-solid fa-video"></i> Sesi Online</span>'
