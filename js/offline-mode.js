@@ -27,19 +27,16 @@ function openBookingModal(tutorId) {
         if (offlineLockedNotice) offlineLockedNotice.classList.remove('hidden');
     }
 
-    // Render slot jam mengajar tutor (Pilih 1 jam saja)
     renderTutorBookingHours(tutor.available_hours);
 
     const bookingForm = document.getElementById('booking-form');
     if (bookingForm) bookingForm.reset();
 
-    // Panggil fungsi setBookingMode
     setBookingMode('online');
     
     document.getElementById('booking-modal').classList.remove('hidden');
 }
 
-// FUNGSI INI YANG SEBELUMNYA HILANG / TIDAK TERDEFINISI
 function setBookingMode(mode) {
     const offlineBtn = document.getElementById('booking-mode-btn-offline');
     if (mode === 'offline' && offlineBtn && offlineBtn.disabled) {
@@ -163,8 +160,6 @@ async function submitBooking(e) {
 
     const studentNameElem = document.getElementById('student-name');
     const studentName = studentNameElem ? studentNameElem.innerText : 'Siswa';
-
-    // Mengirim data pemesanan ke Supabase
     const { error } = await _supabase.from('bookings').insert([{
         tutor_id: bookingTargetTutor.id,
         student_id: currentStudent.id,
