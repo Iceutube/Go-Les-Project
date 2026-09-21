@@ -161,7 +161,6 @@ async function submitBooking(e) {
     const studentNameElem = document.getElementById('student-name');
     const studentName = studentNameElem ? studentNameElem.innerText : 'Siswa';
 
-    // Mengirim data pemesanan ke Supabase
     const { error } = await _supabase.from('bookings').insert([{
         tutor_id: bookingTargetTutor.id,
         student_id: currentStudent.id,
