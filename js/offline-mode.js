@@ -181,60 +181,75 @@ async function submitBooking(e) {
     const time = selectedTimeInput ? selectedTimeInput.value : null;
     const phoneInput = document.getElementById('booking-phone');
     const phone = phoneInput ? phoneInput.value.trim() : '';
-    const paymentProof = document.getElementById('booking-payment-proof').value.trim();
 
-    if (!date || !time || !phone || !paymentProof) {
-        alert('Lengkapi tanggal, slot jam sesi, nomor WhatsApp, dan link bukti pembayaran.');
+    // Ambil File Foto Bukti Bayar
+    const proofFileInput = document.getElementById('booking-payment-proof-file');
+    const proofFile = proofFileInput && proofFileInput.files[0] ? proofFileInput.files[0] : null;
+
+    if (!date || !time || !phone || !proofFile) {
+        alert('Lengkapi tanggal, slot jam sesi, nomor WhatsApp, dan foto bukti pembayaran.');
         return;
     }
 
     const btn = document.getElementById('btn-submit-booking');
     if (btn) {
         btn.disabled = true;
-        btn.innerText = 'Memproses...';
+        btn.innerText = 'Memproses Gambar...';
     }
 
-    const studentNameElem = document.getElementById('student-name');
-    const studentName = studentNameElem ? studentNameElem.innerText : 'Siswa';
+    // Konversi foto bukti transfer menjadi string Base64
+    const reader = new FileReader();
+    reader.onload = async function(event) {
+        const paymentProofBase64 = event.target.result;
+        
+        if (btn) btn.innerText = 'Memproses...';
 
-    // 1. Simpan Pemesanan ke Tabel Bookings
-    const { error } = await _supabase.from('bookings').insert([{
-        tutor_id: bookingTargetTutor.id,
-        student_id: currentStudent.id,
-        student_name: studentName,
-        student_phone: phone,
-        booking_date: date,
-        booking_time: time,
-        session_mode: mode,
-        offline_location: offlineLocation,
-        student_address: studentAddress,
-        payment_status: 'paid',
-        payment_proof: paymentProof,
-        status: 'pending'
-    }]);
+        const studentNameElem = document.getElementById('student-name');
+        const studentName = studentNameElem ? studentNameElem.innerText : 'Siswa';
 
-    if (error) {
+        // 1. Simpan Pemesanan ke Tabel Bookings Supabase
+        const { error } = await _supabase.from('bookings').insert([{
+            tutor_id: bookingTargetTutor.id,
+            student_id: currentStudent.id,
+            student_name: studentName,
+            student_phone: phone,
+            booking_date: date,
+            booking_time: time,
+            session_mode: mode,
+            offline_location: offlineLocation,
+            student_address: studentAddress,
+            payment_status: 'paid',
+            payment_proof: paymentProofBase64, // Simpan sebagai string Foto
+            status: 'pending'
+        }]);
+
+        if (error) {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = 'Konfirmasi & Bayar Sesi';
+            }
+            alert('Gagal membuat pemesanan: ' + error.message);
+            return;
+        }
+
+        // 2. OTOMATIS KIRIM PESAN CHAT KE TUTOR
+        if (bookingTargetTutor.user_id) {
+            const autoMessage = `Ditunggu ya kelas privatnya di jam ${time} (Tanggal: ${date}).`;
+            await _supabase.from('messages').insert([{
+                sender_id: currentStudent.id,
+                receiver_id: bookingTargetTutor.user_id,
+                message: autoMessage
+            }]);
+        }
+
         if (btn) {
             btn.disabled = false;
             btn.innerText = 'Konfirmasi & Bayar Sesi';
         }
-        alert('Gagal membuat pemesanan: ' + error.message);
-        return;
-    }
-    if (bookingTargetTutor.user_id) {
-        const autoMessage = `Ditunggu ya kelas privatnya di jam ${time} (Tanggal: ${date}).`;
-        await _supabase.from('messages').insert([{
-            sender_id: currentStudent.id,
-            receiver_id: bookingTargetTutor.user_id,
-            message: autoMessage
-        }]);
-    }
 
-    if (btn) {
-        btn.disabled = false;
-        btn.innerText = 'Konfirmasi & Bayar Sesi';
-    }
+        alert(`Pemesanan berhasil dikirim beserta foto bukti bayar! Tunggu verifikasi admin paling lambat 10 menit.`);
+        closeBookingModal();
+    };
 
-    alert(`Pemesanan berhasil dikirim dan pesan otomatis telah terkirim ke tutor! Tunggu verifikasi admin paling lambat 10 menit.`);
-    closeBookingModal();
+    reader.readAsDataURL(proofFile);
 }
