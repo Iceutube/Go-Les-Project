@@ -221,8 +221,6 @@ async function submitBooking(e) {
         alert('Gagal membuat pemesanan: ' + error.message);
         return;
     }
-
-    // 2. OTOMATIS KIRIM PESAN KE TUTOR DI APLIKASI CHAT
     if (bookingTargetTutor.user_id) {
         const autoMessage = `Ditunggu ya kelas privatnya di jam ${time} (Tanggal: ${date}).`;
         await _supabase.from('messages').insert([{
