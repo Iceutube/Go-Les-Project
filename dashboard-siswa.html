@@ -91,56 +91,75 @@
                 </div>
             </div>
             <form id="booking-form" onsubmit="submitBooking(event)" class="space-y-4">
-                <input type="hidden" id="booking-form-mode" value="online">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-2">Pilih Mode Belajar</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button type="button" id="booking-mode-btn-online" onclick="setBookingMode('online')" class="border-2 border-slate-200 text-slate-600 rounded-xl p-3 text-xs font-bold flex flex-col items-center gap-1.5 transition">
-                            <i class="fa-solid fa-video"></i> Online
-                        </button>
-                        <button type="button" id="booking-mode-btn-offline" onclick="setBookingMode('offline')" class="border-2 border-slate-200 text-slate-600 rounded-xl p-3 text-xs font-bold flex flex-col items-center gap-1.5 transition">
-                            <i class="fa-solid fa-house-user"></i> Offline (Tatap Muka)
-                        </button>
-                    </div>
-                    <p id="booking-offline-locked-notice" class="hidden text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2">
-                        <i class="fa-solid fa-lock"></i> Tutor ini belum diverifikasi Admin untuk sesi offline. Sementara hanya bisa Online.
-                    </p>
-                </div>
+    <input type="hidden" id="booking-form-mode" value="online">
+    
+    <!-- Mode Belajar -->
+    <div>
+        <label class="block text-xs font-bold text-slate-700 mb-2">Pilih Mode Belajar</label>
+        <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="booking-mode-btn-online" onclick="setBookingMode('online')" class="border-2 border-slate-200 text-slate-600 rounded-xl p-3 text-xs font-bold flex flex-col items-center gap-1.5 transition">
+                <i class="fa-solid fa-video"></i> Online
+            </button>
+            <button type="button" id="booking-mode-btn-offline" onclick="setBookingMode('offline')" class="border-2 border-slate-200 text-slate-600 rounded-xl p-3 text-xs font-bold flex flex-col items-center gap-1.5 transition">
+                <i class="fa-solid fa-house-user"></i> Offline (Tatap Muka)
+            </button>
+        </div>
+        <p id="booking-offline-locked-notice" class="hidden text-[11px] text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-2">
+            <i class="fa-solid fa-lock"></i> Tutor ini belum diverifikasi Admin untuk sesi offline.
+        </p>
+    </div>
 
-                <div id="booking-offline-location-row" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                    <label class="block text-xs font-bold text-slate-700">Pilih Lokasi Les Offline</label>
-                    <label class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-medium">
-                        <input type="radio" name="offline-location-choice" value="rumah_siswa" class="accent-sky-600">
-                        Tutor datang ke rumah siswa
-                    </label>
-                    <label class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-medium">
-                        <input type="radio" name="offline-location-choice" value="rumah_tutor" class="accent-sky-600">
-                        Siswa datang ke rumah tutor
-                    </label>
-                </div>
+    <!-- Lokasi & Alamat Siswa -->
+    <div id="booking-offline-location-row" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
+        <label class="block text-xs font-bold text-slate-700">Pilih Lokasi Sesi Offline</label>
+        <label class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-medium">
+            <input type="radio" name="offline-location-choice" value="rumah_siswa" onchange="toggleStudentAddressInput(true)" class="accent-sky-600">
+            Tutor datang ke rumah siswa
+        </label>
+        <label class="flex items-center gap-2 bg-white p-2.5 rounded-lg border border-slate-200 cursor-pointer text-xs font-medium">
+            <input type="radio" name="offline-location-choice" value="rumah_tutor" onchange="toggleStudentAddressInput(false)" class="accent-sky-600">
+            Siswa datang ke rumah tutor
+        </label>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Sesi</label>
-                    <input type="date" id="booking-date" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
-                </div>
+        <!-- Input Alamat Lengkap Siswa -->
+        <div id="student-address-container" class="hidden space-y-1 pt-1">
+            <label class="block text-[11px] font-bold text-slate-700">Alamat Lengkap Rumah Siswa <span class="text-rose-500">*</span></label>
+            <textarea id="booking-student-address" rows="2" placeholder="Contoh: Jl. Mawar No. 12, RT 02/RW 05, Kel. Rungkut, Surabaya" class="w-full text-xs p-2.5 border border-slate-200 rounded-lg outline-none focus:border-sky-600 bg-white"></textarea>
+        </div>
+    </div>
 
-                <!-- Pilihan Slot Jam Mengajar Tutor (Radio Button: Pilih 1 Jam) -->
-                <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
-                    <label class="block text-xs font-bold text-slate-700">Pilih Jam Sesi (Tersedia):</label>
-                    <div id="booking-available-hours-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-700">
-                        <p class="text-slate-400 text-[11px] col-span-full text-center py-2">Memuat jam mengajar tutor...</p>
-                    </div>
-                </div>
+    <!-- Tanggal & Jam -->
+    <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Sesi</label>
+        <input type="date" id="booking-date" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+    </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp Kamu</label>
-                    <input type="tel" id="booking-phone" required placeholder="08123456789" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
-                </div>
+    <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
+        <label class="block text-xs font-bold text-slate-700">Pilih Jam Sesi (Tersedia):</label>
+        <div id="booking-available-hours-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-medium text-slate-700">
+            <p class="text-slate-400 text-[11px] col-span-full text-center py-2">Memuat jam mengajar tutor...</p>
+        </div>
+    </div>
 
-                <button type="submit" id="btn-submit-booking" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
-                    Konfirmasi Pesan Sesi
-                </button>
-            </form>
+    <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp Kamu</label>
+        <input type="tel" id="booking-phone" required placeholder="08123456789" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+    </div>
+
+    <!-- Informasi Pembayaran -->
+    <div class="bg-sky-50 border border-sky-200 rounded-xl p-3.5 space-y-2">
+        <label class="block text-xs font-bold text-sky-900">Pembayaran Sesi Les</label>
+        <p class="text-[11px] text-sky-700">Transfer pembayaran ke Rekening Bank / QRIS GO-LES (BCA: <strong>123-456-7890</strong> a.n GO-LES Admin).</p>
+        <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Link Bukti Pembayaran / Transfer <span class="text-rose-500">*</span></label>
+            <input type="url" id="booking-payment-proof" required placeholder="https://drive.google.com/... atau link foto bukti" class="w-full text-xs p-2.5 border border-slate-200 rounded-lg outline-none focus:border-sky-600 bg-white">
+        </div>
+    </div>
+
+    <button type="submit" id="btn-submit-booking" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+        Konfirmasi & Bayar Sesi
+    </button>
+</form>
         </div>
     </div>
 
