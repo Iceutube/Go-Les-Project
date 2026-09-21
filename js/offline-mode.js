@@ -28,7 +28,7 @@ async function openBookingModal(tutorId) {
         if (offlineLockedNotice) offlineLockedNotice.classList.remove('hidden');
     }
 
-    // --- FITUR MENCEGAH PILIH HARI SEBELUMNYA ---
+    // --- MENCEGAH PILIH HARI SEBELUMNYA ---
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -37,8 +37,8 @@ async function openBookingModal(tutorId) {
 
     const dateInput = document.getElementById('booking-date');
     if (dateInput) {
-        dateInput.min = todayStr; // Kunci kalender agar tanggal kemarin tidak bisa diklik
-        dateInput.value = todayStr; // Set default hari ini
+        dateInput.min = todayStr;
+        dateInput.value = todayStr;
         dateInput.onchange = () => {
             if (dateInput.value < todayStr) {
                 alert('Tidak dapat memilih tanggal yang sudah lewat.');
@@ -48,7 +48,6 @@ async function openBookingModal(tutorId) {
         };
     }
 
-    // Render slot jam mengajar tutor
     await renderTutorBookingHours(tutor.available_hours, tutor.id, todayStr);
 
     const bookingForm = document.getElementById('booking-form');
@@ -58,7 +57,6 @@ async function openBookingModal(tutorId) {
     document.getElementById('booking-modal').classList.remove('hidden');
 }
 
-// Mengatur perpindahan mode Online vs Offline
 function setBookingMode(mode) {
     const offlineBtn = document.getElementById('booking-mode-btn-offline');
     if (mode === 'offline' && offlineBtn && offlineBtn.disabled) {
@@ -90,14 +88,12 @@ function setBookingMode(mode) {
         }
     }
 
-    // Refresh ketersediaan jam sesuai mode yang dipilih
     const dateInput = document.getElementById('booking-date');
     if (bookingTargetTutor && dateInput) {
         renderTutorBookingHours(bookingTargetTutor.available_hours, bookingTargetTutor.id, dateInput.value);
     }
 }
 
-// Menampilkan/menyembunyikan input alamat rumah siswa
 function toggleStudentAddressInput(show) {
     const addressBox = document.getElementById('student-address-container');
     if (addressBox) {
@@ -106,7 +102,6 @@ function toggleStudentAddressInput(show) {
     }
 }
 
-// Render slot jam dengan validasi bentrok & jam berlalu
 async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate) {
     const container = document.getElementById('booking-available-hours-container');
     if (!container) return;
@@ -120,7 +115,6 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
     const hoursList = availableHoursStr.split(',').map(h => h.trim()).filter(h => h.length > 0);
     const mode = document.getElementById('booking-form-mode')?.value || 'online';
 
-    // 1. Cek Booking Offline yang Sudah Ada di Database
     let bookedTimes = [];
     if (tutorId && selectedDate) {
         const { data: existingBookings } = await _supabase
@@ -136,7 +130,6 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
         }
     }
 
-    // 2. Cek Waktu Saat Ini (Mencegah Memesan Jam yang Sudah Lewat)
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -154,7 +147,6 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
 
         let isPastTime = false;
         if (isToday) {
-            // Ambil jam awal dari string jam misal "08:00 - 09:00" -> "08:00"
             const startTimeStr = hourStr.split('-')[0].trim();
             const [startHour, startMinute] = startTimeStr.split(':').map(Number);
 
@@ -203,7 +195,7 @@ function closeBookingModal() {
     bookingTargetTutor = null;
 }
 
-// Proses submit pemesanan + konversi foto bukti bayar & auto-message
+// FUNGSI KOMPRESI DENGAN CANVAS DAHULU SEBELUM SUBMIT
 async function submitBooking(e) {
     e.preventDefault();
     if (!bookingTargetTutor || !currentStudent) return;
@@ -251,58 +243,78 @@ async function submitBooking(e) {
         btn.innerText = 'Memproses Gambar...';
     }
 
-    // Konversi Foto Bukti Transfer ke Base64 String
+    // MEMBACA DAN MENGOMPRES GAMBAR KUALITAS CANVAS
     const reader = new FileReader();
-    reader.onload = async function(event) {
-        const paymentProofBase64 = event.target.result;
-        
-        if (btn) btn.innerText = 'Memproses...';
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = async function() {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const scaleFactor = MAX_WIDTH / img.width;
+            
+            if (img.width > MAX_WIDTH) {
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scaleFactor;
+            } else {
+                canvas.width = img.width;
+                canvas.height = img.height;
+            }
 
-        const studentNameElem = document.getElementById('student-name');
-        const studentName = studentNameElem ? studentNameElem.innerText : 'Siswa';
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+            // Kompres foto ke format JPEG kualitas 70%
+            const paymentProofBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
-        // 1. Simpan Pemesanan ke Tabel Bookings Supabase
-        const { error } = await _supabase.from('bookings').insert([{
-            tutor_id: bookingTargetTutor.id,
-            student_id: currentStudent.id,
-            student_name: studentName,
-            student_phone: phone,
-            booking_date: date,
-            booking_time: time,
-            session_mode: mode,
-            offline_location: offlineLocation,
-            student_address: studentAddress,
-            payment_status: 'paid',
-            payment_proof: paymentProofBase64,
-            status: 'pending'
-        }]);
+            if (btn) btn.innerText = 'Memproses...';
 
-        if (error) {
+            const studentNameElem = document.getElementById('student-name');
+            const studentName = studentNameElem ? studentNameElem.innerText : 'Siswa';
+
+            // Simpan ke Supabase
+            const { error } = await _supabase.from('bookings').insert([{
+                tutor_id: bookingTargetTutor.id,
+                student_id: currentStudent.id,
+                student_name: studentName,
+                student_phone: phone,
+                booking_date: date,
+                booking_time: time,
+                session_mode: mode,
+                offline_location: offlineLocation,
+                student_address: studentAddress,
+                payment_status: 'paid',
+                payment_proof: paymentProofBase64,
+                status: 'pending'
+            }]);
+
+            if (error) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = 'Konfirmasi & Bayar Sesi';
+                }
+                alert('Gagal membuat pemesanan: ' + error.message);
+                return;
+            }
+
+            // Kirim pesan otomatis ke tutor
+            if (bookingTargetTutor.user_id) {
+                const autoMessage = `Ditunggu ya kelas privatnya di jam ${time} (Tanggal: ${date}).`;
+                await _supabase.from('messages').insert([{
+                    sender_id: currentStudent.id,
+                    receiver_id: bookingTargetTutor.user_id,
+                    message: autoMessage
+                }]);
+            }
+
             if (btn) {
                 btn.disabled = false;
                 btn.innerText = 'Konfirmasi & Bayar Sesi';
             }
-            alert('Gagal membuat pemesanan: ' + error.message);
-            return;
-        }
 
-        // 2. OTOMATIS KIRIM PESAN KE CHAT TUTOR
-        if (bookingTargetTutor.user_id) {
-            const autoMessage = `Ditunggu ya kelas privatnya di jam ${time} (Tanggal: ${date}).`;
-            await _supabase.from('messages').insert([{
-                sender_id: currentStudent.id,
-                receiver_id: bookingTargetTutor.user_id,
-                message: autoMessage
-            }]);
-        }
-
-        if (btn) {
-            btn.disabled = false;
-            btn.innerText = 'Konfirmasi & Bayar Sesi';
-        }
-
-        alert(`Pemesanan berhasil dikirim beserta foto bukti bayar! Tunggu verifikasi admin paling lambat 10 menit.`);
-        closeBookingModal();
+            alert(`Pemesanan berhasil dikirim beserta foto bukti bayar! Tunggu verifikasi admin paling lambat 10 menit.`);
+            closeBookingModal();
+        };
+        img.src = event.target.result;
     };
 
     reader.readAsDataURL(proofFile);
