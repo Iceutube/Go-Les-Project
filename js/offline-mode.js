@@ -14,22 +14,67 @@ function openBookingModal(tutorId) {
     const offlineLockedNotice = document.getElementById('booking-offline-locked-notice');
 
     if (tutor.is_offline_verified) {
-        offlineBtn.disabled = false;
-        offlineBtn.classList.remove('opacity-40', 'cursor-not-allowed');
-        offlineLockedNotice.classList.add('hidden');
+        if (offlineBtn) {
+            offlineBtn.disabled = false;
+            offlineBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+        }
+        if (offlineLockedNotice) offlineLockedNotice.classList.add('hidden');
     } else {
-        offlineBtn.disabled = true;
-        offlineBtn.classList.add('opacity-40', 'cursor-not-allowed');
-        offlineLockedNotice.classList.remove('hidden');
+        if (offlineBtn) {
+            offlineBtn.disabled = true;
+            offlineBtn.classList.add('opacity-40', 'cursor-not-allowed');
+        }
+        if (offlineLockedNotice) offlineLockedNotice.classList.remove('hidden');
     }
+
+    // Render slot jam mengajar tutor (Pilih 1 jam saja)
     renderTutorBookingHours(tutor.available_hours);
 
-    document.getElementById('booking-form').reset();
+    const bookingForm = document.getElementById('booking-form');
+    if (bookingForm) bookingForm.reset();
+
+    // Panggil fungsi setBookingMode
     setBookingMode('online');
+    
     document.getElementById('booking-modal').classList.remove('hidden');
 }
+
+// FUNGSI INI YANG SEBELUMNYA HILANG / TIDAK TERDEFINISI
+function setBookingMode(mode) {
+    const offlineBtn = document.getElementById('booking-mode-btn-offline');
+    if (mode === 'offline' && offlineBtn && offlineBtn.disabled) {
+        return;
+    }
+    
+    ['online', 'offline'].forEach(m => {
+        const btn = document.getElementById(`booking-mode-btn-${m}`);
+        if (btn) {
+            if (m === mode) {
+                btn.classList.add('border-sky-600', 'bg-sky-50', 'text-sky-700');
+                btn.classList.remove('border-slate-200', 'text-slate-600');
+            } else {
+                btn.classList.remove('border-sky-600', 'bg-sky-50', 'text-sky-700');
+                btn.classList.add('border-slate-200', 'text-slate-600');
+            }
+        }
+    });
+
+    const modeInput = document.getElementById('booking-form-mode');
+    if (modeInput) modeInput.value = mode;
+
+    const locationRow = document.getElementById('booking-offline-location-row');
+    if (locationRow) {
+        if (mode === 'offline') {
+            locationRow.classList.remove('hidden');
+        } else {
+            locationRow.classList.add('hidden');
+        }
+    }
+}
+
 function renderTutorBookingHours(availableHoursStr) {
     const container = document.getElementById('booking-available-hours-container');
+    if (!container) return;
     container.innerHTML = '';
 
     if (!availableHoursStr || availableHoursStr.trim() === '') {
@@ -52,4 +97,78 @@ function renderTutorBookingHours(availableHoursStr) {
             </label>
         `;
     });
+}
+
+function closeBookingModal() {
+    const modal = document.getElementById('booking-modal');
+    if (modal) modal.classList.add('hidden');
+    bookingTargetTutor = null;
+}
+
+async function submitBooking(e) {
+    e.preventDefault();
+    if (!bookingTargetTutor || !currentStudent) return;
+
+    const modeInput = document.getElementById('booking-form-mode');
+    const mode = modeInput ? modeInput.value : 'online';
+    let offlineLocation = null;
+
+    if (mode === 'offline') {
+        const chosenLoc = document.querySelector('input[name="offline-location-choice"]:checked');
+        if (!chosenLoc) {
+            alert('Pilih dulu lokasi les offline: tutor datang ke rumah siswa, atau siswa datang ke rumah tutor.');
+            return;
+        }
+        offlineLocation = chosenLoc.value;
+    }
+
+    const dateInput = document.getElementById('booking-date');
+    const date = dateInput ? dateInput.value : null;
+    const selectedTimeInput = document.querySelector('input[name="booking-selected-time"]:checked');
+    const time = selectedTimeInput ? selectedTimeInput.value : null;
+    const phoneInput = document.getElementById('booking-phone');
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+
+    if (!date || !time || !phone) {
+        alert('Lengkapi tanggal, slot jam sesi, dan nomor WhatsApp kamu terlebih dahulu.');
+        return;
+    }
+
+    const btn = document.getElementById('btn-submit-booking');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Memproses...';
+    }
+
+    const studentNameElem = document.getElementById('student-name');
+    const studentName = studentNameElem ? studentNameElem.innerText : 'Siswa';
+
+    const { error } = await _supabase.from('bookings').insert([{
+        tutor_id: bookingTargetTutor.id,
+        student_id: currentStudent.id,
+        student_name: studentName,
+        student_phone: phone,
+        booking_date: date,
+        booking_time: time,
+        session_mode: mode,
+        offline_location: offlineLocation,
+        status: 'pending'
+    }]);
+
+    if (btn) {
+        btn.disabled = false;
+        btn.innerText = 'Konfirmasi Pesan Sesi';
+    }
+
+    if (error) {
+        alert('Gagal membuat pemesanan: ' + error.message);
+        return;
+    }
+
+    const modeLabel = mode === 'online'
+        ? 'Online'
+        : (offlineLocation === 'rumah_siswa' ? 'Offline - Tutor ke rumah siswa' : 'Offline - Siswa ke rumah tutor');
+
+    alert(`Sesi berhasil dipesan untuk jam ${time} (${modeLabel})! Tunggu konfirmasi dari tutor melalui menu Chat.`);
+    closeBookingModal();
 }
