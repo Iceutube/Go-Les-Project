@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin - GO-LES</title>
+    <title>Portal Admin - GO-LES</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,84 +11,513 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-800 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
 
-    <div class="bg-white rounded-3xl p-8 max-w-md w-full space-y-6 shadow-2xl relative overflow-hidden">
-        <div class="text-center space-y-2">
-            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold shadow-sm">
-                <i class="fa-solid fa-user-shield"></i>
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Admin Portal</span></span>
             </div>
-            <h1 class="text-2xl font-extrabold text-slate-900">Portal Admin GO-LES</h1>
-            <p class="text-xs text-slate-500">Masuk menggunakan akun otorisasi Administrator</p>
+            <div class="flex items-center gap-3">
+                <span id="admin-email-display" class="text-xs font-semibold text-slate-600">admin@goles.com</span>
+                <button onclick="logout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Keluar">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
+        
+        <!-- Summary Stats Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="bg-sky-100 text-sky-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Total Tutor</span>
+                    <span id="stat-total-tutor" class="text-2xl font-extrabold text-slate-900">0</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="bg-amber-100 text-amber-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Tutor Pending</span>
+                    <span id="stat-pending-tutor" class="text-2xl font-extrabold text-slate-900">0</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Total Siswa</span>
+                    <span id="stat-total-siswa" class="text-2xl font-extrabold text-slate-900">0</span>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="bg-indigo-100 text-indigo-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Total Pengguna</span>
+                    <span id="stat-total-users" class="text-2xl font-extrabold text-slate-900">0</span>
+                </div>
+            </div>
         </div>
 
-        <form id="form-login-admin" class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Email Admin</label>
-                <input type="email" id="admin-email" required placeholder="admin@goles.com" class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-rose-600 bg-slate-50">
+        <!-- Management Table Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <!-- Header Nav Tabs (Pemisah Tutor dan Siswa) -->
+            <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl">
+                    <button id="tab-btn-tutor" onclick="switchRoleTab('tutor')" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-sky-600 shadow-sm">
+                        <i class="fa-solid fa-chalkboard-user"></i> Daftar Tutor
+                    </button>
+                    <button id="tab-btn-siswa" onclick="switchRoleTab('siswa')" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900">
+                        <i class="fa-solid fa-graduation-cap"></i> Daftar Siswa
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                    <select id="admin-filter-status" onchange="filterAdminTable()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 font-medium outline-none">
+                        <option value="all">Semua Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+
+                    <input type="text" id="admin-search" onkeyup="filterAdminTable()" placeholder="Cari nama / email / mapel..." class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 outline-none w-full sm:w-60">
+                </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
-                <input type="password" id="admin-password" required placeholder="••••••••" class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-rose-600 bg-slate-50">
+            <!-- Table Content -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-700">
+                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
+                        <tr id="table-head-row">
+                            <!-- Header diisi via JavaScript -->
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="8" class="text-center py-8 text-slate-400">Memuat data pengguna...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+        </div>
+    </main>
 
-            <button type="submit" id="btn-login-admin" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-lg shadow-rose-600/20">
-                Masuk Dashboard Admin
+    <!-- Modal Detail Tutor/Siswa -->
+    <div id="modal-detail" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
             </button>
-        </form>
 
-        <div class="text-center pt-2">
-            <a href="index.html" class="text-xs text-slate-400 hover:text-slate-600 transition">
-                <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
-            </a>
+            <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+                <img id="modal-avatar" src="" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
+                <div>
+                    <h3 id="modal-name" class="font-extrabold text-slate-900 text-base"></h3>
+                    <p id="modal-email" class="text-xs text-slate-500"></p>
+                    <span id="modal-status-badge" class="inline-block px-2 py-0.5 rounded text-[10px] font-bold mt-1"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                    <span class="text-slate-400 block font-semibold">Mata Pelajaran:</span>
+                    <span id="modal-subject" class="font-bold text-slate-800"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Tingkat:</span>
+                    <span id="modal-level" class="font-bold text-slate-800"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Domisili:</span>
+                    <span id="modal-location" class="font-bold text-slate-800"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Tarif / Jam:</span>
+                    <span id="modal-price" class="font-bold text-sky-600"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Rating Performa:</span>
+                    <span id="modal-rating" class="font-bold text-amber-500"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 block font-semibold">Total Ulasan:</span>
+                    <span id="modal-reviews-count" class="font-bold text-slate-800"></span>
+                </div>
+                <div class="col-span-2">
+                    <span class="text-slate-400 block font-semibold">Nomor WhatsApp:</span>
+                    <span id="modal-phone" class="font-bold text-slate-800"></span>
+                </div>
+            </div>
+
+            <div id="modal-offline-eligibility" class="hidden text-[11px] font-bold px-3 py-2.5 rounded-xl border"></div>
+
+            <div id="modal-tutor-actions" class="pt-4 border-t border-slate-100 flex flex-col gap-2">
+                <div class="flex gap-2">
+                    <button id="btn-approve-online" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                        <i class="fa-solid fa-check"></i> Setujui (Online Only)
+                    </button>
+                    <button id="btn-approve-offline" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                        <i class="fa-solid fa-house-user"></i> Setujui (Online + Offline)
+                    </button>
+                </div>
+                <button id="btn-reject" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold py-2.5 rounded-xl text-xs transition">
+                    <i class="fa-solid fa-xmark"></i> Tolak Pendaftaran
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        &copy; 2026 GO-LES Admin Portal. Hak Cipta Dilindungi.
+    </footer>
+
+    <!-- Supabase JS & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script>
-        document.getElementById('form-login-admin').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('admin-email').value.trim();
-            const password = document.getElementById('admin-password').value;
-            const btn = document.getElementById('btn-login-admin');
+        let allUsersData = [];
+        let currentRoleTab = 'tutor';
+        let selectedTutorId = null;
 
-            btn.innerText = 'Memeriksa Hak Akses...';
-            btn.disabled = true;
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAdminAuth();
+            await loadAdminData();
+        });
 
-            // 1. Authenticate via Supabase Auth
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
+        async function checkAdminAuth() {
+            const { data: { user } } = await _supabase.auth.getUser();
 
-            if (error) {
-                alert('Gagal masuk: ' + error.message);
-                btn.innerText = 'Masuk Dashboard Admin';
-                btn.disabled = false;
+            if (!user) {
+                window.location.href = 'login.html';
                 return;
             }
 
-            // 2. Verifikasi Role di Database
             const { data: profile } = await _supabase
                 .from('tutors')
-                .select('role')
-                .or(`user_id.eq.${data.user.id},email.eq.${data.user.email}`)
+                .select('*')
+                .or(`user_id.eq.${user.id},email.eq.${user.email}`)
                 .single();
 
-            if (profile && profile.role === 'admin') {
-                alert('Login Admin Berhasil!');
-                window.location.href = 'dashboard-admin.html';
-            } else {
-                alert('Akses Ditolak! Akun ini bukan akun dengan hak akses Administrator.');
-                await _supabase.auth.signOut();
-                btn.innerText = 'Masuk Dashboard Admin';
-                btn.disabled = false;
+            if (!profile || profile.role !== 'admin') {
+                alert('Akses Ditolak! Halaman ini hanya untuk Administrator.');
+                window.location.href = 'login.html';
+                return;
             }
-        });
+
+            document.getElementById('admin-email-display').innerText = user.email;
+        }
+
+        async function loadAdminData() {
+            const { data: users, error } = await _supabase
+                .from('tutors')
+                .select('*')
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error("Gagal memuat data:", error);
+                return;
+            }
+
+            allUsersData = (users || []).map(u => {
+                let userRole = (u.role || '').toLowerCase();
+                if (userRole !== 'admin' && userRole !== 'tutor') {
+                    userRole = 'siswa';
+                }
+                return { ...u, role: userRole };
+            }).filter(u => u.role !== 'admin');
+
+            updateStats(allUsersData);
+            filterAdminTable();
+        }
+
+        function updateStats(list) {
+            const tutors = list.filter(u => u.role === 'tutor');
+            const siswas = list.filter(u => u.role === 'siswa');
+            const pendingTutors = tutors.filter(t => t.status === 'pending').length;
+
+            document.getElementById('stat-total-tutor').innerText = tutors.length;
+            document.getElementById('stat-pending-tutor').innerText = pendingTutors;
+            document.getElementById('stat-total-siswa').innerText = siswas.length;
+            document.getElementById('stat-total-users').innerText = list.length;
+        }
+
+        function switchRoleTab(role) {
+            currentRoleTab = role;
+            const btnTutor = document.getElementById('tab-btn-tutor');
+            const btnSiswa = document.getElementById('tab-btn-siswa');
+
+            if (role === 'tutor') {
+                btnTutor.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-sky-600 shadow-sm';
+                btnSiswa.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
+            } else {
+                btnSiswa.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-sky-600 shadow-sm';
+                btnTutor.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
+            }
+
+            filterAdminTable();
+        }
+
+        function filterAdminTable() {
+            const statusFilter = document.getElementById('admin-filter-status').value;
+            const searchVal = document.getElementById('admin-search').value.toLowerCase().trim();
+
+            const filtered = allUsersData.filter(u => {
+                const matchRole = u.role === currentRoleTab;
+                const matchStatus = statusFilter === 'all' || u.status === statusFilter;
+                const matchSearch = (u.name || '').toLowerCase().includes(searchVal) ||
+                                    (u.email || '').toLowerCase().includes(searchVal) ||
+                                    (u.subject || '').toLowerCase().includes(searchVal);
+                return matchRole && matchStatus && matchSearch;
+            });
+
+            renderAdminTable(filtered);
+        }
+
+        function renderAdminTable(list) {
+            const headRow = document.getElementById('table-head-row');
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = '';
+
+            if (currentRoleTab === 'tutor') {
+                headRow.innerHTML = `
+                    <th class="py-3.5 px-4">Tutor</th>
+                    <th class="py-3.5 px-4">Mata Pelajaran</th>
+                    <th class="py-3.5 px-4">Rating & Review</th>
+                    <th class="py-3.5 px-4">Kontak / Domisili</th>
+                    <th class="py-3.5 px-4">Tarif</th>
+                    <th class="py-3.5 px-4 text-center">Verifikasi Offline</th>
+                    <th class="py-3.5 px-4 text-center">Status</th>
+                    <th class="py-3.5 px-4 text-right">Aksi</th>
+                `;
+            } else {
+                headRow.innerHTML = `
+                    <th class="py-3.5 px-4">Siswa</th>
+                    <th class="py-3.5 px-4">Tingkat Sekolah</th>
+                    <th class="py-3.5 px-4">Kontak / WhatsApp</th>
+                    <th class="py-3.5 px-4">Domisili</th>
+                    <th class="py-3.5 px-4 text-center">Peran</th>
+                    <th class="py-3.5 px-4 text-center">Status</th>
+                    <th class="py-3.5 px-4 text-right">Aksi</th>
+                `;
+            }
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada data ${currentRoleTab}.</td></tr>`;
+                return;
+            }
+
+            list.forEach(u => {
+                let statusBadge = u.status === 'approved' 
+                    ? `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Active</span>`
+                    : u.status === 'rejected'
+                    ? `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Rejected</span>`
+                    : `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
+
+                if (currentRoleTab === 'tutor') {
+                    const offlineBadge = u.is_offline_verified
+                        ? `<span class="bg-sky-50 text-sky-600 px-2 py-0.5 rounded font-bold text-[10px]"><i class="fa-solid fa-check"></i> Verified</span>`
+                        : `<span class="text-slate-400 text-[10px]">-</span>`;
+
+                    const ratingVal = u.rating || 0;
+                    const totalReviews = u.total_reviews || 0;
+                    const ratingBadge = `<div class="flex items-center gap-1 font-bold text-amber-500">
+                        <i class="fa-solid fa-star text-xs"></i> <span>${ratingVal > 0 ? ratingVal : 'Baru'}</span>
+                        <span class="text-[10px] text-slate-400 font-normal">(${totalReviews} ulasan)</span>
+                    </div>`;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
+                                    <div>
+                                        <div class="font-bold text-slate-900">${u.name}</div>
+                                        <div class="text-[11px] text-slate-400">${u.email}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 font-semibold text-slate-800">${u.subject} <span class="text-[10px] text-slate-400 font-normal">(${u.level || 'Umum'})</span></td>
+                            <td class="py-3 px-4">${ratingBadge}</td>
+                            <td class="py-3 px-4">
+                                <div>${u.phone_number || '-'}</div>
+                                <div class="text-[11px] text-slate-400">${u.location || 'Online'}</div>
+                            </td>
+                            <td class="py-3 px-4 font-bold text-sky-600">Rp ${(u.price || 0).toLocaleString('id-ID')}</td>
+                            <td class="py-3 px-4 text-center">${offlineBadge}</td>
+                            <td class="py-3 px-4 text-center">${statusBadge}</td>
+                            <td class="py-3 px-4 text-right">
+                                <button onclick="openDetailModal(${u.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                                    <i class="fa-solid fa-eye"></i> Detail
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
+                                    <div>
+                                        <div class="font-bold text-slate-900">${u.name}</div>
+                                        <div class="text-[11px] text-slate-400">${u.email}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 font-semibold text-slate-800">${u.level || 'SMA'}</td>
+                            <td class="py-3 px-4 text-slate-700 font-medium">${u.phone_number || '-'}</td>
+                            <td class="py-3 px-4 text-slate-700 font-medium">${u.location || '-'}</td>
+                            <td class="py-3 px-4 text-center"><span class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded">Siswa</span></td>
+                            <td class="py-3 px-4 text-center">${statusBadge}</td>
+                            <td class="py-3 px-4 text-right">
+                                <button onclick="openDetailModal(${u.id})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                                    <i class="fa-solid fa-eye"></i> Detail
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+        }
+
+        function openDetailModal(id) {
+            const user = allUsersData.find(u => u.id === id);
+            if (!user) return;
+
+            selectedTutorId = user.id;
+
+            document.getElementById('modal-avatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`;
+            document.getElementById('modal-name').innerText = user.name;
+            document.getElementById('modal-email').innerText = user.email;
+            document.getElementById('modal-subject').innerText = user.subject || '-';
+            document.getElementById('modal-level').innerText = user.level || 'Umum';
+            document.getElementById('modal-location').innerText = user.location || '-';
+            document.getElementById('modal-price').innerText = `Rp ${(user.price || 0).toLocaleString('id-ID')}`;
+            document.getElementById('modal-rating').innerText = user.rating ? `★ ${user.rating}` : 'Belum Ada';
+            document.getElementById('modal-reviews-count').innerText = `${user.total_reviews || 0} ulasan`;
+            document.getElementById('modal-phone').innerText = user.phone_number || '-';
+
+            const actionsBox = document.getElementById('modal-tutor-actions');
+            const eligibilityBox = document.getElementById('modal-offline-eligibility');
+            if (user.role === 'tutor') {
+                actionsBox.classList.remove('hidden');
+                document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
+                document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
+                document.getElementById('btn-reject').onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
+
+                // Rekomendasi kelayakan offline, dihitung dari ulasan langganan video mengajar
+                // (kolom offline_eligible di-update otomatis oleh trigger Postgres).
+                eligibilityBox.classList.remove('hidden');
+                if (user.offline_eligible) {
+                    eligibilityBox.className = 'text-[11px] font-bold px-3 py-2.5 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-700';
+                    eligibilityBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> Sudah memenuhi syarat ulasan video untuk direkomendasikan offline (${user.total_reviews || 0} ulasan, rating ${user.rating || 0}).`;
+                } else {
+                    eligibilityBox.className = 'text-[11px] font-bold px-3 py-2.5 rounded-xl border bg-slate-50 border-slate-200 text-slate-500';
+                    eligibilityBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> Belum cukup ulasan langganan video (${user.total_reviews || 0} ulasan) untuk direkomendasikan offline secara otomatis. Admin tetap bisa menyetujui offline secara manual.`;
+                }
+            } else {
+                actionsBox.classList.add('hidden');
+                eligibilityBox.classList.add('hidden');
+            }
+
+            document.getElementById('modal-detail').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('modal-detail').classList.add('hidden');
+            selectedTutorId = null;
+        }
+
+        async function updateTutorStatus(tutorId, newStatus, isOffline) {
+            const { error } = await _supabase
+                .from('tutors')
+                .update({ 
+                    status: newStatus,
+                    is_offline_verified: isOffline 
+                })
+                .eq('id', tutorId);
+
+            if (error) {
+                alert('Gagal memperbarui status: ' + error.message);
+            } else {
+                alert(`Status berhasil diperbarui!`);
+                closeDetailModal();
+                await loadAdminData();
+            }
+        }
+        
+        async function verifyPendingBookingsAndAutoApprove() {
+    const { data: pendingBookings, error } = await _supabase
+        .from('bookings')
+        .select('*')
+        .eq('status', 'pending');
+
+    if (error || !pendingBookings) return;
+
+    const now = new Date();
+    const autoApproveIds = [];
+
+    pendingBookings.forEach(b => {
+        const createdAt = new Date(b.created_at);
+        const minutesPassed = (now - createdAt) / (1000 * 60);
+
+        if (minutesPassed >= 10) {
+            autoApproveIds.push(b.id);
+        }
+    });
+
+    if (autoApproveIds.length > 0) {
+        await _supabase
+            .from('bookings')
+            .update({ 
+                status: 'confirmed',
+                auto_verified: true,
+                verified_at: new Date().toISOString()
+            })
+            .in('id', autoApproveIds);
+    }
+}
+
+async function adminApproveBooking(bookingId) {
+    const { error } = await _supabase
+        .from('bookings')
+        .update({ 
+            status: 'confirmed',
+            auto_verified: false,
+            verified_at: new Date().toISOString()
+        })
+        .eq('id', bookingId);
+
+    if (!error) {
+        alert('Pemesanan berhasil diverifikasi Admin!');
+        location.reload();
+    }
+}
+
+        async function logout() {
+            await _supabase.auth.signOut();
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
 </html>
