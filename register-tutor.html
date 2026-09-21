@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pendaftaran Tutor - GO-LES</title>
+    <title>Daftar sebagai Tutor - GO-LES</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,38 +11,42 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-800 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="bg-white rounded-3xl p-8 max-w-lg w-full space-y-6 shadow-2xl relative overflow-hidden my-8">
+    <div class="max-w-xl w-full bg-white rounded-3xl p-8 shadow-xl border border-slate-200/80 space-y-6 my-6">
+        
         <div class="text-center space-y-2">
-            <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mx-auto text-2xl font-bold shadow-sm">
+            <a href="index.html" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-sky-600 transition mb-2">
+                <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
+            </a>
+            <div class="bg-sky-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center font-bold mx-auto text-xl shadow-lg shadow-sky-600/20">
                 <i class="fa-solid fa-chalkboard-user"></i>
             </div>
-            <h1 class="text-2xl font-extrabold text-slate-900">Gabung Sebagai Tutor GO-LES</h1>
-            <p class="text-xs text-slate-500">Isi formulir pendaftaran untuk mulai mengajar siswa privat</p>
+            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Daftar Pengajar GO-LES</h2>
+            <p class="text-xs text-slate-500">Atur profil dan tingkatan kelas sesuai preferensimu</p>
         </div>
 
         <form id="form-register-tutor" class="space-y-4">
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap & Gelar <span class="text-rose-500">*</span></label>
-                <input type="text" id="reg-name" required placeholder="Contoh: Budi Santoso, S.Pd." class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
+                <input type="text" id="reg-name" required placeholder="Contoh: Budi Santoso, S.Pd." class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Email <span class="text-rose-500">*</span></label>
-                    <input type="email" id="reg-email" required placeholder="tutor@gmail.com" class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
+                    <input type="email" id="reg-email" required placeholder="nama@email.com" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Password <span class="text-rose-500">*</span></label>
-                    <input type="password" id="reg-password" required placeholder="••••••••" class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                    <input type="password" id="reg-password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran Utama <span class="text-rose-500">*</span></label>
-                    <select id="reg-subject" required class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran</label>
+                    <select id="reg-subject" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
                         <option value="Matematika">Matematika</option>
                         <option value="B. Indonesia">B. Indonesia</option>
                         <option value="B. Inggris">B. Inggris</option>
@@ -57,8 +61,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Sekolah Target <span class="text-rose-500">*</span></label>
-                    <select id="reg-level" required class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Sekolah</label>
+                    <select id="reg-level" onchange="renderGradeOptions()" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
                         <option value="SD">SD</option>
                         <option value="SMP">SMP</option>
                         <option value="SMA">SMA</option>
@@ -67,36 +71,172 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Kota / Domisili <span class="text-rose-500">*</span></label>
-                    <input type="text" id="reg-location" required placeholder="Contoh: Surabaya" class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp <span class="text-rose-500">*</span></label>
-                    <input type="tel" id="reg-phone" required placeholder="08123456789" class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+            <div id="grades-container" class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
+                <label class="block text-xs font-bold text-slate-700">Pilih Kelas yang Bisa Diajar:</label>
+                <div id="grades-checkboxes" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs font-medium text-slate-700">
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Tarif Sesi Per Jam (Rp) <span class="text-rose-500">*</span></label>
-                <input type="number" id="reg-price" required min="0" placeholder="Contoh: 50000" class="w-full text-xs p-3.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kota / Domisili</label>
+                    <input type="text" id="reg-location" required placeholder="Surabaya" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Tarif / Jam (Rp)</label>
+                    <input type="number" id="reg-price" required min="0" placeholder="50000" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
+                    <input type="tel" id="reg-phone" required placeholder="08123456789" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                </div>
             </div>
 
-            <button type="submit" id="btn-submit-register" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-lg shadow-sky-600/20">
+            <div class="bg-sky-50 border border-sky-200 p-3.5 rounded-xl space-y-2">
+                <label class="block text-xs font-bold text-sky-700">
+                    <i class="fa-solid fa-video"></i> Harga Langganan Video Mengajar (per bulan)
+                </label>
+                <input type="number" id="reg-video-price" min="0" max="20000" step="1000" placeholder="Contoh: 15000" class="w-full text-xs p-3 border border-sky-200 rounded-xl outline-none focus:border-sky-600 bg-white">
+                <p class="text-[10px] text-sky-600">Maksimal Rp20.000/bulan. Siswa yang berlangganan bisa menonton video mengajarmu dan memberi ulasan — ulasan ini jadi salah satu syarat mendapat verifikasi mengajar <b>offline</b> dari Admin.</p>
+            </div>
+
+            <button type="submit" id="btn-submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
                 Daftar Sebagai Tutor
             </button>
         </form>
 
-        <div class="text-center pt-2">
-            <p class="text-xs text-slate-500">Sudah punya akun? <a href="login.html" class="text-sky-600 font-bold hover:underline">Masuk disini</a></p>
+        <div class="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+            Sudah memiliki akun? <a href="login.html" class="text-sky-600 font-bold hover:underline">Masuk disini</a>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
-    <script src="js/register-tutor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGradeOptions();
+        });
+
+        function renderGradeOptions() {
+            const level = document.getElementById('reg-level').value;
+            const container = document.getElementById('grades-checkboxes');
+            container.innerHTML = '';
+
+            let grades = [];
+            if (level === 'SD') {
+                grades = ['Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6'];
+            } else if (level === 'SMP') {
+                grades = ['Kelas 7', 'Kelas 8', 'Kelas 9'];
+            } else if (level === 'SMA') {
+                grades = ['Kelas 10', 'Kelas 11', 'Kelas 12'];
+            } else {
+                grades = ['Semua Tingkat'];
+            }
+
+            grades.forEach(g => {
+                container.innerHTML += `
+                    <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                        <input type="checkbox" name="specific_grades" value="${g}" checked class="accent-sky-600"> ${g}
+                    </label>
+                `;
+            });
+        }
+
+        document.getElementById('form-register-tutor').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.innerText = 'Memproses Pendaftaran...';
+            btnSubmit.disabled = true;
+
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const subject = document.getElementById('reg-subject').value;
+            const level = document.getElementById('reg-level').value;
+            const location = document.getElementById('reg-location').value.trim();
+            const price = parseInt(document.getElementById('reg-price').value) || 0;
+            const phone = document.getElementById('reg-phone').value.trim();
+            const selectedGrades = Array.from(document.querySelectorAll('input[name="specific_grades"]:checked')).map(cb => cb.value);
+            const fullLevelStr = selectedGrades.length > 0 
+                ? `${level} (${selectedGrades.join(', ')})` 
+                : level;
+            const rawVideoPrice = parseInt(document.getElementById('reg-video-price').value) || 0;
+            const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
+
+            let { data: authData, error: authError } = await _supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (authError && authError.message.includes('already registered')) {
+                const { data: signInData, error: signInError } = await _supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                if (!signInError) {
+                    authData = signInData;
+                    authError = null;
+                }
+            }
+
+            if (authError) {
+                alert('Gagal mendaftarkan akun autentikasi: ' + authError.message);
+                btnSubmit.innerText = 'Daftar Sebagai Tutor';
+                btnSubmit.disabled = false;
+                return;
+            }
+
+            if (authData.user) {
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
+                const profileData = {
+                    user_id: authData.user.id,
+                    name: name,
+                    email: email,
+                    role: 'tutor',
+                    status: 'pending',
+                    subject: subject,
+                    level: fullLevelStr,
+                    type: 'Online',
+                    available_hours: 'Belum diatur',
+                    location: location,
+                    price: price,
+                    phone_number: phone,
+                    avatar: avatarUrl,
+                    is_offline_verified: false,
+                    video_subscription_price: videoSubscriptionPrice
+                };
+
+                const { data: existingProfiles } = await _supabase
+                    .from('tutors')
+                    .select('id')
+                    .eq('email', email);
+
+                let profileError = null;
+
+                if (existingProfiles && existingProfiles.length > 0) {
+                    const res = await _supabase
+                        .from('tutors')
+                        .update(profileData)
+                        .eq('email', email);
+                    profileError = res.error;
+                } else {
+                    const res = await _supabase
+                        .from('tutors')
+                        .insert([profileData]);
+                    profileError = res.error;
+                }
+
+                if (profileError) {
+                    alert('Gagal menyimpan profil tutor: ' + profileError.message);
+                    btnSubmit.innerText = 'Daftar Sebagai Tutor';
+                    btnSubmit.disabled = false;
+                } else {
+                    alert('Pendaftaran tutor berhasil! Silakan masuk ke akun kamu.');
+                    window.location.href = 'login.html';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
