@@ -105,6 +105,17 @@ function closeBookingModal() {
     bookingTargetTutor = null;
 }
 
+function toggleStudentAddressInput(show) {
+    const addressBox = document.getElementById('student-address-container');
+    if (addressBox) {
+        if (show) {
+            addressBox.classList.remove('hidden');
+        } else {
+            addressBox.classList.add('hidden');
+        }
+    }
+}
+
 async function submitBooking(e) {
     e.preventDefault();
     if (!bookingTargetTutor || !currentStudent) return;
@@ -112,6 +123,7 @@ async function submitBooking(e) {
     const modeInput = document.getElementById('booking-form-mode');
     const mode = modeInput ? modeInput.value : 'online';
     let offlineLocation = null;
+    let studentAddress = null;
 
     if (mode === 'offline') {
         const chosenLoc = document.querySelector('input[name="offline-location-choice"]:checked');
@@ -120,6 +132,14 @@ async function submitBooking(e) {
             return;
         }
         offlineLocation = chosenLoc.value;
+
+        if (offlineLocation === 'rumah_siswa') {
+            studentAddress = document.getElementById('booking-student-address').value.trim();
+            if (!studentAddress) {
+                alert('Mohon isi alamat lengkap rumah kamu agar tutor dapat menuju ke lokasi.');
+                return;
+            }
+        }
     }
 
     const dateInput = document.getElementById('booking-date');
@@ -128,9 +148,10 @@ async function submitBooking(e) {
     const time = selectedTimeInput ? selectedTimeInput.value : null;
     const phoneInput = document.getElementById('booking-phone');
     const phone = phoneInput ? phoneInput.value.trim() : '';
+    const paymentProof = document.getElementById('booking-payment-proof').value.trim();
 
-    if (!date || !time || !phone) {
-        alert('Lengkapi tanggal, slot jam sesi, dan nomor WhatsApp kamu terlebih dahulu.');
+    if (!date || !time || !phone || !paymentProof) {
+        alert('Lengkapi tanggal, jam sesi, nomor WhatsApp, dan link bukti pembayaran.');
         return;
     }
 
@@ -143,6 +164,7 @@ async function submitBooking(e) {
     const studentNameElem = document.getElementById('student-name');
     const studentName = studentNameElem ? studentNameElem.innerText : 'Siswa';
 
+    // Mengirim data pemesanan ke Supabase
     const { error } = await _supabase.from('bookings').insert([{
         tutor_id: bookingTargetTutor.id,
         student_id: currentStudent.id,
@@ -152,12 +174,15 @@ async function submitBooking(e) {
         booking_time: time,
         session_mode: mode,
         offline_location: offlineLocation,
+        student_address: studentAddress,
+        payment_status: 'paid',
+        payment_proof: paymentProof,
         status: 'pending'
     }]);
 
     if (btn) {
         btn.disabled = false;
-        btn.innerText = 'Konfirmasi Pesan Sesi';
+        btn.innerText = 'Konfirmasi & Bayar Sesi';
     }
 
     if (error) {
@@ -165,10 +190,6 @@ async function submitBooking(e) {
         return;
     }
 
-    const modeLabel = mode === 'online'
-        ? 'Online'
-        : (offlineLocation === 'rumah_siswa' ? 'Offline - Tutor ke rumah siswa' : 'Offline - Siswa ke rumah tutor');
-
-    alert(`Sesi berhasil dipesan untuk jam ${time} (${modeLabel})! Tunggu konfirmasi dari tutor melalui menu Chat.`);
+    alert('Pembayaran berhasil dikonfirmasi! Pemesanan sesi les telah dikirim ke tutor.');
     closeBookingModal();
 }
