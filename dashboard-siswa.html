@@ -336,50 +336,99 @@
         }
 
         function renderStudentTutors(list) {
-            const grid = document.getElementById('student-tutor-grid');
-            grid.innerHTML = '';
-            if (list.length === 0) {
-                grid.innerHTML = `<p class="col-span-full text-center text-slate-400 py-8">Tidak ada tutor yang sesuai kriteria.</p>`;
-                return;
-            }
-            list.forEach(t => {
-                const modeBadge = t.is_offline_verified 
-                    ? `<span class="bg-sky-50 text-sky-600 text-[10px] font-bold px-2 py-0.5 rounded"><i class="fa-solid fa-house-user"></i> Online & Offline</span>`
-                    : `<span class="bg-slate-100 text-slate-500 text-[10px] font-medium px-2 py-0.5 rounded">Online Only</span>`;
-                const ratingBadge = `<span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${t.rating || 'Baru'} (${t.total_reviews || 0})</span>`;
-                
-                grid.innerHTML += `
-                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition">
-                        <div class="flex gap-4 items-start mb-3">
-                            <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-14 h-14 rounded-xl object-cover border border-slate-200">
-                            <div>
-                                <h4 class="font-bold text-slate-900">${t.name}</h4>
-                                <p class="text-xs text-slate-500">${t.subject} (${t.level || 'Umum'})</p>
-                                <p class="text-xs text-sky-600 font-semibold mt-1"><i class="fa-solid fa-location-dot"></i> ${t.location || 'Online'}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between mb-4">
-                            ${modeBadge}
-                            ${ratingBadge}
-                        </div>
-                        <div class="flex justify-between items-center border-t border-slate-100 pt-3 gap-2">
-                            <span class="font-bold text-sky-600 text-xs sm:text-sm">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
-                            <div class="flex gap-1.5">
-                                <button onclick="openChatWithTutor('${t.user_id}', '${t.name.replace(/'/g, "\\'")}', '${t.avatar || ''}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5" title="Chat">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i>
-                                </button>
-                                <button onclick="openVideoSubscriptionModal(${t.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5" title="Langganan Video Mengajar">
-                                    <i class="fa-solid fa-video text-sm"></i>
-                                </button>
-                                <button onclick="openBookingModal(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
-                                    Pesan
-                                </button>
-                            </div>
-                        </div>
+    const grid = document.getElementById('student-tutor-grid');
+    grid.innerHTML = '';
+    if (list.length === 0) {
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-400 py-8">Tidak ada tutor yang sesuai kriteria.</p>`;
+        return;
+    }
+    list.forEach(t => {
+        const modeBadge = t.is_offline_verified 
+            ? `<span class="bg-sky-50 text-sky-600 text-[10px] font-bold px-2 py-0.5 rounded"><i class="fa-solid fa-house-user"></i> Online & Offline</span>`
+            : `<span class="bg-slate-100 text-slate-500 text-[10px] font-medium px-2 py-0.5 rounded">Online Only</span>`;
+        const ratingBadge = `<span class="font-bold text-amber-500 text-xs"><i class="fa-solid fa-star"></i> ${t.rating || 'Baru'} (${t.total_reviews || 0})</span>`;
+        
+        // Escape string untuk menghindari syntax error JavaScript saat nama punya tanda petik
+        const safeName = (t.name || 'Tutor').replace(/'/g, "\\'");
+        const safeAvatar = (t.avatar || '').replace(/'/g, "\\'");
+        const targetUserId = t.user_id || '';
+
+        grid.innerHTML += `
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition">
+                <div class="flex gap-4 items-start mb-3">
+                    <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-14 h-14 rounded-xl object-cover border border-slate-200">
+                    <div>
+                        <h4 class="font-bold text-slate-900">${t.name}</h4>
+                        <p class="text-xs text-slate-500">${t.subject} (${t.level || 'Umum'})</p>
+                        <p class="text-xs text-sky-600 font-semibold mt-1"><i class="fa-solid fa-location-dot"></i> ${t.location || 'Online'}</p>
                     </div>
-                `;
-            });
-        }
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                    ${modeBadge}
+                    ${ratingBadge}
+                </div>
+                <div class="flex justify-between items-center border-t border-slate-100 pt-3 gap-2">
+                    <span class="font-bold text-sky-600 text-xs sm:text-sm">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
+                    <div class="flex gap-1.5">
+                        <button onclick="openChatWithTutor('${targetUserId}', '${safeName}', '${safeAvatar}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5" title="Chat">
+                            <i class="fa-brands fa-whatsapp text-sm"></i>
+                        </button>
+                        <button onclick="openVideoSubscriptionModal(${t.id})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1.5" title="Langganan Video Mengajar">
+                            <i class="fa-solid fa-video text-sm"></i>
+                        </button>
+                        <button onclick="openBookingModal(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                            Pesan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function renderChatContacts() {
+    const container = document.getElementById('chat-contacts-container');
+    container.innerHTML = '';
+    if (rawApprovedTutors.length === 0) {
+        container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada tutor aktif.</p>`;
+        return;
+    }
+    rawApprovedTutors.forEach(t => {
+        const safeName = (t.name || 'Tutor').replace(/'/g, "\\'");
+        const safeAvatar = (t.avatar || '').replace(/'/g, "\\'");
+        const targetUserId = t.user_id || '';
+
+        container.innerHTML += `
+            <div onclick="openChatWithTutor('${targetUserId}', '${safeName}', '${safeAvatar}')" class="p-2.5 bg-white border border-slate-200/80 rounded-2xl hover:bg-emerald-50/50 hover:border-emerald-200 transition cursor-pointer flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-10 h-10 rounded-full object-cover border border-slate-200">
+                    <div>
+                        <h5 class="font-bold text-xs text-slate-900">${t.name}</h5>
+                        <p class="text-[10px] text-emerald-600 font-semibold">${t.subject} (${t.level || 'Umum'})</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300 text-xs pr-1"></i>
+            </div>
+        `;
+    });
+}
+
+async function openChatWithTutor(targetUserId, targetName, targetAvatar) {
+    if (!targetUserId || targetUserId === '' || targetUserId === 'null' || targetUserId === 'undefined') {
+        alert('Tutor ini belum memiliki ID Akun terhubung. Cobalah mendaftar ulang tutor baru atau hubungi admin.');
+        return;
+    }
+    document.getElementById('chat-modal').classList.remove('hidden');
+    document.getElementById('chat-header-list').classList.add('hidden');
+    document.getElementById('chat-header-room').classList.remove('hidden');
+    document.getElementById('chat-view-list').classList.add('hidden');
+    document.getElementById('chat-view-room').classList.remove('hidden');
+    
+    currentChatTargetUserId = targetUserId;
+    document.getElementById('chat-target-name').innerText = targetName;
+    document.getElementById('chat-target-avatar').src = targetAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(targetName)}`;
+    await loadChatHistory();
+}
 
         function renderChatContacts() {
             const container = document.getElementById('chat-contacts-container');
