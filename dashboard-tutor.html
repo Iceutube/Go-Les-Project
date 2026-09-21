@@ -627,7 +627,7 @@
         }
 
         async function loadTutorBookings(tutorId) {
-            const list = document.getElementById('booking-list');
+            const container = document.getElementById('booking-list');
 
             const { data: bookings, error } = await _supabase
                 .from('bookings')
@@ -636,22 +636,46 @@
                 .order('created_at', { ascending: false });
 
             if (error || !bookings || bookings.length === 0) {
-                list.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Belum ada pemesanan sesi les dari siswa.</p>`;
+                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Belum ada pemesanan sesi les dari siswa.</p>`;
                 return;
             }
 
-            list.innerHTML = '';
+            container.innerHTML = '';
             bookings.forEach(b => {
-                list.innerHTML += `
-                    <div class="border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row gap-3 justify-between items-start md:items-center hover:bg-slate-50 transition">
-                        <div>
-                            <h4 class="font-bold text-slate-900 text-xs">${b.student_name || 'Siswa GO-LES'}</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5"><i class="fa-regular fa-clock"></i> ${b.booking_date || '-'} | ${b.booking_time || '-'}</p>
-                            <p class="text-[11px] text-sky-600 font-medium mt-0.5"><i class="fa-brands fa-whatsapp"></i> ${b.student_phone || '-'}</p>
+                let locationDetail = '';
+                if (b.session_mode === 'online') {
+                    locationDetail = `<span class="inline-block bg-sky-50 text-sky-700 text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-sky-100"><i class="fa-solid fa-video"></i> Sesi Online (Google Meet/Zoom)</span>`;
+                } else if (b.offline_location === 'rumah_siswa') {
+                    locationDetail = `
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1 mt-1">
+                            <span class="text-amber-800 font-bold text-[11px] block"><i class="fa-solid fa-house-user"></i> Mode Offline: Tutor datang ke Rumah Siswa</span>
+                            <p class="text-xs text-slate-700 font-medium"><strong>Alamat Rumah Siswa:</strong> ${b.student_address || 'Alamat tidak dicantumkan'}</p>
+                        </div>`;
+                } else {
+                    locationDetail = `<span class="inline-block bg-indigo-50 text-indigo-700 text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-indigo-100"><i class="fa-solid fa-building-user"></i> Mode Offline: Siswa datang ke Rumah Tutor</span>`;
+                }
+
+                const proofLink = b.payment_proof 
+                    ? `<a href="${b.payment_proof}" target="_blank" class="text-xs text-sky-600 font-bold hover:underline inline-flex items-center gap-1"><i class="fa-solid fa-file-invoice-dollar"></i> Lihat Bukti Bayar</a>`
+                    : `<span class="text-xs text-slate-400">Belum ada bukti bayar</span>`;
+
+                container.innerHTML += `
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm hover:border-slate-300 transition">
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-slate-100 pb-3">
+                            <div>
+                                <h4 class="font-bold text-slate-900 text-sm">${b.student_name || 'Siswa GO-LES'}</h4>
+                                <p class="text-xs text-slate-500 mt-0.5"><i class="fa-brands fa-whatsapp text-emerald-600"></i> ${b.student_phone || '-'}</p>
+                            </div>
+                            <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider w-fit ${b.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                                Status: ${b.status || 'Pending'}
+                            </span>
                         </div>
-                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold ${b.status === 'confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                            ${b.status || 'Pending'}
-                        </span>
+                        <div class="text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <p><strong>Tanggal Sesi:</strong> ${b.booking_date || '-'}</p>
+                            <p><strong>Jam Sesi:</strong> ${b.booking_time || '-'}</p>
+                            <p><strong>Bukti Transfer:</strong> ${proofLink}</p>
+                        </div>
+                        ${locationDetail}
                     </div>
                 `;
             });
@@ -679,7 +703,6 @@
                     return;
                 }
 
-                // Kelompokkan pesan per lawan bicara (siswa), buang ID kosong/diri sendiri.
                 const uniqueSenderIds = [...new Set(
                     messages.map(m => m.sender_id === currentUser.id ? m.receiver_id : m.sender_id)
                 )].filter(uid => uid && uid !== currentUser.id);
@@ -717,8 +740,6 @@
                     `;
                 });
             } catch (err) {
-                // Menangkap kegagalan tak terduga (mis. network/CORS) supaya UI tidak
-                // pernah stuck selamanya di "Memuat pesan masuk...".
                 console.error('Error tak terduga saat memuat kontak chat:', err);
                 container.innerHTML = `<p class="text-center text-rose-400 py-6 text-[11px]">Terjadi kesalahan saat memuat pesan. Coba refresh halaman.</p>`;
             }
