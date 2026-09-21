@@ -135,6 +135,22 @@
         </div>
     </main>
 
+    <!-- Modal Preview Foto Bukti Transfer -->
+    <div id="modal-preview-foto" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 space-y-4 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-extrabold text-slate-900 text-sm"><i class="fa-solid fa-file-invoice-dollar text-sky-600"></i> Bukti Transfer Siswa</h3>
+                <button onclick="closeFotoModal()" class="text-slate-400 hover:text-slate-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="max-h-[70vh] overflow-y-auto flex justify-center bg-slate-100 rounded-2xl p-2">
+                <img id="img-preview-target" src="" class="max-w-full h-auto rounded-xl shadow-sm object-contain">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Settings -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeSettingsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg">
@@ -218,8 +234,7 @@
 
                     <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
                         <label class="block text-xs font-bold text-slate-700">Pilih Kelas Spesifik:</label>
-                        <div id="edit-grades-checkboxes" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs font-medium text-slate-700">
-                        </div>
+                        <div id="edit-grades-checkboxes" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs font-medium text-slate-700"></div>
                     </div>
 
                     <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-3">
@@ -290,9 +305,9 @@
         </div>
     </div>
 
+    <!-- Floating Chat -->
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all duration-300">
-            
             <div id="chat-header-list" class="bg-emerald-600 text-white p-4 flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
                     <i class="fa-brands fa-whatsapp text-2xl"></i>
@@ -340,7 +355,6 @@
                     </button>
                 </form>
             </div>
-
         </div>
 
         <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all duration-300">
@@ -505,6 +519,19 @@
             `;
         }
 
+        function showPaymentProof(base64Image) {
+            if (!base64Image || base64Image === 'null') {
+                alert('Foto bukti transfer tidak ditemukan.');
+                return;
+            }
+            document.getElementById('img-preview-target').src = base64Image;
+            document.getElementById('modal-preview-foto').classList.remove('hidden');
+        }
+
+        function closeFotoModal() {
+            document.getElementById('modal-preview-foto').classList.add('hidden');
+        }
+
         function switchSettingsTab(tabName) {
             const btnProfile = document.getElementById('tab-btn-profile');
             const btnSchedule = document.getElementById('tab-btn-schedule');
@@ -577,12 +604,11 @@
             });
         }
 
-        // FUNGSI SIMPAN PERUBAHAN PERBAIKAN
         async function saveTutorSettings(e) {
             e.preventDefault();
 
             if (!currentTutorProfile) {
-                alert('Sesi profil tidak ditemukan. Coba refresh halaman.');
+                alert('Sesi profil tidak ditemukan.');
                 return;
             }
 
@@ -607,7 +633,6 @@
             const rawVideoPrice = parseInt(document.getElementById('edit-video-price').value) || 0;
             const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
 
-            // PERBAIKAN QUERY UPDATE: Menggunakan ID Profil Utama
             const { error } = await _supabase
                 .from('tutors')
                 .update({
@@ -631,8 +656,6 @@
                 btnSave.innerText = 'Simpan Perubahan';
                 btnSave.disabled = false;
                 closeSettingsModal();
-                
-                // Ambil ulang data profil terbaru
                 await checkTutorAuth();
             }
         }
@@ -666,8 +689,8 @@
                     locationDetail = `<span class="inline-block bg-indigo-50 text-indigo-700 text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-indigo-100"><i class="fa-solid fa-building-user"></i> Mode Offline: Siswa datang ke Rumah Tutor</span>`;
                 }
 
-                const proofLink = b.payment_proof 
-                    ? `<a href="${b.payment_proof}" target="_blank" class="text-xs text-sky-600 font-bold hover:underline inline-flex items-center gap-1"><i class="fa-solid fa-image"></i> Lihat Foto Bukti Bayar</a>`
+                const proofButton = (b.payment_proof && b.payment_proof.length > 20)
+                    ? `<button onclick='showPaymentProof(${JSON.stringify(b.payment_proof)})' class="text-xs bg-sky-50 text-sky-600 border border-sky-200 px-2.5 py-1 rounded-lg font-bold hover:bg-sky-100 transition inline-flex items-center gap-1"><i class="fa-solid fa-image"></i> Lihat Foto Bukti</button>`
                     : `<span class="text-xs text-slate-400">Belum ada foto bukti</span>`;
 
                 container.innerHTML += `
@@ -684,7 +707,7 @@
                         <div class="text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3 rounded-xl border border-slate-100">
                             <p><strong>Tanggal Sesi:</strong> ${b.booking_date || '-'}</p>
                             <p><strong>Jam Sesi:</strong> ${b.booking_time || '-'}</p>
-                            <p><strong>Bukti Transfer:</strong> ${proofLink}</p>
+                            <p><strong>Bukti Transfer:</strong> ${proofButton}</p>
                         </div>
                         ${locationDetail}
                     </div>
@@ -704,7 +727,6 @@
                     .order('created_at', { ascending: false });
 
                 if (error) {
-                    console.error('Gagal memuat daftar chat (query messages):', error);
                     container.innerHTML = `<p class="text-center text-rose-400 py-6 text-[11px]">Gagal memuat pesan: ${error.message}</p>`;
                     return;
                 }
@@ -723,14 +745,10 @@
                     return;
                 }
 
-                const { data: senders, error: sendersError } = await _supabase
+                const { data: senders } = await _supabase
                     .from('tutors')
                     .select('*')
                     .in('user_id', uniqueSenderIds);
-
-                if (sendersError) {
-                    console.error('Gagal memuat profil pengirim:', sendersError);
-                }
 
                 container.innerHTML = '';
                 uniqueSenderIds.forEach(uid => {
@@ -751,14 +769,13 @@
                     `;
                 });
             } catch (err) {
-                console.error('Error tak terduga saat memuat kontak chat:', err);
-                container.innerHTML = `<p class="text-center text-rose-400 py-6 text-[11px]">Terjadi kesalahan saat memuat pesan. Coba refresh halaman.</p>`;
+                container.innerHTML = `<p class="text-center text-rose-400 py-6 text-[11px]">Terjadi kesalahan saat memuat pesan.</p>`;
             }
         }
 
         function toggleFloatingChat() {
             if (currentTutorProfile && currentTutorProfile.status !== 'approved') {
-                alert('Fitur Chat hanya dapat digunakan setelah akun kamu disetujui (Approved) oleh Admin.');
+                alert('Fitur Chat hanya dapat digunakan setelah akun kamu disetujui Admin.');
                 return;
             }
 
