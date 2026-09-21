@@ -465,6 +465,54 @@
                 await loadAdminData();
             }
         }
+        
+        async function verifyPendingBookingsAndAutoApprove() {
+    const { data: pendingBookings, error } = await _supabase
+        .from('bookings')
+        .select('*')
+        .eq('status', 'pending');
+
+    if (error || !pendingBookings) return;
+
+    const now = new Date();
+    const autoApproveIds = [];
+
+    pendingBookings.forEach(b => {
+        const createdAt = new Date(b.created_at);
+        const minutesPassed = (now - createdAt) / (1000 * 60);
+
+        if (minutesPassed >= 10) {
+            autoApproveIds.push(b.id);
+        }
+    });
+
+    if (autoApproveIds.length > 0) {
+        await _supabase
+            .from('bookings')
+            .update({ 
+                status: 'confirmed',
+                auto_verified: true,
+                verified_at: new Date().toISOString()
+            })
+            .in('id', autoApproveIds);
+    }
+}
+
+async function adminApproveBooking(bookingId) {
+    const { error } = await _supabase
+        .from('bookings')
+        .update({ 
+            status: 'confirmed',
+            auto_verified: false,
+            verified_at: new Date().toISOString()
+        })
+        .eq('id', bookingId);
+
+    if (!error) {
+        alert('Pemesanan berhasil diverifikasi Admin!');
+        location.reload();
+    }
+}
 
         async function logout() {
             await _supabase.auth.signOut();
