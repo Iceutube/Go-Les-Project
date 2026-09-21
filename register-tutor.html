@@ -176,6 +176,9 @@
     const price = parseInt(document.getElementById('reg-price').value) || 0;
     const phone = document.getElementById('reg-phone').value.trim();
     const selectedGrades = Array.from(document.querySelectorAll('input[name="specific_grades"]:checked')).map(cb => cb.value);
+    const fullLevelStr = selectedGrades.length > 0 
+    ? `${level} (${selectedGrades.join(', ')})` 
+    : level;
     const selectedHours = Array.from(document.querySelectorAll('input[name="teaching_hours"]:checked')).map(cb => cb.value);
     const rawVideoPrice = parseInt(document.getElementById('reg-video-price').value) || 0;
     const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
