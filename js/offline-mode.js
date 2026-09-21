@@ -1,5 +1,6 @@
 let bookingTargetTutor = null;
 
+// Dipanggil saat tombol "Pesan" pada kartu tutor diklik
 async function openBookingModal(tutorId) {
     const tutor = rawApprovedTutors.find(t => t.id === tutorId);
     if (!tutor) return;
@@ -27,16 +28,28 @@ async function openBookingModal(tutorId) {
         if (offlineLockedNotice) offlineLockedNotice.classList.remove('hidden');
     }
 
-    // Set tanggal default ke hari ini
-    const today = new Date().toISOString().split('T')[0];
+    // --- FITUR MENCEGAH PILIH HARI SEBELUMNYA ---
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+
     const dateInput = document.getElementById('booking-date');
     if (dateInput) {
-        dateInput.value = today;
-        dateInput.onchange = () => renderTutorBookingHours(tutor.available_hours, tutor.id, dateInput.value);
+        dateInput.min = todayStr; // Kunci kalender agar tanggal kemarin tidak bisa diklik
+        dateInput.value = todayStr; // Set default hari ini
+        dateInput.onchange = () => {
+            if (dateInput.value < todayStr) {
+                alert('Tidak dapat memilih tanggal yang sudah lewat.');
+                dateInput.value = todayStr;
+            }
+            renderTutorBookingHours(tutor.available_hours, tutor.id, dateInput.value);
+        };
     }
 
     // Render slot jam mengajar tutor
-    await renderTutorBookingHours(tutor.available_hours, tutor.id, today);
+    await renderTutorBookingHours(tutor.available_hours, tutor.id, todayStr);
 
     const bookingForm = document.getElementById('booking-form');
     if (bookingForm) bookingForm.reset();
@@ -45,6 +58,7 @@ async function openBookingModal(tutorId) {
     document.getElementById('booking-modal').classList.remove('hidden');
 }
 
+// Mengatur perpindahan mode Online vs Offline
 function setBookingMode(mode) {
     const offlineBtn = document.getElementById('booking-mode-btn-offline');
     if (mode === 'offline' && offlineBtn && offlineBtn.disabled) {
@@ -76,13 +90,14 @@ function setBookingMode(mode) {
         }
     }
 
-    // Trigger re-render jam untuk mengecek bentrok sesuai mode yang dipilih
+    // Refresh ketersediaan jam sesuai mode yang dipilih
     const dateInput = document.getElementById('booking-date');
     if (bookingTargetTutor && dateInput) {
         renderTutorBookingHours(bookingTargetTutor.available_hours, bookingTargetTutor.id, dateInput.value);
     }
 }
 
+// Menampilkan/menyembunyikan input alamat rumah siswa
 function toggleStudentAddressInput(show) {
     const addressBox = document.getElementById('student-address-container');
     if (addressBox) {
@@ -91,6 +106,7 @@ function toggleStudentAddressInput(show) {
     }
 }
 
+// Render slot jam dengan validasi bentrok & jam berlalu
 async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate) {
     const container = document.getElementById('booking-available-hours-container');
     if (!container) return;
@@ -104,7 +120,7 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
     const hoursList = availableHoursStr.split(',').map(h => h.trim()).filter(h => h.length > 0);
     const mode = document.getElementById('booking-form-mode')?.value || 'online';
 
-    // Ambil data pemesanan offline yang sudah ada untuk tutor & tanggal ini
+    // 1. Cek Booking Offline yang Sudah Ada di Database
     let bookedTimes = [];
     if (tutorId && selectedDate) {
         const { data: existingBookings } = await _supabase
@@ -114,33 +130,71 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
             .eq('booking_date', selectedDate);
 
         if (existingBookings) {
-            // Jika mode offline, jam yang sudah dipesan dalam sesi offline akan dikunci
             bookedTimes = existingBookings
                 .filter(b => b.session_mode === 'offline')
                 .map(b => b.booking_time);
         }
     }
 
-    hoursList.forEach((hour, index) => {
-        // Cek apakah jam ini terbentrok sesi offline lain
-        const isConflict = mode === 'offline' && bookedTimes.includes(hour);
+    // 2. Cek Waktu Saat Ini (Mencegah Memesan Jam yang Sudah Lewat)
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+    
+    const isToday = selectedDate === todayStr;
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
 
-        if (isConflict) {
+    let validSlotsCount = 0;
+
+    hoursList.forEach((hourStr) => {
+        const isConflict = mode === 'offline' && bookedTimes.includes(hourStr);
+
+        let isPastTime = false;
+        if (isToday) {
+            // Ambil jam awal dari string jam misal "08:00 - 09:00" -> "08:00"
+            const startTimeStr = hourStr.split('-')[0].trim();
+            const [startHour, startMinute] = startTimeStr.split(':').map(Number);
+
+            if (startHour < currentHour || (startHour === currentHour && startMinute <= currentMinute)) {
+                isPastTime = true;
+            }
+        }
+
+        if (isPastTime) {
             container.innerHTML += `
-                <label class="flex items-center gap-2 bg-slate-100 p-2.5 rounded-xl border border-slate-200 text-slate-400 cursor-not-allowed text-xs font-medium opacity-60">
-                    <input type="radio" disabled name="booking-selected-time" value="${hour}" class="accent-slate-400">
-                    <i class="fa-regular fa-clock"></i> ${hour} (Sudah Dipesan)
+                <label class="flex items-center gap-2 bg-slate-100 p-2.5 rounded-xl border border-slate-200 text-slate-400 cursor-not-allowed text-xs font-medium opacity-60" title="Sesi jam ini sudah lewat">
+                    <input type="radio" disabled name="booking-selected-time" value="${hourStr}" class="accent-slate-400">
+                    <i class="fa-regular fa-clock"></i> ${hourStr} (Sesi Lewat)
+                </label>
+            `;
+        } else if (isConflict) {
+            container.innerHTML += `
+                <label class="flex items-center gap-2 bg-slate-100 p-2.5 rounded-xl border border-slate-200 text-slate-400 cursor-not-allowed text-xs font-medium opacity-60" title="Sudah dipesan siswa lain">
+                    <input type="radio" disabled name="booking-selected-time" value="${hourStr}" class="accent-slate-400">
+                    <i class="fa-regular fa-clock"></i> ${hourStr} (Sudah Dipesan)
                 </label>
             `;
         } else {
+            validSlotsCount++;
             container.innerHTML += `
                 <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer text-xs font-medium hover:border-sky-500 hover:bg-sky-50/50 transition">
-                    <input type="radio" name="booking-selected-time" value="${hour}" ${index === 0 ? 'checked' : ''} class="accent-sky-600">
-                    <i class="fa-regular fa-clock text-sky-600"></i> ${hour}
+                    <input type="radio" name="booking-selected-time" value="${hourStr}" ${validSlotsCount === 1 ? 'checked' : ''} class="accent-sky-600">
+                    <i class="fa-regular fa-clock text-sky-600"></i> ${hourStr}
                 </label>
             `;
         }
     });
+
+    if (validSlotsCount === 0 && hoursList.length > 0) {
+        container.innerHTML += `
+            <p class="col-span-full text-rose-600 bg-rose-50 border border-rose-200 p-3 rounded-xl text-[11px] font-semibold text-center mt-1">
+                <i class="fa-solid fa-circle-exclamation"></i> Semua slot jam mengajar untuk hari ini sudah lewat / terisi. Silakan pilih tanggal besok.
+            </p>
+        `;
+    }
 }
 
 function closeBookingModal() {
@@ -149,6 +203,7 @@ function closeBookingModal() {
     bookingTargetTutor = null;
 }
 
+// Proses submit pemesanan + konversi foto bukti bayar & auto-message
 async function submitBooking(e) {
     e.preventDefault();
     if (!bookingTargetTutor || !currentStudent) return;
@@ -182,7 +237,6 @@ async function submitBooking(e) {
     const phoneInput = document.getElementById('booking-phone');
     const phone = phoneInput ? phoneInput.value.trim() : '';
 
-    // Ambil File Foto Bukti Bayar
     const proofFileInput = document.getElementById('booking-payment-proof-file');
     const proofFile = proofFileInput && proofFileInput.files[0] ? proofFileInput.files[0] : null;
 
@@ -197,7 +251,7 @@ async function submitBooking(e) {
         btn.innerText = 'Memproses Gambar...';
     }
 
-    // Konversi foto bukti transfer menjadi string Base64
+    // Konversi Foto Bukti Transfer ke Base64 String
     const reader = new FileReader();
     reader.onload = async function(event) {
         const paymentProofBase64 = event.target.result;
@@ -219,7 +273,7 @@ async function submitBooking(e) {
             offline_location: offlineLocation,
             student_address: studentAddress,
             payment_status: 'paid',
-            payment_proof: paymentProofBase64, // Simpan sebagai string Foto
+            payment_proof: paymentProofBase64,
             status: 'pending'
         }]);
 
@@ -232,7 +286,7 @@ async function submitBooking(e) {
             return;
         }
 
-        // 2. OTOMATIS KIRIM PESAN CHAT KE TUTOR
+        // 2. OTOMATIS KIRIM PESAN KE CHAT TUTOR
         if (bookingTargetTutor.user_id) {
             const autoMessage = `Ditunggu ya kelas privatnya di jam ${time} (Tanggal: ${date}).`;
             await _supabase.from('messages').insert([{
