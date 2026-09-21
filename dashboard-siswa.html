@@ -166,6 +166,7 @@
                     </div>
                 </div>
 
+                <!-- Input Tanggal Sesi Belajar -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Tanggal Sesi Belajar</label>
                     <input type="date" id="booking-date" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
@@ -183,14 +184,15 @@
                     <input type="tel" id="booking-phone" required placeholder="08123456789" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
                 </div>
 
-               <div class="bg-sky-50/70 border border-sky-200/80 rounded-2xl p-4 space-y-2.5">
-            <label class="block text-xs font-bold text-sky-900"><i class="fa-solid fa-wallet text-sky-600"></i> Pembayaran Sesi Les</label>
-        <p class="text-[11px] text-sky-700 leading-relaxed">Transfer pembayaran ke Rekening Bank GO-LES (BCA: <strong>123-456-7890</strong> a.n GO-LES Admin).</p>
-            <div>
-            <label class="block text-[11px] font-bold text-slate-700 mb-1">Upload Foto Bukti Transfer <span class="text-rose-500">*</span></label>
-         <input type="file" id="booking-payment-proof-file" accept="image/*" required class="w-full text-xs p-2 border border-slate-200 rounded-xl outline-none bg-white shadow-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
-        </div>
-    </div>
+                <!-- Box Pembayaran & Upload Bukti Foto -->
+                <div class="bg-sky-50/70 border border-sky-200/80 rounded-2xl p-4 space-y-2.5">
+                    <label class="block text-xs font-bold text-sky-900"><i class="fa-solid fa-wallet text-sky-600"></i> Pembayaran Sesi Les</label>
+                    <p class="text-[11px] text-sky-700 leading-relaxed">Transfer pembayaran ke Rekening Bank GO-LES (BCA: <strong>123-456-7890</strong> a.n GO-LES Admin).</p>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Upload Foto Bukti Transfer <span class="text-rose-500">*</span></label>
+                        <input type="file" id="booking-payment-proof-file" accept="image/*" required class="w-full text-xs p-2 border border-slate-200 rounded-xl outline-none bg-white shadow-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                    </div>
+                </div>
 
                 <button type="submit" id="btn-submit-booking" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-2xl text-xs transition shadow-lg shadow-sky-600/20">
                     Konfirmasi & Bayar Sesi
