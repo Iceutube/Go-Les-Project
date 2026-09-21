@@ -181,7 +181,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Tarif / Jam (Rp)</label>
-                            <input type="number" id="edit-price" required min="10000" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                            <input type="number" id="edit-price" required min="0" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                         </div>
                     </div>
 
@@ -229,13 +229,13 @@
                             <span class="text-[11px] font-bold text-sky-700 block"><i class="fa-regular fa-sun"></i> Sesi Pagi</span>
                             <div class="grid grid-cols-3 gap-2 text-xs font-medium">
                                 <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                                    <input type="checkbox" name="edit_hourly_slots" value=" 08:00 - 09:00 " class="accent-sky-600"> 08:00-09:00
+                                    <input type="checkbox" name="edit_hourly_slots" value="08:00 - 09:00" class="accent-sky-600"> 08:00-09:00
                                 </label>
                                 <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                                    <input type="checkbox" name="edit_hourly_slots" value=" 09:00 - 10:00 " class="accent-sky-600"> 09:00-10:00
+                                    <input type="checkbox" name="edit_hourly_slots" value="09:00 - 10:00" class="accent-sky-600"> 09:00-10:00
                                 </label>
                                 <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                                    <input type="checkbox" name="edit_hourly_slots" value=" 10:00 - 11:00 " class="accent-sky-600"> 10:00-11:00
+                                    <input type="checkbox" name="edit_hourly_slots" value="10:00 - 11:00" class="accent-sky-600"> 10:00-11:00
                                 </label>
                             </div>
                         </div>
@@ -244,10 +244,10 @@
                             <span class="text-[11px] font-bold text-amber-600 block"><i class="fa-solid fa-sun"></i> Sesi Siang</span>
                             <div class="grid grid-cols-2 gap-2 text-xs font-medium">
                                 <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                                    <input type="checkbox" name="edit_hourly_slots" value=" 12:30 - 13:30 " class="accent-sky-600"> 12:30-13:30
+                                    <input type="checkbox" name="edit_hourly_slots" value="12:30 - 13:30" class="accent-sky-600"> 12:30-13:30
                                 </label>
                                 <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                                    <input type="checkbox" name="edit_hourly_slots" value=" 13:30 - 14:30 " class="accent-sky-600"> 13:30-14:30
+                                    <input type="checkbox" name="edit_hourly_slots" value="13:30 - 14:30" class="accent-sky-600"> 13:30-14:30
                                 </label>
                             </div>
                         </div>
@@ -256,10 +256,10 @@
                             <span class="text-[11px] font-bold text-orange-600 block"><i class="fa-solid fa-cloud-sun"></i> Sesi Sore</span>
                             <div class="grid grid-cols-2 gap-2 text-xs font-medium">
                                 <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                                    <input type="checkbox" name="edit_hourly_slots" value=" 15:30 - 16:30 " class="accent-sky-600"> 15:30-16:30
+                                    <input type="checkbox" name="edit_hourly_slots" value="15:30 - 16:30" class="accent-sky-600"> 15:30-16:30
                                 </label>
                                 <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                                    <input type="checkbox" name="edit_hourly_slots" value=" 16:30 - 17:30 " class="accent-sky-600"> 16:30-17:30
+                                    <input type="checkbox" name="edit_hourly_slots" value="16:30 - 17:30" class="accent-sky-600"> 16:30-17:30
                                 </label>
                             </div>
                         </div>
@@ -268,10 +268,10 @@
                             <span class="text-[11px] font-bold text-indigo-600 block"><i class="fa-solid fa-moon"></i> Sesi Malam</span>
                             <div class="grid grid-cols-2 gap-2 text-xs font-medium">
                                 <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                                    <input type="checkbox" name="edit_hourly_slots" value=" 18:30 - 19:30 " class="accent-sky-600"> 18:30-19:30
+                                    <input type="checkbox" name="edit_hourly_slots" value="18:30 - 19:30" class="accent-sky-600"> 18:30-19:30
                                 </label>
                                 <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
-                                    <input type="checkbox" name="edit_hourly_slots" value=" 19:30 - 20:30 " class="accent-sky-600"> 19:30-20:30
+                                    <input type="checkbox" name="edit_hourly_slots" value="19:30 - 20:30" class="accent-sky-600"> 19:30-20:30
                                 </label>
                             </div>
                         </div>
@@ -393,6 +393,7 @@
                     .from('tutors')
                     .update({ user_id: user.id })
                     .eq('id', profile.id);
+                profile.user_id = user.id;
             }
 
             currentTutorProfile = profile;
@@ -544,7 +545,7 @@
 
             const hoursStr = currentTutorProfile.available_hours || '';
             document.querySelectorAll('input[name="edit_hourly_slots"]').forEach(cb => {
-                cb.checked = hoursStr.includes(cb.value);
+                cb.checked = hoursStr.includes(cb.value.trim());
             });
 
             switchSettingsTab('profile');
@@ -576,8 +577,14 @@
             });
         }
 
+        // FUNGSI SIMPAN PERUBAHAN PERBAIKAN
         async function saveTutorSettings(e) {
             e.preventDefault();
+
+            if (!currentTutorProfile) {
+                alert('Sesi profil tidak ditemukan. Coba refresh halaman.');
+                return;
+            }
 
             const btnSave = document.getElementById('btn-save-settings');
             btnSave.innerText = 'Menyimpan...';
@@ -592,13 +599,15 @@
 
             const selectedGrades = Array.from(document.querySelectorAll('input[name="edit_specific_grades"]:checked')).map(cb => cb.value);
             const fullLevelStr = selectedGrades.length > 0
-            ? `${level} (${selectedGrades.join(', ')})`
-            : level;
-            const selectedHours = Array.from(document.querySelectorAll('input[name="edit_hourly_slots"]:checked')).map(cb => cb.value);
+                ? `${level} (${selectedGrades.join(', ')})`
+                : level;
+            
+            const selectedHours = Array.from(document.querySelectorAll('input[name="edit_hourly_slots"]:checked')).map(cb => cb.value.trim());
 
             const rawVideoPrice = parseInt(document.getElementById('edit-video-price').value) || 0;
             const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
 
+            // PERBAIKAN QUERY UPDATE: Menggunakan ID Profil Utama
             const { error } = await _supabase
                 .from('tutors')
                 .update({
@@ -622,6 +631,8 @@
                 btnSave.innerText = 'Simpan Perubahan';
                 btnSave.disabled = false;
                 closeSettingsModal();
+                
+                // Ambil ulang data profil terbaru
                 await checkTutorAuth();
             }
         }
