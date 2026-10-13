@@ -642,16 +642,17 @@
             const { error } = await _supabase
                 .from('tutors')
                 .update({
-                    name: name,
-                    subject: subject,
-                    level: fullLevelStr,
-                    available_hours: selectedHours.join(', '),
-                    location: location,
-                    price: price,
-                    phone_number: phone,
-                    video_subscription_price: videoSubscriptionPrice
-                })
-                .eq('id', currentTutorProfile.id);
+            name: name,
+            subject: subject,
+            level: fullLevelStr,
+            available_hours: selectedHours.join(', '),
+            location: location,
+            address: address,
+            price: price,
+            phone_number: phone,
+            video_subscription_price: videoSubscriptionPrice
+    })
+    .eq('id', currentTutorProfile.id);
 
             if (error) {
                 alert('Gagal memperbarui profil: ' + error.message);
