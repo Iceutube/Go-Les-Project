@@ -89,7 +89,7 @@
                 .from('bookings')
                 .select('*')
                 .eq('tutor_id', currentTutor.id)
-                .eq('status', 'confirmed')
+                .in('status', ['confirmed', 'completed'])
                 .order('booking_date', { ascending: true });
 
             if (error) {
