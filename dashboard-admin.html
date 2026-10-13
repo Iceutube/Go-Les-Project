@@ -693,6 +693,91 @@
             await _supabase.auth.signOut();
             window.location.href = 'login.html';
         }
+        async function loadAdminWithdrawals() {
+            const tbody = document.getElementById('admin-withdrawals-body');
+            
+            // Ambil data dari tabel withdrawals beserta nama tutornya
+            const { data: list, error } = await _supabase
+                .from('withdrawals')
+                .select('*, tutors(name, email)')
+                .order('created_at', { ascending: false });
+
+            if (error || !list || list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400">Belum ada pengajuan penarikan dana dari tutor.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            list.forEach(w => {
+                const tutorName = w.tutors ? w.tutors.name : 'Tutor GO-LES';
+                const tutorEmail = w.tutors ? w.tutors.email : '-';
+                const createdAtStr = new Date(w.created_at).toLocaleString('id-ID', {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                let statusBadge = '';
+                let actionBtn = '';
+
+                if (w.status === 'approved') {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]"><i class="fa-solid fa-check"></i> Berhasil Ditransfer</span>`;
+                } else if (w.status === 'rejected') {
+                    statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]"><i class="fa-solid fa-xmark"></i> Ditolak</span>`;
+                } else {
+                    statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]"><i class="fa-solid fa-clock"></i> Pending (Menunggu Admin)</span>`;
+                    actionBtn = `
+                        <div class="flex gap-1 justify-end">
+                            <button onclick="processWithdrawal(${w.id}, 'approved')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
+                                <i class="fa-solid fa-check"></i> Konfirmasi Transfer
+                            </button>
+                            <button onclick="processWithdrawal(${w.id}, 'rejected')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold px-2.5 py-1.5 rounded-lg text-xs transition">
+                                Tolak
+                            </button>
+                        </div>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-slate-900">${tutorName}</div>
+                            <div class="text-[11px] text-slate-400">${tutorEmail}</div>
+                        </td>
+                        <td class="py-3 px-4 font-extrabold text-emerald-600">
+                            Rp ${(w.amount || 0).toLocaleString('id-ID')}
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-slate-800">${w.bank_name} - ${w.account_number}</div>
+                            <div class="text-[11px] text-slate-500">a.n ${w.account_holder}</div>
+                        </td>
+                        <td class="py-3 px-4 text-slate-600 font-medium">${createdAtStr}</td>
+                        <td class="py-3 px-4 text-center">${statusBadge}</td>
+                        <td class="py-3 px-4 text-right">${actionBtn}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function processWithdrawal(withdrawId, newStatus) {
+            if (!confirm(`Apakah Anda yakin ingin ${newStatus === 'approved' ? 'menyetujui dan menandai telah mentransfer' : 'menolak'} pengajuan ini?`)) {
+                return;
+            }
+
+            const { error } = await _supabase
+                .from('withdrawals')
+                .update({ 
+                    status: newStatus,
+                    processed_at: new Date().toISOString()
+                })
+                .eq('id', withdrawId);
+
+            if (error) {
+                alert('Gagal memproses penarikan: ' + error.message);
+            } else {
+                alert(newStatus === 'approved' 
+                    ? 'Penarikan dana berhasil disetujui! Status diperbarui menjadi Berhasil Ditransfer.' 
+                    : 'Pengajuan penarikan berhasil ditolak.');
+                await loadAdminWithdrawals();
+            }
+        }
     </script>
 </body>
 </html>
