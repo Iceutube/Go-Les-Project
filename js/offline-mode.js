@@ -1,6 +1,5 @@
 let bookingTargetTutor = null;
 
-// Dipanggil saat tombol "Pesan" pada kartu tutor diklik
 async function openBookingModal(tutorId) {
     const tutor = rawApprovedTutors.find(t => t.id === tutorId);
     if (!tutor) return;
@@ -28,7 +27,6 @@ async function openBookingModal(tutorId) {
         if (offlineLockedNotice) offlineLockedNotice.classList.remove('hidden');
     }
 
-    // --- MENCEGAH PILIH HARI SEBELUMNYA ---
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -94,11 +92,24 @@ function setBookingMode(mode) {
     }
 }
 
-function toggleStudentAddressInput(show) {
-    const addressBox = document.getElementById('student-address-container');
-    if (addressBox) {
-        if (show) addressBox.classList.remove('hidden');
-        else addressBox.classList.add('hidden');
+function toggleStudentAddressInput(isStudentHouse) {
+    const studentAddressBox = document.getElementById('student-address-container');
+    const tutorAddressBox = document.getElementById('tutor-address-display-container');
+    const tutorAddressText = document.getElementById('tutor-address-text');
+
+    if (isStudentHouse) {
+        if (studentAddressBox) studentAddressBox.classList.remove('hidden');
+        if (tutorAddressBox) tutorAddressBox.classList.add('hidden');
+    } else {
+        if (studentAddressBox) studentAddressBox.classList.add('hidden');
+        if (tutorAddressBox) tutorAddressBox.classList.remove('hidden');
+        
+        // Tampilkan alamat tutor jika ada, atau beri informasi fallback
+        if (tutorAddressText && bookingTargetTutor) {
+            tutorAddressText.innerText = bookingTargetTutor.address 
+                ? bookingTargetTutor.address 
+                : "Alamat spesifik belum diisi oleh tutor. Kamu bisa menanyakannya secara langsung via Chat WhatsApp.";
+        }
     }
 }
 
@@ -195,7 +206,6 @@ function closeBookingModal() {
     bookingTargetTutor = null;
 }
 
-// FUNGSI KOMPRESI DENGAN CANVAS DAHULU SEBELUM SUBMIT
 async function submitBooking(e) {
     e.preventDefault();
     if (!bookingTargetTutor || !currentStudent) return;
@@ -296,7 +306,6 @@ async function submitBooking(e) {
                 return;
             }
 
-            // Kirim pesan otomatis ke tutor
             if (bookingTargetTutor.user_id) {
                 const autoMessage = `Ditunggu ya kelas privatnya di jam ${time} (Tanggal: ${date}).`;
                 await _supabase.from('messages').insert([{
