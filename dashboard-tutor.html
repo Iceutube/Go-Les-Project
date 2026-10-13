@@ -21,10 +21,22 @@
                 <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
                     <i class="fa-solid fa-chalkboard-user"></i>
                 </div>
-                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Portal Tutor</span></span>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Tutor</span></span>
             </div>
+
             <div class="flex items-center gap-3">
-                <span id="tutor-name-display" class="text-xs font-bold text-slate-700">Tutor</span>
+                <button onclick="openSettingsModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-sky-600"></i> Pengaturan
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="relative group cursor-pointer" onclick="triggerPfpUpload()" title="Klik untuk ganti Foto Profil">
+                        <img id="tutor-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-8 h-8 rounded-full object-cover border border-slate-200 group-hover:opacity-75 transition">
+                        <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-white text-[10px]">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    </div>
+                    <span id="tutor-name" class="font-bold text-xs text-slate-800">Tutor</span>
+                </div>
                 <button onclick="logout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Keluar">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
