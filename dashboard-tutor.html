@@ -306,6 +306,60 @@
             await _supabase.auth.signOut();
             window.location.href = 'login.html';
         }
+        async function loadTutorEarnings(tutorId) {
+    // 1. Hitung pendapatan dari Sesi Les yang Terkonfirmasi (bookings)
+    const { data: bookings } = await _supabase
+        .from('bookings')
+        .select('tutor_id, status')
+        .eq('tutor_id', tutorId)
+        .eq('status', 'confirmed');
+
+    const totalBookingEarnings = (bookings || []).reduce((sum) => sum + (currentTutorProfile.price || 0), 0);
+
+    // 2. Hitung pendapatan dari Langganan Video Mengajar (video_subscriptions)
+    const { data: subs } = await _supabase
+        .from('video_subscriptions')
+        .select('price')
+        .eq('tutor_id', tutorId)
+        .eq('status', 'active');
+
+    const totalSubEarnings = (subs || []).reduce((sum, s) => sum + (s.price || 0), 0);
+
+    // Total akumulasi pendapatan
+    const grandTotalEarnings = totalBookingEarnings + totalSubEarnings;
+    
+    document.getElementById('stat-total-earnings').innerText = `Rp ${grandTotalEarnings.toLocaleString('id-ID')}`;
+    
+    // Tampilkan info bank
+    if (currentTutorProfile.bank_account_number) {
+        document.getElementById('tutor-bank-info').innerText = `${currentTutorProfile.bank_name} - ${currentTutorProfile.bank_account_number} (a.n ${currentTutorProfile.bank_account_holder})`;
+    } else {
+        document.getElementById('tutor-bank-info').innerText = 'Atur di Pengaturan Profil';
+    }
+}
+
+// Fungsi pengajuan penarikan uang
+async function submitWithdrawal(amount) {
+    if (!currentTutorProfile.bank_account_number) {
+        alert('Mohon isi nomor rekening bank kamu di Pengaturan Profil terlebih dahulu.');
+        return;
+    }
+
+    const { error } = await _supabase.from('withdrawals').insert([{
+        tutor_id: currentTutorProfile.id,
+        amount: amount,
+        bank_name: currentTutorProfile.bank_name || 'BCA',
+        account_number: currentTutorProfile.bank_account_number,
+        account_holder: currentTutorProfile.bank_account_holder || currentTutorProfile.name,
+        status: 'pending'
+    }]);
+
+    if (error) {
+        alert('Gagal mengajukan penarikan: ' + error.message);
+    } else {
+        alert('Pengajuan penarikan dana berhasil dikirim! Admin akan mentransfer dana ke rekening kamu maksimal 1x24 jam.');
+    }
+}
     </script>
 </body>
 </html>
