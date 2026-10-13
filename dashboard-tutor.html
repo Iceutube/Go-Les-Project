@@ -421,12 +421,27 @@
             await loadVideoSubscriptionStats(profile.id);
             await loadTutorVideoList(profile.id);
 
-            if (profile.status === 'approved') {
-                await loadTutorBookings(profile.id);
-                await loadChatContacts();
-            } else {
-                restrictUnapprovedFeatures();
-            }
+            if (p.status === 'approved') {
+    alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-emerald-50 border-emerald-200 text-emerald-800';
+    alertIcon.className = 'fa-solid fa-circle-check text-emerald-600 text-lg';
+    alertTitle.innerText = 'Akun Tutor Terverifikasi';
+    alertDesc.innerText = 'Profil kamu telah disetujui Admin. Katalog les privat dan fitur percakapan sudah aktif fully!';
+    statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700';
+    statusBadge.innerText = 'Approved / Aktif';
+} else if (p.status === 'rejected') {
+    alertBox.className = 'p-5 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-rose-50 border-rose-200 text-rose-800 shadow-sm';
+    alertIcon.className = 'fa-solid fa-circle-xmark text-rose-600 text-2xl';
+    alertTitle.innerText = 'Anda Tidak Terregistrasi';
+    alertDesc.innerText = 'Mohon maaf, pendaftaran akun kamu ditolak oleh Administrator dan data kamu tidak terdaftar sebagai tutor aktif. Akun ini akan dihapus permanen oleh sistem dalam waktu 3 hari.';
+    statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700';
+    statusBadge.innerText = 'Tidak Terregistrasi';
+} else {
+    alertBox.className = 'p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3 bg-amber-50 border-amber-200 text-amber-800';
+    alertIcon.className = 'fa-solid fa-clock text-amber-600 text-lg';
+    alertTitle.innerText = 'Pendaftaran Dalam Peninjauan';
+    alertDesc.innerText = 'Akun kamu berhasil masuk tetapi fitur aplikasi masih dikunci hingga Admin menyetujui (approve) pendaftaranmu.';
+    statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700';
+    statusBadge.innerText = 'Pending Review';
         }
 
         function triggerPfpUpload() {
