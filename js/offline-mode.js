@@ -114,15 +114,12 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
     const container = document.getElementById('booking-available-hours-container');
     if (!container) return;
     container.innerHTML = '';
-
     if (!availableHoursStr || availableHoursStr.trim() === '') {
         container.innerHTML = `<p class="col-span-full text-amber-600 bg-amber-50 border border-amber-200 p-3 rounded-xl text-[11px] font-semibold text-center"><i class="fa-solid fa-circle-info"></i> Tutor ini belum mengatur slot jam mengajar.</p>`;
         return;
     }
-
     const hoursList = availableHoursStr.split(',').map(h => h.trim()).filter(h => h.length > 0);
     const mode = document.getElementById('booking-form-mode')?.value || 'online';
-
     let bookedTimes = [];
     if (tutorId && selectedDate) {
         const { data: existingBookings } = await _supabase
@@ -130,13 +127,44 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
             .select('booking_time, session_mode')
             .eq('tutor_id', tutorId)
             .eq('booking_date', selectedDate);
-
         if (existingBookings) {
             bookedTimes = existingBookings
                 .filter(b => b.session_mode === 'offline')
                 .map(b => b.booking_time);
         }
     }
+
+    let validSlotsCount = 0;
+    hoursList.forEach((hourStr) => {
+        const isConflict = mode === 'offline' && bookedTimes.includes(hourStr);
+
+        // BATASAN WAKTU DINIHILKAN: Semua slot jam tetap bisa dipilih meskipun sudah lewat
+        if (isConflict) {
+            container.innerHTML += `
+                <label class="flex items-center gap-2 bg-slate-100 p-2.5 rounded-xl border border-slate-200 text-slate-400 cursor-not-allowed text-xs font-medium opacity-60" title="Sudah dipesan siswa lain">
+                    <input type="radio" disabled name="booking-selected-time" value="${hourStr}" class="accent-slate-400">
+                    <i class="fa-regular fa-clock"></i> ${hourStr} (Sudah Dipesan)
+                </label>
+            `;
+        } else {
+            validSlotsCount++;
+            container.innerHTML += `
+                <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer text-xs font-medium hover:border-sky-500 hover:bg-sky-50/50 transition">
+                    <input type="radio" name="booking-selected-time" value="${hourStr}" ${validSlotsCount === 1 ? 'checked' : ''} class="accent-sky-600">
+                    <i class="fa-regular fa-clock text-sky-600"></i> ${hourStr}
+                </label>
+            `;
+        }
+    });
+
+    if (validSlotsCount === 0 && hoursList.length > 0) {
+        container.innerHTML += `
+            <p class="col-span-full text-rose-600 bg-rose-50 border border-rose-200 p-3 rounded-xl text-[11px] font-semibold text-center mt-1">
+                <i class="fa-solid fa-circle-exclamation"></i> Semua slot jam mengajar untuk hari ini sudah terisi. Silakan pilih tanggal lain.
+            </p>
+        `;
+    }
+}
 
     const now = new Date();
     const year = now.getFullYear();
