@@ -613,22 +613,32 @@
         }
 
         async function updateTutorStatus(tutorId, newStatus, isOffline) {
-            const { error } = await _supabase
-                .from('tutors')
-                .update({ 
-                    status: newStatus,
-                    is_offline_verified: isOffline 
-                })
-                .eq('id', tutorId);
+    const updateData = { 
+        status: newStatus,
+        is_offline_verified: isOffline 
+    };
 
-            if (error) {
-                alert('Gagal memperbarui status: ' + error.message);
-            } else {
-                alert(`Status berhasil diperbarui!`);
-                closeDetailModal();
-                await loadAdminData();
-            }
-        }
+    if (newStatus === 'rejected') {
+        updateData.rejected_at = new Date().toISOString();
+    } else {
+        updateData.rejected_at = null;
+    }
+
+    const { error } = await _supabase
+        .from('tutors')
+        .update(updateData)
+        .eq('id', tutorId);
+
+    if (error) {
+        alert('Gagal memperbarui status: ' + error.message);
+    } else {
+        alert(newStatus === 'rejected' 
+            ? 'Pendaftaran ditolak. Akun akan terhapus otomatis dari database dalam 3 hari.' 
+            : 'Status berhasil diperbarui!');
+        closeDetailModal();
+        await loadAdminData();
+    }
+}
 
         async function logout() {
             await _supabase.auth.signOut();
