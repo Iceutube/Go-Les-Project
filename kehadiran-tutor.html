@@ -54,90 +54,90 @@
     <script>
         let currentTutor = null;
 
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const { data: { user } } = await _supabase.auth.getUser();
-        if (!user) { 
-            window.location.href = 'login.html'; 
-            return; 
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) { 
+                    window.location.href = 'login.html'; 
+                    return; 
+                }
+
+                const { data: profile } = await _supabase
+                    .from('tutors')
+                    .select('*')
+                    .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+                    .single();
+
+                if (!profile) {
+                    alert('Data profil tutor tidak ditemukan.');
+                    return;
+                }
+
+                currentTutor = profile;
+                document.getElementById('tutor-name-display').innerText = profile.name;
+                await loadTutorAttendanceSessions();
+            } catch (err) {
+                console.error('Error init:', err);
+            }
+        });
+
+        async function loadTutorAttendanceSessions() {
+            const list = document.getElementById('tutor-session-list');
+            list.innerHTML = `<p class="text-center text-slate-400 text-xs py-8">Memuat daftar sesi...</p>`;
+
+            const { data: bookings, error } = await _supabase
+                .from('bookings')
+                .select('*')
+                .eq('tutor_id', currentTutor.id)
+                .eq('status', 'confirmed')
+                .order('booking_date', { ascending: true });
+
+            if (error) {
+                list.innerHTML = `<p class="text-center text-rose-500 text-xs py-8">Gagal memuat sesi: ${error.message}</p>`;
+                return;
+            }
+
+            if (!bookings || bookings.length === 0) {
+                list.innerHTML = `<p class="text-center text-slate-400 text-xs py-8">Belum ada sesi mengajar aktif yang terkonfirmasi.</p>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            bookings.forEach(b => {
+                const passcodeUI = b.attendance_passcode 
+                    ? `<div class="text-right">
+                         <span class="text-[10px] text-slate-400 font-bold block mb-1">PIN KEHADIRAN SISWA:</span>
+                         <span class="bg-emerald-100 text-emerald-800 font-mono font-black text-lg px-3.5 py-1.5 rounded-xl border border-emerald-200">${b.attendance_passcode}</span>
+                       </div>`
+                    : `<button type="button" onclick="handleCreatePIN(${b.id})" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                         <i class="fa-solid fa-wand-magic-sparkles"></i> Buat PIN Kehadiran
+                       </button>`;
+
+                list.innerHTML += `
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="space-y-1 text-xs">
+                            <span class="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${b.learning_mode || 'online'}</span>
+                            <h4 class="font-extrabold text-slate-900 text-sm">Siswa: ${b.student_name || 'Siswa GO-LES'}</h4>
+                            <p class="text-slate-500 font-medium"><i class="fa-regular fa-calendar"></i> ${b.booking_date} | <i class="fa-regular fa-clock"></i> ${b.booking_time}</p>
+                        </div>
+                        ${passcodeUI}
+                    </div>
+                `;
+            });
         }
 
-        const { data: profile } = await _supabase
-            .from('tutors')
-            .select('*')
-            .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-            .single();
+        async function handleCreatePIN(bookingId) {
+            if (typeof generateAttendancePasscode !== 'function') {
+                alert('Fungsi generateAttendancePasscode belum dimuat. Pastikan js/attendance.js sudah terhubung.');
+                return;
+            }
 
-        if (!profile) {
-            alert('Data profil tutor tidak ditemukan.');
-            return;
+            const code = await generateAttendancePasscode(bookingId);
+            if (code) {
+                alert(`PIN Kehadiran Berhasil Dibuat: ${code}\n\nSilakan berikan PIN ini kepada siswa saat jam sesi belajar dimulai.`);
+                await loadTutorAttendanceSessions();
+            }
         }
-
-        currentTutor = profile;
-        document.getElementById('tutor-name-display').innerText = profile.name;
-        await loadTutorAttendanceSessions();
-    } catch (err) {
-        console.error('Error init:', err);
-    }
-});
-
-async function loadTutorAttendanceSessions() {
-    const list = document.getElementById('tutor-session-list');
-    list.innerHTML = `<p class="text-center text-slate-400 text-xs py-8">Memuat daftar sesi...</p>`;
-
-    const { data: bookings, error } = await _supabase
-        .from('bookings')
-        .select('*')
-        .eq('tutor_id', currentTutor.id)
-        .eq('status', 'confirmed')
-        .order('booking_date', { ascending: true });
-
-    if (error) {
-        list.innerHTML = `<p class="text-center text-rose-500 text-xs py-8">Gagal memuat sesi: ${error.message}</p>`;
-        return;
-    }
-
-    if (!bookings || bookings.length === 0) {
-        list.innerHTML = `<p class="text-center text-slate-400 text-xs py-8">Belum ada sesi mengajar aktif yang terkonfirmasi.</p>`;
-        return;
-    }
-
-    list.innerHTML = '';
-    bookings.forEach(b => {
-        const passcodeUI = b.attendance_passcode 
-            ? `<div class="text-right">
-                 <span class="text-[10px] text-slate-400 font-bold block mb-1">PIN KEHADIRAN SISWA:</span>
-                 <span class="bg-emerald-100 text-emerald-800 font-mono font-black text-lg px-3.5 py-1.5 rounded-xl border border-emerald-200">${b.attendance_passcode}</span>
-               </div>`
-            : `<button type="button" onclick="handleCreatePIN(${b.id})" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
-                 <i class="fa-solid fa-wand-magic-sparkles"></i> Buat PIN Kehadiran
-               </button>`;
-
-        list.innerHTML += `
-            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div class="space-y-1 text-xs">
-                    <span class="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${b.learning_mode || 'online'}</span>
-                    <h4 class="font-extrabold text-slate-900 text-sm">Siswa: ${b.student_name || 'Siswa GO-LES'}</h4>
-                    <p class="text-slate-500 font-medium"><i class="fa-regular fa-calendar"></i> ${b.booking_date} | <i class="fa-regular fa-clock"></i> ${b.booking_time}</p>
-                </div>
-                ${passcodeUI}
-            </div>
-        `;
-    });
-}
-
-async function handleCreatePIN(bookingId) {
-    if (typeof generateAttendancePasscode !== 'function') {
-        alert('Fungsi generateAttendancePasscode belum dimuat. Pastikan js/attendance.js sudah terhubung dengan benar.');
-        return;
-    }
-
-    const code = await generateAttendancePasscode(bookingId);
-    if (code) {
-        alert(`PIN Kehadiran Berhasil Dibuat: ${code}\n\nSilakan berikan PIN ini kepada siswa saat jam sesi belajar dimulai.`);
-        await loadTutorAttendanceSessions();
-    }
-}
     </script>
 </body>
 </html>
