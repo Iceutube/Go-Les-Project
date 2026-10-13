@@ -294,47 +294,54 @@
 }
 
         async function saveTutorSettings(e) {
-            e.preventDefault();
-            if (!currentTutorProfile) return;
+    e.preventDefault();
+    if (!currentTutorProfile) return;
 
-            const btn = document.getElementById('btn-save-settings');
-            btn.disabled = true;
-            btn.innerText = 'Menyimpan...';
+    const btn = document.getElementById('btn-save-settings');
+    btn.disabled = true;
+    btn.innerText = 'Menyimpan...';
 
-            const phone = document.getElementById('setting-phone').value.trim();
-            const location = document.getElementById('setting-location').value.trim();
-            const videoPrice = parseInt(document.getElementById('setting-video-price').value) || 0;
-            const address = document.getElementById('setting-address').value.trim();
+    const phone = document.getElementById('setting-phone').value.trim();
+    const location = document.getElementById('setting-location').value.trim();
+    const videoPrice = parseInt(document.getElementById('setting-video-price').value) || 0;
+    const address = document.getElementById('setting-address').value.trim();
 
-            const selectedHours = Array.from(document.querySelectorAll('input[name="tutor_hours"]:checked')).map(cb => cb.value);
-            const availableHoursStr = selectedHours.join(', ');
+    const bankName = document.getElementById('setting-bank-name').value;
+    const bankAccount = document.getElementById('setting-bank-account').value.trim();
+    const bankHolder = document.getElementById('setting-bank-holder').value.trim();
 
-            const { error } = await _supabase
-                .from('tutors')
-                .update({
-                    phone_number: phone,
-                    location: location,
-                    video_subscription_price: Math.min(Math.max(videoPrice, 0), 20000),
-                    address: address,
-                    available_hours: availableHoursStr
-                })
-                .eq('id', currentTutorProfile.id);
+    const selectedHours = Array.from(document.querySelectorAll('input[name="tutor_hours"]:checked')).map(cb => cb.value);
+    const availableHoursStr = selectedHours.join(', ');
 
-            btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Profil`;
+    const { error } = await _supabase
+        .from('tutors')
+        .update({
+            phone_number: phone,
+            location: location,
+            video_subscription_price: Math.min(Math.max(videoPrice, 0), 20000),
+            address: address,
+            available_hours: availableHoursStr,
+            bank_name: bankName,
+            bank_account_number: bankAccount,
+            bank_account_holder: bankHolder
+        })
+        .eq('id', currentTutorProfile.id);
 
-            if (error) {
-                alert('Gagal menyimpan pengaturan: ' + error.message);
-            } else {
-                alert('Pengaturan profil dan jam mengajar berhasil diperbarui!');
-                currentTutorProfile.phone_number = phone;
-                currentTutorProfile.location = location;
-                currentTutorProfile.video_subscription_price = videoPrice;
-                currentTutorProfile.address = address;
-                currentTutorProfile.available_hours = availableHoursStr;
-                renderTutorDashboard(currentTutorProfile);
-            }
-        }
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Profil`;
+
+    if (error) {
+        alert('Gagal menyimpan pengaturan: ' + error.message);
+    } else {
+        alert('Pengaturan profil dan rekening bank berhasil disimpan!');
+        
+        currentTutorProfile.bank_name = bankName;
+        currentTutorProfile.bank_account_number = bankAccount;
+        currentTutorProfile.bank_account_holder = bankHolder;
+        
+        renderTutorDashboard(currentTutorProfile);
+    }
+}
 
         async function logout() {
             await _supabase.auth.signOut();
