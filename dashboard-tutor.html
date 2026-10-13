@@ -330,7 +330,6 @@
     
     document.getElementById('stat-total-earnings').innerText = `Rp ${grandTotalEarnings.toLocaleString('id-ID')}`;
     
-    // Tampilkan info bank
     if (currentTutorProfile.bank_account_number) {
         document.getElementById('tutor-bank-info').innerText = `${currentTutorProfile.bank_name} - ${currentTutorProfile.bank_account_number} (a.n ${currentTutorProfile.bank_account_holder})`;
     } else {
@@ -338,7 +337,6 @@
     }
 }
 
-// Fungsi pengajuan penarikan uang
 async function submitWithdrawal(amount) {
     if (!currentTutorProfile.bank_account_number) {
         alert('Mohon isi nomor rekening bank kamu di Pengaturan Profil terlebih dahulu.');
