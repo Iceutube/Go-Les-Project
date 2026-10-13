@@ -498,7 +498,7 @@
                     if (u.rejected_at) {
                         const diffMs = (3 * 24 * 60 * 60 * 1000) - (new Date().getTime() - new Date(u.rejected_at).getTime());
                         const hoursLeft = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
-                        sisaHariText = `Ditolak (${hoursLeft}j lg hapus)`;
+                        sisaHariText = `Ditolak (${hoursLeft} jam tersisa)`;
                     }
                     statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">${sisaHariText}</span>`;
                 } else {
