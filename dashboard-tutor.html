@@ -348,7 +348,6 @@
             window.location.href = 'login.html';
         }
         async function loadTutorEarnings(tutorId) {
-    // 1. Hitung pendapatan dari Sesi Les yang Terkonfirmasi (bookings)
     const { data: bookings } = await _supabase
         .from('bookings')
         .select('tutor_id, status')
