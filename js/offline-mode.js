@@ -105,8 +105,7 @@ function toggleStudentAddressInput(isStudentHouse) {
         if (tutorAddressBox) tutorAddressBox.classList.remove('hidden');
         if (tutorAddressText && bookingTargetTutor) {
             tutorAddressText.innerText = bookingTargetTutor.address 
-                ? bookingTargetTutor.address 
-                : "Alamat spesifik belum diisi oleh tutor. Kamu bisa menanyakannya secara langsung via Chat WhatsApp.";
+                ? bookingTargetTutor.address : "Alamat spesifik belum diisi oleh tutor. Kamu bisa menanyakannya secara langsung via Chat WhatsApp.";
         }
     }
 }
