@@ -301,7 +301,6 @@
         }
 
         async function calculateTutorEarnings(tutorId) {
-    // 1. Hitung total dari bookings yang terkonfirmasi
     const { data: bookings } = await _supabase
         .from('bookings')
         .select('id')
@@ -310,7 +309,6 @@
 
     const totalBookings = (bookings || []).length * (currentTutorProfile.price || 0);
 
-    // 2. Hitung total dari video_subscriptions yang aktif
     const { data: subs } = await _supabase
         .from('video_subscriptions')
         .select('price')
@@ -319,7 +317,6 @@
 
     const totalSubs = (subs || []).reduce((sum, s) => sum + (s.price || 0), 0);
 
-    // 3. Hitung total penarikan dana yang sudah disetujui (Approved Withdrawals)
     const { data: approvedWithdrawals } = await _supabase
         .from('withdrawals')
         .select('amount')
@@ -328,7 +325,6 @@
 
     const totalWithdrawn = (approvedWithdrawals || []).reduce((sum, w) => sum + (w.amount || 0), 0);
 
-    // 4. Hitung Sisa Saldo Bersih (Total Uang Masuk - Total Uang Ditarik)
     tutorGrandTotalEarnings = (totalBookings + totalSubs) - totalWithdrawn;
 
     // Tampilkan di UI Dashboard Tutor
