@@ -12,7 +12,7 @@
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
-    <!-- Navigasi Atas -->
+    <!-- Top Navigation Bar -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -31,10 +31,10 @@
         </div>
     </nav>
 
-    <!-- Konten Utama -->
+    <!-- Main Content Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
                  
-        <!-- Kartu Profil Tutor -->
+        <!-- Profile Banner -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
                 <img id="tutor-profile-img" src="https://ui-avatars.com/api/?name=Tutor" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
@@ -59,7 +59,53 @@
             </div>
         </div>
 
-        <!-- Grid Video & Statistik -->
+        <!-- Section Setting Profil & Slot Jam Mengajar -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+                <i class="fa-solid fa-sliders text-sky-600"></i> Pengaturan Profil & Slot Jam Mengajar
+            </h2>
+            <form id="form-tutor-settings" onsubmit="saveTutorSettings(event)" class="space-y-4 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
+                        <input type="tel" id="setting-phone" required placeholder="08123456789" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Kota / Domisili</label>
+                        <input type="text" id="setting-location" required placeholder="Surabaya" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Harga Langganan Video / Bulan (Maks Rp20.000)</label>
+                        <input type="number" id="setting-video-price" min="0" max="20000" step="1000" placeholder="15000" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Alamat Rumah Lengkap (Untuk Sesi Offline Tatap Muka)</label>
+                    <textarea id="setting-address" rows="2" placeholder="Jl. Raya Kebon Agung No. 45, Malang" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium"></textarea>
+                </div>
+
+                <!-- Pilihan Slot Jam Mengajar -->
+                <div class="bg-slate-50 p-4 border border-slate-200 rounded-2xl space-y-2">
+                    <label class="block font-bold text-slate-700 mb-1">Atur Jam Sesi Mengajar Yang Tersedia (Pilih yang sesuai):</label>
+                    <div id="settings-hours-checkboxes" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-700">
+                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="08:00 - 09:30" class="accent-sky-600"> 08:00 - 09:30</label>
+                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="09:30 - 11:00" class="accent-sky-600"> 09:30 - 11:00</label>
+                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="13:00 - 14:30" class="accent-sky-600"> 13:00 - 14:30</label>
+                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="14:30 - 16:00" class="accent-sky-600"> 14:30 - 16:00</label>
+                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="16:00 - 17:30" class="accent-sky-600"> 16:00 - 17:30</label>
+                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="18:30 - 20:00" class="accent-sky-600"> 18:30 - 20:00</label>
+                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="20:00 - 21:30" class="accent-sky-600"> 20:00 - 21:30</label>
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-save-settings" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-5 py-2.5 rounded-xl transition shadow-md shadow-sky-600/20">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Profil
+                </button>
+            </form>
+        </div>
+
+        <!-- Video & Stats Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             <!-- Panel Kelola Video Mengajar -->
@@ -132,14 +178,12 @@
                 return;
             }
 
-            // Ambil profil tutor dari database
             const { data: profile } = await _supabase
                 .from('tutors')
                 .select('*')
                 .or(`user_id.eq.${user.id},email.eq.${user.email}`)
                 .single();
 
-            // Verifikasi bahwa role memang benar-benar 'tutor'
             if (!profile || profile.role !== 'tutor') {
                 alert('Akses Ditolak! Halaman ini khusus untuk Pengajar / Tutor.');
                 window.location.href = 'login.html';
@@ -148,8 +192,8 @@
 
             currentTutorProfile = profile;
             renderTutorDashboard(profile);
+            populateSettingsForm(profile);
             
-            // Muat data video dan statistik dari modul terpisah jika fungsi tersedia
             if (typeof loadTutorVideoList === 'function') {
                 await loadTutorVideoList(profile.id);
             }
@@ -178,6 +222,62 @@
             } else {
                 badge.className = 'bg-amber-100 text-amber-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full';
                 badge.innerText = 'Menunggu Verifikasi Admin';
+            }
+        }
+
+        function populateSettingsForm(profile) {
+            document.getElementById('setting-phone').value = profile.phone_number || '';
+            document.getElementById('setting-location').value = profile.location || '';
+            document.getElementById('setting-video-price').value = profile.video_subscription_price || 0;
+            document.getElementById('setting-address').value = profile.address || '';
+
+            const availableHours = (profile.available_hours || '').split(',').map(h => h.trim());
+            const checkboxes = document.querySelectorAll('input[name="tutor_hours"]');
+            checkboxes.forEach(cb => {
+                cb.checked = availableHours.includes(cb.value);
+            });
+        }
+
+        async function saveTutorSettings(e) {
+            e.preventDefault();
+            if (!currentTutorProfile) return;
+
+            const btn = document.getElementById('btn-save-settings');
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
+
+            const phone = document.getElementById('setting-phone').value.trim();
+            const location = document.getElementById('setting-location').value.trim();
+            const videoPrice = parseInt(document.getElementById('setting-video-price').value) || 0;
+            const address = document.getElementById('setting-address').value.trim();
+
+            const selectedHours = Array.from(document.querySelectorAll('input[name="tutor_hours"]:checked')).map(cb => cb.value);
+            const availableHoursStr = selectedHours.join(', ');
+
+            const { error } = await _supabase
+                .from('tutors')
+                .update({
+                    phone_number: phone,
+                    location: location,
+                    video_subscription_price: Math.min(Math.max(videoPrice, 0), 20000),
+                    address: address,
+                    available_hours: availableHoursStr
+                })
+                .eq('id', currentTutorProfile.id);
+
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Profil`;
+
+            if (error) {
+                alert('Gagal menyimpan pengaturan: ' + error.message);
+            } else {
+                alert('Pengaturan profil dan jam mengajar berhasil diperbarui!');
+                currentTutorProfile.phone_number = phone;
+                currentTutorProfile.location = location;
+                currentTutorProfile.video_subscription_price = videoPrice;
+                currentTutorProfile.address = address;
+                currentTutorProfile.available_hours = availableHoursStr;
+                renderTutorDashboard(currentTutorProfile);
             }
         }
 
