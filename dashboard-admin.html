@@ -254,6 +254,7 @@
             await checkAdminAuth();
             await loadAdminData();
             await loadAdminBookings();
+            await loadAdminWithdrawals();
             setInterval(async () => {
                 await loadAdminBookings();
             }, 20000);
