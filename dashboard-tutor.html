@@ -152,6 +152,27 @@
             </div>
 
         </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+        <div class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-wallet"></i>
+        </div>
+        <div>
+            <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Total Pendapatan</span>
+            <span id="stat-total-earnings" class="text-xl font-extrabold text-slate-900">Rp 0</span>
+        </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between col-span-2">
+        <div>
+            <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block">Info Rekening Pencairan</span>
+            <span id="tutor-bank-info" class="text-xs font-bold text-slate-800">Belum diatur</span>
+        </div>
+        <button onclick="openWithdrawModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/20">
+            <i class="fa-solid fa-hand-holding-dollar"></i> Tarik Saldo
+        </button>
+    </div>
+</div>
     </main>
 
     <!-- Footer -->
