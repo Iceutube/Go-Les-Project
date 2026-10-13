@@ -280,7 +280,6 @@
     document.getElementById('setting-video-price').value = profile.video_subscription_price || 0;
     document.getElementById('setting-address').value = profile.address || '';
 
-    // Isi form rekening jika sudah pernah diisi
     if (document.getElementById('setting-bank-name')) {
         document.getElementById('setting-bank-name').value = profile.bank_name || 'BCA';
         document.getElementById('setting-bank-account').value = profile.bank_account_number || '';
