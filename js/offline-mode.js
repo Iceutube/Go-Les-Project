@@ -103,8 +103,6 @@ function toggleStudentAddressInput(isStudentHouse) {
     } else {
         if (studentAddressBox) studentAddressBox.classList.add('hidden');
         if (tutorAddressBox) tutorAddressBox.classList.remove('hidden');
-        
-        // Tampilkan alamat tutor jika ada, atau beri informasi fallback
         if (tutorAddressText && bookingTargetTutor) {
             tutorAddressText.innerText = bookingTargetTutor.address 
                 ? bookingTargetTutor.address 
