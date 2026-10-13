@@ -586,5 +586,23 @@
             window.location.href = 'login.html';
         }
     </script>
+    <div id="attendance-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative text-center">
+        <button onclick="document.getElementById('attendance-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="bg-sky-100 text-sky-600 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
+            <i class="fa-solid fa-key"></i>
+        </div>
+        <h3 class="font-extrabold text-slate-900 text-base">Verifikasi Kehadiran</h3>
+        <p class="text-xs text-slate-500">Masukkan kata sandi / PIN yang sama dengan milik Tutor/Siswa untuk menyelesaikan sesi.</p>
+        
+        <input type="text" id="input-attendance-passcode" placeholder="Contoh: GL-98A2" class="w-full text-center tracking-widest text-lg font-bold p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 uppercase bg-slate-50">
+        
+        <button onclick="handlePasscodeSubmit()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
+            Konfirmasi Kehadiran
+        </button>
+    </div>
+</div>
 </body>
 </html>
