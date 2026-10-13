@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kehadiran Sesi Mengajar - GO-LES Tutor</title>
+    <script src="https://cdn.tailwindcss.com?suppressWarning=true"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
+    <!-- Header Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="dashboard-tutor.html" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <span class="font-extrabold text-base tracking-tight text-slate-900">Kelola Kehadiran Sesi Mengajar</span>
+            </div>
+            <span id="tutor-name-display" class="text-xs font-bold text-sky-600">Tutor</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-8 space-y-6">
+        <div class="bg-sky-600 text-white p-6 rounded-2xl shadow-md space-y-2">
+            <h1 class="text-lg font-extrabold"><i class="fa-solid fa-key"></i> Buat & Bagikan PIN Kehadiran</h1>
+            <p class="text-xs text-sky-100 leading-relaxed">Klik "Buat PIN Kehadiran" saat jam sesi mengajar dimulai. Berikan kode PIN tersebut kepada siswa untuk memverifikasi kehadiran dan menyelesaikan sesi.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h2 class="font-extrabold text-slate-900 text-sm">Daftar Sesi Mengajar Aktif</h2>
+                <button onclick="loadTutorAttendanceSessions()" class="text-xs text-sky-600 font-bold hover:underline">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+            </div>
+
+            <div id="tutor-session-list" class="space-y-3">
+                <p class="text-center text-slate-400 text-xs py-8">Memuat daftar sesi...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/attendance.js"></script>
+    <script>
+        let currentTutor = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) { window.location.href = 'login.html'; return; }
+
+            const { data: profile } = await _supabase
+                .from('tutors')
+                .select('*')
+                .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+                .single();
+
+            if (!profile) return;
+            currentTutor = profile;
+            document.getElementById('tutor-name-display').innerText = profile.name;
+            await loadTutorAttendanceSessions();
+        });
+
+        async function loadTutorAttendanceSessions() {
+            const list = document.getElementById('tutor-session-list');
+            const { data: bookings } = await _supabase
+                .from('bookings')
+                .select('*')
+                .eq('tutor_id', currentTutor.id)
+                .eq('status', 'confirmed')
+                .order('booking_date', { ascending: true });
+
+            if (!bookings || bookings.length === 0) {
+                list.innerHTML = `<p class="text-center text-slate-400 text-xs py-8">Belum ada sesi mengajar aktif yang terkonfirmasi.</p>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            bookings.forEach(b => {
+                const passcodeUI = b.attendance_passcode 
+                    ? `<div class="text-right">
+                         <span class="text-[10px] text-slate-400 font-bold block mb-1">PIN KEHADIRAN SISWA:</span>
+                         <span class="bg-emerald-100 text-emerald-800 font-mono font-black text-lg px-3.5 py-1.5 rounded-xl border border-emerald-200">${b.attendance_passcode}</span>
+                       </div>`
+                    : `<button onclick="handleCreatePIN(${b.id})" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                         <i class="fa-solid fa-wand-magic-sparkles"></i> Buat PIN Kehadiran
+                       </button>`;
+
+                list.innerHTML += `
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="space-y-1 text-xs">
+                            <span class="bg-sky-100 text-sky-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${b.learning_mode || 'online'}</span>
+                            <h4 class="font-extrabold text-slate-900 text-sm">Siswa: ${b.student_name || 'Siswa GO-LES'}</h4>
+                            <p class="text-slate-500 font-medium"><i class="fa-regular fa-calendar"></i> ${b.booking_date} | <i class="fa-regular fa-clock"></i> ${b.booking_time}</p>
+                        </div>
+                        ${passcodeUI}
+                    </div>
+                `;
+            });
+        }
+
+        async function handleCreatePIN(bookingId) {
+            const code = await generateAttendancePasscode(bookingId);
+            if (code) {
+                alert(`PIN Kehadiran Berhasil Dibuat: ${code}\n\nSilakan berikan PIN ini kepada siswa saat jam sesi belajar dimulai.`);
+                await loadTutorAttendanceSessions();
+            }
+        }
+    </script>
+</body>
+</html>
