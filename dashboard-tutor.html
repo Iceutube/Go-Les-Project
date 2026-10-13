@@ -275,17 +275,24 @@
         }
 
         function populateSettingsForm(profile) {
-            document.getElementById('setting-phone').value = profile.phone_number || '';
-            document.getElementById('setting-location').value = profile.location || '';
-            document.getElementById('setting-video-price').value = profile.video_subscription_price || 0;
-            document.getElementById('setting-address').value = profile.address || '';
+    document.getElementById('setting-phone').value = profile.phone_number || '';
+    document.getElementById('setting-location').value = profile.location || '';
+    document.getElementById('setting-video-price').value = profile.video_subscription_price || 0;
+    document.getElementById('setting-address').value = profile.address || '';
 
-            const availableHours = (profile.available_hours || '').split(',').map(h => h.trim());
-            const checkboxes = document.querySelectorAll('input[name="tutor_hours"]');
-            checkboxes.forEach(cb => {
-                cb.checked = availableHours.includes(cb.value);
-            });
-        }
+    // Isi form rekening jika sudah pernah diisi
+    if (document.getElementById('setting-bank-name')) {
+        document.getElementById('setting-bank-name').value = profile.bank_name || 'BCA';
+        document.getElementById('setting-bank-account').value = profile.bank_account_number || '';
+        document.getElementById('setting-bank-holder').value = profile.bank_account_holder || profile.name || '';
+    }
+
+    const availableHours = (profile.available_hours || '').split(',').map(h => h.trim());
+    const checkboxes = document.querySelectorAll('input[name="tutor_hours"]');
+    checkboxes.forEach(cb => {
+        cb.checked = availableHours.includes(cb.value);
+    });
+}
 
         async function saveTutorSettings(e) {
             e.preventDefault();
