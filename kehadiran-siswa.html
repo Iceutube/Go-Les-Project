@@ -91,7 +91,7 @@
                 .select('*, tutors(name, subject)')
                 .or(`student_id.eq.${currentStudent.id},student_email.eq.${currentStudent.email}`)
                 .eq('status', 'confirmed')
-                .order('booking_date', { ascending: true });
+                .order('booking_date', { ascending: false });
 
             if (!bookings || bookings.length === 0) {
                 list.innerHTML = `<p class="text-center text-slate-400 text-xs py-8">Belum ada sesi belajar aktif yang terkonfirmasi.</p>`;
