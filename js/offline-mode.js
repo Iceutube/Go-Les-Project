@@ -137,8 +137,6 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
     let validSlotsCount = 0;
     hoursList.forEach((hourStr) => {
         const isConflict = mode === 'offline' && bookedTimes.includes(hourStr);
-
-        // BATASAN WAKTU DINIHILKAN: Semua slot jam tetap bisa dipilih meskipun sudah lewat
         if (isConflict) {
             container.innerHTML += `
                 <label class="flex items-center gap-2 bg-slate-100 p-2.5 rounded-xl border border-slate-200 text-slate-400 cursor-not-allowed text-xs font-medium opacity-60" title="Sudah dipesan siswa lain">
@@ -165,6 +163,7 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
         `;
     }
 }
+
 
     const now = new Date();
     const year = now.getFullYear();
@@ -223,7 +222,7 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
             </p>
         `;
     }
-}
+
 
 function closeBookingModal() {
     const modal = document.getElementById('booking-modal');
