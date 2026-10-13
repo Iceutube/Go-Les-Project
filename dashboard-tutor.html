@@ -301,27 +301,39 @@
         }
 
         async function calculateTutorEarnings(tutorId) {
-            // 1. Hitung total dari bookings yang terkonfirmasi
-            const { data: bookings } = await _supabase
-                .from('bookings')
-                .select('id')
-                .eq('tutor_id', tutorId)
-                .eq('status', 'confirmed');
+    // 1. Hitung total dari bookings yang terkonfirmasi
+    const { data: bookings } = await _supabase
+        .from('bookings')
+        .select('id')
+        .eq('tutor_id', tutorId)
+        .eq('status', 'confirmed');
 
-            const totalBookings = (bookings || []).length * (currentTutorProfile.price || 0);
+    const totalBookings = (bookings || []).length * (currentTutorProfile.price || 0);
 
-            // 2. Hitung total dari video_subscriptions yang aktif
-            const { data: subs } = await _supabase
-                .from('video_subscriptions')
-                .select('price')
-                .eq('tutor_id', tutorId)
-                .eq('status', 'active');
+    // 2. Hitung total dari video_subscriptions yang aktif
+    const { data: subs } = await _supabase
+        .from('video_subscriptions')
+        .select('price')
+        .eq('tutor_id', tutorId)
+        .eq('status', 'active');
 
-            const totalSubs = (subs || []).reduce((sum, s) => sum + (s.price || 0), 0);
+    const totalSubs = (subs || []).reduce((sum, s) => sum + (s.price || 0), 0);
 
-            tutorGrandTotalEarnings = totalBookings + totalSubs;
-            document.getElementById('stat-total-earnings').innerText = `Rp ${tutorGrandTotalEarnings.toLocaleString('id-ID')}`;
-        }
+    // 3. Hitung total penarikan dana yang sudah disetujui (Approved Withdrawals)
+    const { data: approvedWithdrawals } = await _supabase
+        .from('withdrawals')
+        .select('amount')
+        .eq('tutor_id', tutorId)
+        .eq('status', 'approved');
+
+    const totalWithdrawn = (approvedWithdrawals || []).reduce((sum, w) => sum + (w.amount || 0), 0);
+
+    // 4. Hitung Sisa Saldo Bersih (Total Uang Masuk - Total Uang Ditarik)
+    tutorGrandTotalEarnings = (totalBookings + totalSubs) - totalWithdrawn;
+
+    // Tampilkan di UI Dashboard Tutor
+    document.getElementById('stat-total-earnings').innerText = `Rp ${Math.max(tutorGrandTotalEarnings, 0).toLocaleString('id-ID')}`;
+}
 
         function populateSettingsForm(profile) {
             document.getElementById('setting-phone').value = profile.phone_number || '';
