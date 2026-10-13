@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfirmasi Kehadiran - GO-LES Siswa</title>
+    <script src="https://cdn.tailwindcss.com?suppressWarning=true"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+    <!-- Header Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="dashboard-siswa.html" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <span class="font-extrabold text-base tracking-tight text-slate-900">Konfirmasi Kehadiran Belajar</span>
+            </div>
+            <span id="student-name-display" class="text-xs font-bold text-sky-600">Siswa</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-8 space-y-6">
+        <div class="bg-emerald-600 text-white p-6 rounded-2xl shadow-md space-y-2">
+            <h1 class="text-lg font-extrabold"><i class="fa-solid fa-circle-check"></i> Verifikasi Sesi Mengajar</h1>
+            <p class="text-xs text-emerald-100 leading-relaxed">Minta PIN Kehadiran kepada Tutor kamu saat jam belajar berlangsung, lalu masukkan PIN tersebut di sini untuk menyelesaikan sesi les privat.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h2 class="font-extrabold text-slate-900 text-sm">Sesi Belajar Aktif Kamu</h2>
+                <button onclick="loadStudentAttendanceSessions()" class="text-xs text-emerald-600 font-bold hover:underline">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+            </div>
+
+            <div id="student-session-list" class="space-y-3">
+                <p class="text-center text-slate-400 text-xs py-8">Memuat daftar sesi...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Form Masukkan PIN -->
+    <div id="input-pin-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative text-center">
+            <button onclick="closePinModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <h3 class="font-extrabold text-slate-900 text-base">Masukkan PIN Kehadiran</h3>
+            <p class="text-xs text-slate-500">Minta PIN 6-karakter dari Tutor kamu saat jam mengajar.</p>
+
+            <form onsubmit="handleVerifySubmit(event)" class="space-y-3">
+                <input type="text" id="student-passcode-input" required placeholder="Contoh: GL-8A92" class="w-full text-center tracking-widest text-lg font-black p-3 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 uppercase bg-slate-50">
+                <button type="submit" id="btn-submit-verify" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/20">
+                    Verifikasi Kehadiran Selesai
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/attendance.js"></script>
+    <script>
+        let currentStudent = null;
+        let selectedBookingId = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) { window.location.href = 'login.html'; return; }
+            currentStudent = user;
+            document.getElementById('student-name-display').innerText = user.email.split('@')[0];
+            await loadStudentAttendanceSessions();
+        });
+
+        async function loadStudentAttendanceSessions() {
+            const list = document.getElementById('student-session-list');
+            const { data: bookings } = await _supabase
+                .from('bookings')
+                .select('*, tutors(name, subject)')
+                .or(`student_id.eq.${currentStudent.id},student_email.eq.${currentStudent.email}`)
+                .eq('status', 'confirmed')
+                .order('booking_date', { ascending: true });
+
+            if (!bookings || bookings.length === 0) {
+                list.innerHTML = `<p class="text-center text-slate-400 text-xs py-8">Belum ada sesi belajar aktif yang terkonfirmasi.</p>`;
+                return;
+            }
+
+            list.innerHTML = '';
+            bookings.forEach(b => {
+                const tutorName = b.tutors ? b.tutors.name : 'Tutor GO-LES';
+                const subject = b.tutors ? b.tutors.subject : 'Pelajaran Privat';
+
+                list.innerHTML += `
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="space-y-1 text-xs">
+                            <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${b.learning_mode || 'online'}</span>
+                            <h4 class="font-extrabold text-slate-900 text-sm">Tutor: ${tutorName} (${subject})</h4>
+                            <p class="text-slate-500 font-medium"><i class="fa-regular fa-calendar"></i> ${b.booking_date} | <i class="fa-regular fa-clock"></i> ${b.booking_time}</p>
+                        </div>
+                        <button onclick="openInputPinModal(${b.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/20">
+                            <i class="fa-solid fa-key"></i> Masukkan PIN Kehadiran
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function openInputPinModal(bookingId) {
+            selectedBookingId = bookingId;
+            document.getElementById('student-passcode-input').value = '';
+            document.getElementById('input-pin-modal').classList.remove('hidden');
+        }
+
+        function closePinModal() {
+            document.getElementById('input-pin-modal').classList.add('hidden');
+            selectedBookingId = null;
+        }
+
+        async function handleVerifySubmit(e) {
+            e.preventDefault();
+            if (!selectedBookingId) return;
+
+            const inputCode = document.getElementById('student-passcode-input').value.trim();
+            const btn = document.getElementById('btn-submit-verify');
+            btn.disabled = true;
+            btn.innerText = 'Memverifikasi...';
+
+            const isSuccess = await verifyAttendancePasscode(selectedBookingId, inputCode);
+            btn.disabled = false;
+            btn.innerText = 'Verifikasi Kehadiran Selesai';
+
+            if (isSuccess) {
+                closePinModal();
+                await loadStudentAttendanceSessions();
+            }
+        }
+    </script>
+</body>
+</html>
