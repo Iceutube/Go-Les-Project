@@ -68,25 +68,29 @@
             const now = new Date();
 
             bookings.forEach(b => {
-                const createdAt = new Date(b.created_at);
-                const minutesDiff = (now - createdAt) / (1000 * 60);
+            const createdAt = new Date(b.created_at);
+            const minutesDiff = (now - createdAt) / (1000 * 60);
+            let statusBadge = '';
+            if (b.status === 'confirmed' || minutesDiff >= 10) {
+                statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase"><i class="fa-solid fa-circle-check"></i> Terverifikasi</span>`;
+            } else {
+                const remainingMins = Math.max(0, Math.ceil(10 - minutesDiff));
+                statusBadge = `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase"><i class="fa-solid fa-clock"></i> Menunggu Verifikasi Admin (${remainingMins}m)</span>`;
+            }
 
-                // Cek batas 10 menit untuk auto-approve
-                let statusBadge = '';
-                if (b.status === 'confirmed' || minutesDiff >= 10) {
-                    statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase"><i class="fa-solid fa-circle-check"></i> Terverifikasi</span>`;
-                } else {
-                    const remainingMins = Math.max(0, Math.ceil(10 - minutesDiff));
-                    statusBadge = `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase"><i class="fa-solid fa-clock"></i> Menunggu Verifikasi Admin (${remainingMins}m)</span>`;
-                }
-
-                const tutorName = b.tutors ? b.tutors.name : 'Tutor GO-LES';
-                const tutorSubject = b.tutors ? b.tutors.subject : '-';
-                const tutorAvatar = b.tutors && b.tutors.avatar ? b.tutors.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(tutorName)}`;
-
-                let modeText = b.session_mode === 'online' 
-                    ? 'Online (Tutor akan mengirim link via Chat)' 
-                    : (b.offline_location === 'rumah_siswa' ? `Offline (Tutor ke Rumah Siswa: ${b.student_address})` : 'Offline (Siswa ke Rumah Tutor)');
+            const tutorName = b.tutors ? b.tutors.name : 'Tutor GO-LES';
+            const tutorSubject = b.tutors ? b.tutors.subject : '-';
+            const tutorAvatar = b.tutors && b.tutors.avatar ? b.tutors.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(tutorName)}`;
+            
+            let modeText = '';
+            if (b.session_mode === 'online') {
+                modeText = 'Online (Tutor akan mengirim link via Chat)';
+            } else if (b.offline_location === 'rumah_siswa') {
+                modeText = `Offline (Tutor ke Rumah Siswa: ${b.student_address || '-'})`;
+            } else {
+                const tutorAddr = b.tutors && b.tutors.address ? b.tutors.address : 'Alamat belum diatur (Tanyakan via Chat)';
+                modeText = `Offline (Siswa ke Rumah Tutor: ${tutorAddr})`;
+            }
 
                 container.innerHTML += `
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
