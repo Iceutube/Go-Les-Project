@@ -558,11 +558,13 @@
         }
 
         function openSettingsModal() {
+            
             if (!currentTutorProfile) return;
 
             document.getElementById('edit-name').value = currentTutorProfile.name || '';
             document.getElementById('edit-subject').value = currentTutorProfile.subject || 'Matematika';
             document.getElementById('edit-location').value = currentTutorProfile.location || '';
+            document.getElementById('edit-address').value = currentTutorProfile.address || '';
             document.getElementById('edit-price').value = currentTutorProfile.price || 0;
             document.getElementById('edit-phone').value = currentTutorProfile.phone_number || '';
             document.getElementById('edit-video-price').value = currentTutorProfile.video_subscription_price || 0;
@@ -626,6 +628,7 @@
             const subject = document.getElementById('edit-subject').value;
             const level = document.getElementById('edit-level').value;
             const location = document.getElementById('edit-location').value.trim();
+            const address = document.getElementById('edit-address').value.trim();
             const price = parseInt(document.getElementById('edit-price').value) || 0;
             const phone = document.getElementById('edit-phone').value.trim();
 
