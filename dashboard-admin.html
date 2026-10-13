@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Admin - GO-LES</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?suppressWarning=true"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -12,7 +12,6 @@
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
-
     <!-- Top Navigation Bar -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -33,7 +32,7 @@
 
     <!-- Main Content Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-        
+                 
         <!-- Summary Stats Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -45,7 +44,6 @@
                     <span id="stat-total-tutor" class="text-2xl font-extrabold text-slate-900">0</span>
                 </div>
             </div>
-
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                 <div class="bg-amber-100 text-amber-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
                     <i class="fa-solid fa-clock"></i>
@@ -55,7 +53,6 @@
                     <span id="stat-pending-tutor" class="text-2xl font-extrabold text-slate-900">0</span>
                 </div>
             </div>
-
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                 <div class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
                     <i class="fa-solid fa-graduation-cap"></i>
@@ -65,7 +62,6 @@
                     <span id="stat-total-siswa" class="text-2xl font-extrabold text-slate-900">0</span>
                 </div>
             </div>
-
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
                 <div class="bg-rose-100 text-rose-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
                     <i class="fa-solid fa-calendar-check"></i>
@@ -90,7 +86,6 @@
                     <i class="fa-solid fa-rotate"></i> Refresh Pemesanan
                 </button>
             </div>
-
             <div id="admin-bookings-list" class="space-y-3">
                 <p class="text-center text-xs text-slate-400 py-6">Memuat transaksi pemesanan...</p>
             </div>
@@ -107,7 +102,6 @@
                         <i class="fa-solid fa-graduation-cap"></i> Daftar Siswa
                     </button>
                 </div>
-
                 <div class="flex flex-wrap gap-2 w-full md:w-auto">
                     <select id="admin-filter-status" onchange="filterAdminTable()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 font-medium outline-none">
                         <option value="all">Semua Status</option>
@@ -115,11 +109,9 @@
                         <option value="pending">Pending</option>
                         <option value="rejected">Rejected</option>
                     </select>
-
                     <input type="text" id="admin-search" onkeyup="filterAdminTable()" placeholder="Cari nama / email / mapel..." class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl p-2.5 outline-none w-full sm:w-60">
                 </div>
             </div>
-
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-700">
                     <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
@@ -156,7 +148,6 @@
             <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-
             <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
                 <img id="modal-avatar" src="" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
                 <div>
@@ -165,7 +156,6 @@
                     <span id="modal-status-badge" class="inline-block px-2 py-0.5 rounded text-[10px] font-bold mt-1"></span>
                 </div>
             </div>
-
             <div class="grid grid-cols-2 gap-3 text-xs">
                 <div>
                     <span class="text-slate-400 block font-semibold">Mata Pelajaran:</span>
@@ -196,9 +186,7 @@
                     <span id="modal-phone" class="font-bold text-slate-800"></span>
                 </div>
             </div>
-
             <div id="modal-offline-eligibility" class="hidden text-[11px] font-bold px-3 py-2.5 rounded-xl border"></div>
-
             <div id="modal-tutor-actions" class="pt-4 border-t border-slate-100 flex flex-col gap-2">
                 <div class="flex gap-2">
                     <button id="btn-approve-online" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition">
@@ -233,7 +221,6 @@
             await checkAdminAuth();
             await loadAdminData();
             await loadAdminBookings();
-
             setInterval(async () => {
                 await loadAdminBookings();
             }, 20000);
@@ -241,24 +228,20 @@
 
         async function checkAdminAuth() {
             const { data: { user } } = await _supabase.auth.getUser();
-
             if (!user) {
                 window.location.href = 'login.html';
                 return;
             }
-
             const { data: profile } = await _supabase
                 .from('tutors')
                 .select('*')
                 .or(`user_id.eq.${user.id},email.eq.${user.email}`)
                 .single();
-
             if (!profile || profile.role !== 'admin') {
                 alert('Akses Ditolak! Halaman ini hanya untuk Administrator.');
                 window.location.href = 'login.html';
                 return;
             }
-
             document.getElementById('admin-email-display').innerText = user.email;
         }
 
@@ -277,7 +260,6 @@
             const expiredIdsToDelete = [];
             const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 
-            // Hapus otomatis dari tampilan & database jika sudah rejected >= 3 hari
             const validUsers = (users || []).filter(u => {
                 if (u.status === 'rejected' && u.rejected_at) {
                     const rejectedTime = new Date(u.rejected_at).getTime();
@@ -333,7 +315,6 @@
 
         async function loadAdminBookings() {
             const container = document.getElementById('admin-bookings-list');
-
             const { data: bookings, error } = await _supabase
                 .from('bookings')
                 .select('*, tutors(name, subject)')
@@ -354,7 +335,6 @@
                     pendingCount++;
                     const createdAt = new Date(b.created_at);
                     const minutesPassed = (now - createdAt) / (1000 * 60);
-
                     if (minutesPassed >= 10) {
                         autoApproveIds.push(b.id);
                         b.status = 'confirmed';
@@ -380,7 +360,6 @@
             bookings.forEach(b => {
                 const createdAt = new Date(b.created_at);
                 const minutesPassed = Math.floor((now - createdAt) / (1000 * 60));
-
                 let statusBadge = '';
                 let actionBtn = '';
 
@@ -397,7 +376,6 @@
                 }
 
                 const tutorName = b.tutors ? b.tutors.name : 'Tutor GO-LES';
-                
                 const proofButton = (b.payment_proof && b.payment_proof.length > 20)
                     ? `<button onclick='showPaymentProof(${JSON.stringify(b.payment_proof)})' class="text-xs bg-sky-50 text-sky-600 border border-sky-200 px-2.5 py-1 rounded-lg font-bold hover:bg-sky-100 transition inline-flex items-center gap-1"><i class="fa-solid fa-image"></i> Lihat Foto Bukti</button>`
                     : `<span class="text-xs text-slate-400">Tidak ada foto bukti</span>`;
@@ -431,7 +409,6 @@
 
         async function adminApproveBooking(bookingId) {
             if (!bookingId) return;
-
             const { error } = await _supabase
                 .from('bookings')
                 .update({ 
@@ -453,7 +430,6 @@
             currentRoleTab = role;
             const btnTutor = document.getElementById('tab-btn-tutor');
             const btnSiswa = document.getElementById('tab-btn-siswa');
-
             if (role === 'tutor') {
                 btnTutor.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-sky-600 shadow-sm';
                 btnSiswa.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
@@ -461,7 +437,6 @@
                 btnSiswa.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-sky-600 shadow-sm';
                 btnTutor.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
             }
-
             filterAdminTable();
         }
 
@@ -482,127 +457,125 @@
         }
 
         function renderAdminTable(list) {
-    const headRow = document.getElementById('table-head-row');
-    const tbody = document.getElementById('admin-table-body');
-    tbody.innerHTML = '';
+            const headRow = document.getElementById('table-head-row');
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = '';
 
-    if (currentRoleTab === 'tutor') {
-        headRow.innerHTML = `
-            <th class="py-3.5 px-4">Tutor</th>
-            <th class="py-3.5 px-4">Mata Pelajaran</th>
-            <th class="py-3.5 px-4">Rating & Review</th>
-            <th class="py-3.5 px-4">Kontak / Domisili</th>
-            <th class="py-3.5 px-4">Tarif</th>
-            <th class="py-3.5 px-4 text-center">Verifikasi Offline</th>
-            <th class="py-3.5 px-4 text-center">Status</th>
-            <th class="py-3.5 px-4 text-right">Aksi</th>
-        `;
-    } else {
-        headRow.innerHTML = `
-            <th class="py-3.5 px-4">Siswa</th>
-            <th class="py-3.5 px-4">Tingkat Sekolah</th>
-            <th class="py-3.5 px-4">Kontak / WhatsApp</th>
-            <th class="py-3.5 px-4">Domisili</th>
-            <th class="py-3.5 px-4 text-center">Peran</th>
-            <th class="py-3.5 px-4 text-center">Status</th>
-            <th class="py-3.5 px-4 text-right">Aksi</th>
-        `;
-    }
-
-    if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada data ${currentRoleTab}.</td></tr>`;
-        return;
-    }
-
-    list.forEach(u => {
-        let statusBadge = '';
-        if (u.status === 'approved') {
-            statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Active</span>`;
-        } else if (u.status === 'rejected') {
-            let sisaHariText = 'Ditolak';
-            if (u.rejected_at) {
-                const diffMs = (3 * 24 * 60 * 60 * 1000) - (new Date().getTime() - new Date(u.rejected_at).getTime());
-                const hoursLeft = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
-                sisaHariText = `Ditolak (${hoursLeft}j lg hapus)`;
+            if (currentRoleTab === 'tutor') {
+                headRow.innerHTML = `
+                    <th class="py-3.5 px-4">Tutor</th>
+                    <th class="py-3.5 px-4">Mata Pelajaran</th>
+                    <th class="py-3.5 px-4">Rating & Review</th>
+                    <th class="py-3.5 px-4">Kontak / Domisili</th>
+                    <th class="py-3.5 px-4">Tarif</th>
+                    <th class="py-3.5 px-4 text-center">Verifikasi Offline</th>
+                    <th class="py-3.5 px-4 text-center">Status</th>
+                    <th class="py-3.5 px-4 text-right">Aksi</th>
+                `;
+            } else {
+                headRow.innerHTML = `
+                    <th class="py-3.5 px-4">Siswa</th>
+                    <th class="py-3.5 px-4">Tingkat Sekolah</th>
+                    <th class="py-3.5 px-4">Kontak / WhatsApp</th>
+                    <th class="py-3.5 px-4">Domisili</th>
+                    <th class="py-3.5 px-4 text-center">Peran</th>
+                    <th class="py-3.5 px-4 text-center">Status</th>
+                    <th class="py-3.5 px-4 text-right">Aksi</th>
+                `;
             }
-            statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">${sisaHariText}</span>`;
-        } else {
-            statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada data ${currentRoleTab}.</td></tr>`;
+                return;
+            }
+
+            list.forEach(u => {
+                let statusBadge = '';
+                if (u.status === 'approved') {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Active</span>`;
+                } else if (u.status === 'rejected') {
+                    let sisaHariText = 'Ditolak';
+                    if (u.rejected_at) {
+                        const diffMs = (3 * 24 * 60 * 60 * 1000) - (new Date().getTime() - new Date(u.rejected_at).getTime());
+                        const hoursLeft = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
+                        sisaHariText = `Ditolak (${hoursLeft}j lg hapus)`;
+                    }
+                    statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">${sisaHariText}</span>`;
+                } else {
+                    statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
+                }
+
+                if (currentRoleTab === 'tutor') {
+                    const offlineBadge = u.is_offline_verified
+                        ? `<span class="bg-sky-50 text-sky-600 px-2 py-0.5 rounded font-bold text-[10px]"><i class="fa-solid fa-check"></i> Verified</span>`
+                        : `<span class="text-slate-400 text-[10px]">-</span>`;
+                    const ratingVal = u.rating || 0;
+                    const totalReviews = u.total_reviews || 0;
+                    const ratingBadge = `<div class="flex items-center gap-1 font-bold text-amber-500">
+                        <i class="fa-solid fa-star text-xs"></i> <span>${ratingVal > 0 ? ratingVal : 'Baru'}</span>
+                        <span class="text-[10px] text-slate-400 font-normal">(${totalReviews} ulasan)</span>
+                    </div>`;
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
+                                    <div>
+                                        <div class="font-bold text-slate-900">${u.name}</div>
+                                        <div class="text-[11px] text-slate-400">${u.email}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 font-semibold text-slate-800">${u.subject} <span class="text-[10px] text-slate-400 font-normal">(${u.level || 'Umum'})</span></td>
+                            <td class="py-3 px-4">${ratingBadge}</td>
+                            <td class="py-3 px-4">
+                                <div>${u.phone_number || '-'}</div>
+                                <div class="text-[11px] text-slate-400">${u.location || 'Online'}</div>
+                            </td>
+                            <td class="py-3 px-4 font-bold text-sky-600">Rp ${(u.price || 0).toLocaleString('id-ID')}</td>
+                            <td class="py-3 px-4 text-center">${offlineBadge}</td>
+                            <td class="py-3 px-4 text-center">${statusBadge}</td>
+                            <td class="py-3 px-4 text-right">
+                                <button onclick="openDetailModal('${u.id}')" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                                    <i class="fa-solid fa-eye"></i> Detail
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="py-3 px-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
+                                    <div>
+                                        <div class="font-bold text-slate-900">${u.name}</div>
+                                        <div class="text-[11px] text-slate-400">${u.email}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 font-semibold text-slate-800">${u.level || 'SMA'}</td>
+                            <td class="py-3 px-4 text-slate-700 font-medium">${u.phone_number || '-'}</td>
+                            <td class="py-3 px-4 text-slate-700 font-medium">${u.location || '-'}</td>
+                            <td class="py-3 px-4 text-center"><span class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded">Siswa</span></td>
+                            <td class="py-3 px-4 text-center">${statusBadge}</td>
+                            <td class="py-3 px-4 text-right">
+                                <button onclick="openDetailModal('${u.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                                    <i class="fa-solid fa-eye"></i> Detail
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
         }
-
-        if (currentRoleTab === 'tutor') {
-            const offlineBadge = u.is_offline_verified
-                ? `<span class="bg-sky-50 text-sky-600 px-2 py-0.5 rounded font-bold text-[10px]"><i class="fa-solid fa-check"></i> Verified</span>`
-                : `<span class="text-slate-400 text-[10px]">-</span>`;
-
-            const ratingVal = u.rating || 0;
-            const totalReviews = u.total_reviews || 0;
-            const ratingBadge = `<div class="flex items-center gap-1 font-bold text-amber-500">
-                <i class="fa-solid fa-star text-xs"></i> <span>${ratingVal > 0 ? ratingVal : 'Baru'}</span>
-                <span class="text-[10px] text-slate-400 font-normal">(${totalReviews} ulasan)</span>
-            </div>`;
-
-            tbody.innerHTML += `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="py-3 px-4">
-                        <div class="flex items-center gap-3">
-                            <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
-                            <div>
-                                <div class="font-bold text-slate-900">${u.name}</div>
-                                <div class="text-[11px] text-slate-400">${u.email}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-slate-800">${u.subject} <span class="text-[10px] text-slate-400 font-normal">(${u.level || 'Umum'})</span></td>
-                    <td class="py-3 px-4">${ratingBadge}</td>
-                    <td class="py-3 px-4">
-                        <div>${u.phone_number || '-'}</div>
-                        <div class="text-[11px] text-slate-400">${u.location || 'Online'}</div>
-                    </td>
-                    <td class="py-3 px-4 font-bold text-sky-600">Rp ${(u.price || 0).toLocaleString('id-ID')}</td>
-                    <td class="py-3 px-4 text-center">${offlineBadge}</td>
-                    <td class="py-3 px-4 text-center">${statusBadge}</td>
-                    <td class="py-3 px-4 text-right">
-                        <button onclick="openDetailModal('${u.id}')" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-bold px-3 py-1.5 rounded-lg text-xs transition">
-    <i class="fa-solid fa-eye"></i> Detail
-</button>
-                    </td>
-                </tr>
-            `;
-        } else {
-            tbody.innerHTML += `
-                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                    <td class="py-3 px-4">
-                        <div class="flex items-center gap-3">
-                            <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
-                            <div>
-                                <div class="font-bold text-slate-900">${u.name}</div>
-                                <div class="text-[11px] text-slate-400">${u.email}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-slate-800">${u.level || 'SMA'}</td>
-                    <td class="py-3 px-4 text-slate-700 font-medium">${u.phone_number || '-'}</td>
-                    <td class="py-3 px-4 text-slate-700 font-medium">${u.location || '-'}</td>
-                    <td class="py-3 px-4 text-center"><span class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded">Siswa</span></td>
-                    <td class="py-3 px-4 text-center">${statusBadge}</td>
-                    <td class="py-3 px-4 text-right">
-                        <button onclick="openDetailModal('${u.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs transition">
-    <i class="fa-solid fa-eye"></i> Detail
-</button>
-                    </td>
-                </tr>
-            `;
-        }
-    });
-}
 
         function openDetailModal(id) {
-            const user = allUsersData.find(u => u.id === id);
+            const user = allUsersData.find(u => u.id === id || String(u.id) === String(id));
             if (!user) return;
 
             selectedTutorId = user.id;
-
             document.getElementById('modal-avatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`;
             document.getElementById('modal-name').innerText = user.name;
             document.getElementById('modal-email').innerText = user.email;
@@ -610,7 +583,7 @@
             document.getElementById('modal-level').innerText = user.level || 'Umum';
             document.getElementById('modal-location').innerText = user.location || '-';
             document.getElementById('modal-price').innerText = `Rp ${(user.price || 0).toLocaleString('id-ID')}`;
-            document.getElementById('modal-rating').innerText = user.rating ? `★ ${user.rating}` : 'Belum Ada';
+            document.getElementById('modal-rating').innerText = user.rating ? ` ${user.rating}` : 'Belum Ada';
             document.getElementById('modal-reviews-count').innerText = `${user.total_reviews || 0} ulasan`;
             document.getElementById('modal-phone').innerText = user.phone_number || '-';
 
@@ -623,7 +596,6 @@
                 document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
                 document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
 
-                // Kunci tombol jika akun sudah ditolak sebelumnya
                 if (user.status === 'rejected') {
                     btnReject.disabled = true;
                     btnReject.className = "w-full bg-slate-100 text-slate-400 font-bold py-2.5 rounded-xl text-xs cursor-not-allowed border border-slate-200";
@@ -662,7 +634,6 @@
                 status: newStatus,
                 is_offline_verified: isOffline 
             };
-
             if (newStatus === 'rejected') {
                 updateData.rejected_at = new Date().toISOString();
             } else {
