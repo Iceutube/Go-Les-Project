@@ -585,34 +585,67 @@
 
             const actionsBox = document.getElementById('modal-tutor-actions');
             const eligibilityBox = document.getElementById('modal-offline-eligibility');
-            if (user.role === 'tutor') {
-                actionsBox.classList.remove('hidden');
-                document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
-                document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
-                document.getElementById('btn-reject').onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
+            function openDetailModal(id) {
+    const user = allUsersData.find(u => u.id === id);
+    if (!user) return;
 
-                eligibilityBox.classList.remove('hidden');
-                if (user.offline_eligible) {
-                    eligibilityBox.className = 'text-[11px] font-bold px-3 py-2.5 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-700';
-                    eligibilityBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> Sudah memenuhi syarat ulasan video untuk direkomendasikan offline (${user.total_reviews || 0} ulasan, rating ${user.rating || 0}).`;
-                } else {
-                    eligibilityBox.className = 'text-[11px] font-bold px-3 py-2.5 rounded-xl border bg-slate-50 border-slate-200 text-slate-500';
-                    eligibilityBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> Belum cukup ulasan langganan video (${user.total_reviews || 0} ulasan) untuk direkomendasikan offline secara otomatis. Admin tetap bisa menyetujui offline secara manual.`;
-                }
-            } else {
-                actionsBox.classList.add('hidden');
-                eligibilityBox.classList.add('hidden');
-            }
+    selectedTutorId = user.id;
 
-            document.getElementById('modal-detail').classList.remove('hidden');
+    document.getElementById('modal-avatar').src = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`;
+    document.getElementById('modal-name').innerText = user.name;
+    document.getElementById('modal-email').innerText = user.email;
+    document.getElementById('modal-subject').innerText = user.subject || '-';
+    document.getElementById('modal-level').innerText = user.level || 'Umum';
+    document.getElementById('modal-location').innerText = user.location || '-';
+    document.getElementById('modal-price').innerText = `Rp ${(user.price || 0).toLocaleString('id-ID')}`;
+    document.getElementById('modal-rating').innerText = user.rating ? `★ ${user.rating}` : 'Belum Ada';
+    document.getElementById('modal-reviews-count').innerText = `${user.total_reviews || 0} ulasan`;
+    document.getElementById('modal-phone').innerText = user.phone_number || '-';
+
+    const actionsBox = document.getElementById('modal-tutor-actions');
+    const eligibilityBox = document.getElementById('modal-offline-eligibility');
+    const btnReject = document.getElementById('btn-reject');
+
+    if (user.role === 'tutor') {
+        actionsBox.classList.remove('hidden');
+        document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
+        document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
+
+        // --- CEK ATAU KUNCI REJECT ULANG ---
+        if (user.status === 'rejected') {
+            btnReject.disabled = true;
+            btnReject.className = "w-full bg-slate-100 text-slate-400 font-bold py-2.5 rounded-xl text-xs cursor-not-allowed border border-slate-200";
+            btnReject.innerHTML = `<i class="fa-solid fa-ban"></i> Pendaftaran Sudah Ditolak`;
+            btnReject.onclick = null;
+        } else {
+            btnReject.disabled = false;
+            btnReject.className = "w-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold py-2.5 rounded-xl text-xs transition";
+            btnReject.innerHTML = `<i class="fa-solid fa-xmark"></i> Tolak Pendaftaran`;
+            btnReject.onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
         }
 
-        function closeDetailModal() {
-            document.getElementById('modal-detail').classList.add('hidden');
-            selectedTutorId = null;
+        eligibilityBox.classList.remove('hidden');
+        if (user.offline_eligible) {
+            eligibilityBox.className = 'text-[11px] font-bold px-3 py-2.5 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-700';
+            eligibilityBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> Sudah memenuhi syarat ulasan video untuk direkomendasikan offline (${user.total_reviews || 0} ulasan, rating ${user.rating || 0}).`;
+        } else {
+            eligibilityBox.className = 'text-[11px] font-bold px-3 py-2.5 rounded-xl border bg-slate-50 border-slate-200 text-slate-500';
+            eligibilityBox.innerHTML = `<i class="fa-solid fa-circle-info"></i> Belum cukup ulasan langganan video (${user.total_reviews || 0} ulasan) untuk direkomendasikan offline secara otomatis. Admin tetap bisa menyetujui offline secara manual.`;
         }
+    } else {
+        actionsBox.classList.add('hidden');
+        eligibilityBox.classList.add('hidden');
+    }
 
-        async function updateTutorStatus(tutorId, newStatus, isOffline) {
+    document.getElementById('modal-detail').classList.remove('hidden');
+}
+
+function closeDetailModal() {
+    document.getElementById('modal-detail').classList.add('hidden');
+    selectedTutorId = null;
+}
+
+async function updateTutorStatus(tutorId, newStatus, isOffline) {
     const updateData = { 
         status: newStatus,
         is_offline_verified: isOffline 
@@ -639,11 +672,6 @@
         await loadAdminData();
     }
 }
-
-        async function logout() {
-            await _supabase.auth.signOut();
-            window.location.href = 'login.html';
-        }
     </script>
 </body>
 </html>
