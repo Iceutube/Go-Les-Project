@@ -59,13 +59,13 @@ async function generateAttendancePasscode(bookingId) {
         .select();
 
     if (error) {
-        alert('Gagal membuat PIN kehadiran: ' + error.message);
+        alert('Gagal membuat PIN kehadiran di database: ' + error.message);
         return null;
     }
     return code;
 }
 
-// Verifikasi Kode Kehadiran (Dapat dipanggil oleh Tutor maupun Murid)
+// Verifikasi PIN Kehadiran untuk Siswa
 async function verifyAttendancePasscode(bookingId, inputPasscode) {
     if (!inputPasscode) {
         alert('Masukkan PIN kehadiran terlebih dahulu.');
@@ -74,7 +74,6 @@ async function verifyAttendancePasscode(bookingId, inputPasscode) {
 
     const cleanInput = inputPasscode.trim().toUpperCase();
 
-    // Ambil data booking dari Supabase
     const { data: booking, error } = await _supabase
         .from('bookings')
         .select('*')
@@ -87,13 +86,11 @@ async function verifyAttendancePasscode(bookingId, inputPasscode) {
     }
 
     if (!booking.attendance_passcode) {
-        alert('PIN kehadiran belum dibuat oleh Tutor/Sistem.');
+        alert('PIN kehadiran belum dibuat oleh Tutor.');
         return false;
     }
 
-    // Cocokkan Passcode
     if (booking.attendance_passcode.toUpperCase() === cleanInput) {
-        // Update status booking menjadi completed
         const { error: updateErr } = await _supabase
             .from('bookings')
             .update({ 
@@ -110,7 +107,7 @@ async function verifyAttendancePasscode(bookingId, inputPasscode) {
         alert('Verifikasi Kehadiran Berhasil! Sesi belajar telah dinyatakan Selesai.');
         return true;
     } else {
-        alert('PIN Kehadiran Salah! Pastikan PIN yang dimasukkan sama antara Tutor dan Murid.');
+        alert('PIN Kehadiran Salah! Pastikan PIN yang dimasukkan sesuai dengan PIN Tutor.');
         return false;
     }
 }
