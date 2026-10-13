@@ -23,34 +23,15 @@
             </div>
 
             <div class="flex items-center gap-3">
-    <!-- Tombol Riwayat Pesanan -->
-    <a href="riwayat-siswa.html" class="bg-slate-100/80 hover:bg-sky-50 text-slate-700 hover:text-sky-600 border border-slate-200/60 hover:border-sky-200 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
-        <i class="fa-solid fa-clock-rotate-left text-sky-600"></i> 
-        <span class="hidden sm:inline">Riwayat Pesanan</span>
-    </a>
-
-    <!-- Tambahkan Tombol Kehadiran Siswa Ini -->
-    <a href="kehadiran-siswa.html" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
-        <i class="fa-solid fa-key text-emerald-600"></i>
-        <span class="hidden sm:inline">Absen / Verifikasi PIN</span>
-    </a>
-
-    <div class="h-5 w-[1px] bg-slate-200 mx-1"></div>
-
-    <div class="flex items-center gap-2.5">
-        <img id="student-avatar" src="https://ui-avatars.com/api/?name=Siswa" class="w-9 h-9 rounded-full object-cover ring-2 ring-sky-500/20">
-        <span id="student-name" class="font-bold text-xs text-slate-800 hidden md:inline">Siswa</span>
-    </div>
-    
-    <button onclick="logout()" class="bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 p-2.5 rounded-xl text-xs font-bold transition" title="Keluar">
-        <i class="fa-solid fa-right-from-bracket"></i>
-    </button>
-</div>
-
-            <div class="flex items-center gap-3">
                 <a href="riwayat-siswa.html" class="bg-slate-100/80 hover:bg-sky-50 text-slate-700 hover:text-sky-600 border border-slate-200/60 hover:border-sky-200 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
                     <i class="fa-solid fa-clock-rotate-left text-sky-600"></i> 
                     <span class="hidden sm:inline">Riwayat Pesanan</span>
+                </a>
+
+                <!-- Tombol Kehadiran Belajar / Absen Siswa -->
+                <a href="kehadiran-siswa.html" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-key text-emerald-600"></i>
+                    <span class="hidden sm:inline">Absen / Verifikasi PIN</span>
                 </a>
 
                 <div class="h-5 w-[1px] bg-slate-200 mx-1"></div>
@@ -177,18 +158,18 @@
     
                     <label class="flex items-center gap-2.5 bg-white p-3 rounded-xl border border-slate-200/80 cursor-pointer text-xs font-semibold text-slate-700 shadow-sm">
                         <input type="radio" name="offline-location-choice" value="rumah_siswa" onchange="toggleStudentAddressInput(true)" class="accent-sky-600">
-                            Tutor datang ke rumah siswa
-                </label>
+                        Tutor datang ke rumah siswa
+                    </label>
     
-                <div id="student-address-container" class="hidden space-y-1.5 pt-1">
-                    <label class="block text-[11px] font-bold text-slate-700">Alamat Lengkap Rumah Siswa <span class="text-rose-500">*</span></label>
-                    <textarea id="booking-student-address" rows="2" placeholder="Contoh: Jl. Mawar No. 12, RT 02/RW 05..." class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-white shadow-sm"></textarea>
-                </div>
+                    <div id="student-address-container" class="hidden space-y-1.5 pt-1">
+                        <label class="block text-[11px] font-bold text-slate-700">Alamat Lengkap Rumah Siswa <span class="text-rose-500">*</span></label>
+                        <textarea id="booking-student-address" rows="2" placeholder="Contoh: Jl. Mawar No. 12, RT 02/RW 05..." class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-white shadow-sm"></textarea>
+                    </div>
 
-                <label class="flex items-center gap-2.5 bg-white p-3 rounded-xl border border-slate-200/80 cursor-pointer text-xs font-semibold text-slate-700 shadow-sm">
-                    <input type="radio" name="offline-location-choice" value="rumah_tutor" onchange="toggleStudentAddressInput(false)" class="accent-sky-600">
-                    Siswa datang ke rumah tutor
-                </label>
+                    <label class="flex items-center gap-2.5 bg-white p-3 rounded-xl border border-slate-200/80 cursor-pointer text-xs font-semibold text-slate-700 shadow-sm">
+                        <input type="radio" name="offline-location-choice" value="rumah_tutor" onchange="toggleStudentAddressInput(false)" class="accent-sky-600">
+                        Siswa datang ke rumah tutor
+                    </label>
 
                     <div id="tutor-address-display-container" class="hidden bg-sky-50/80 border border-sky-200 rounded-xl p-3 text-xs space-y-1">
                         <span class="font-bold text-sky-900 block"><i class="fa-solid fa-location-dot text-sky-600"></i> Alamat Rumah Tutor:</span>
@@ -196,7 +177,6 @@
                     </div>
                 </div>
 
-                <!-- Input Tanggal Sesi Belajar -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Tanggal Sesi Belajar</label>
                     <input type="date" id="booking-date" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
@@ -214,7 +194,6 @@
                     <input type="tel" id="booking-phone" required placeholder="08123456789" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
                 </div>
 
-                <!-- Box Pembayaran & Upload Bukti Foto -->
                 <div class="bg-sky-50/70 border border-sky-200/80 rounded-2xl p-4 space-y-2.5">
                     <label class="block text-xs font-bold text-sky-900"><i class="fa-solid fa-wallet text-sky-600"></i> Pembayaran Sesi Les</label>
                     <p class="text-[11px] text-sky-700 leading-relaxed">Transfer pembayaran ke Rekening Bank GO-LES (BCA: <strong>123-456-7890</strong> a.n GO-LES Admin).</p>
@@ -289,6 +268,57 @@
                     <i class="fa-solid fa-circle-check"></i> Terima kasih, ulasan bulan ini sudah terkirim.
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Simulator Pembayaran Langganan Video -->
+    <div id="video-payment-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto border border-slate-100">
+            <button onclick="closeVideoPaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center space-y-1 border-b border-slate-100 pb-4">
+                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+                <h3 class="font-extrabold text-slate-900 text-base">Pembayaran Langganan Video</h3>
+                <p id="pay-tutor-name" class="text-xs text-slate-500 font-medium">Tutor: -</p>
+                <p id="pay-amount-display" class="text-lg font-black text-indigo-600 mt-1">Rp 0</p>
+            </div>
+
+            <div class="space-y-3">
+                <label class="block text-xs font-bold text-slate-700">Pilih Metode Pembayaran</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="pay-method-qris" onclick="switchPayMethod('qris')" class="border-2 border-indigo-600 bg-indigo-50 text-indigo-700 p-3 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition">
+                        <i class="fa-solid fa-qrcode text-lg"></i> QRIS (Instant)
+                    </button>
+                    <button type="button" id="pay-method-tf" onclick="switchPayMethod('tf')" class="border-2 border-slate-200 text-slate-600 p-3 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition">
+                        <i class="fa-solid fa-building-columns text-lg"></i> Transfer Bank
+                    </button>
+                </div>
+
+                <div id="pay-box-qris" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center space-y-2">
+                    <span class="text-[11px] font-semibold text-slate-500 block">Scan QRIS menggunakan GoPay, OVO, Dana, atau Mobile Banking</span>
+                    <div class="bg-white p-3 rounded-xl inline-block shadow-sm border border-slate-200">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GO-LES-LANGGANAN-DUMMY" class="w-36 h-36 mx-auto rounded-lg">
+                    </div>
+                    <p class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-shield-check"></i> Verifikasi Otomatis Terhubung</p>
+                </div>
+
+                <div id="pay-box-tf" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs space-y-2">
+                    <p class="text-slate-600">Transfer tepat sesuai nominal ke rekening berikut:</p>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-1">
+                        <span class="text-[10px] text-slate-400 font-bold block">BANK BCA</span>
+                        <p class="font-mono text-sm font-bold text-slate-800">123-456-7890</p>
+                        <p class="text-[11px] text-slate-500">a.n GO-LES Indonesia</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="btn-confirm-video-pay" onclick="processDummyPayment()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-2xl text-xs transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-check"></i> Bayar & Aktifkan Langganan
+            </button>
         </div>
     </div>
 
@@ -618,74 +648,5 @@
             window.location.href = 'login.html';
         }
     </script>
-    <div id="attendance-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative text-center">
-        <button onclick="document.getElementById('attendance-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-        <div class="bg-sky-100 text-sky-600 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
-            <i class="fa-solid fa-key"></i>
-        </div>
-        <h3 class="font-extrabold text-slate-900 text-base">Verifikasi Kehadiran</h3>
-        <p class="text-xs text-slate-500">Masukkan kata sandi / PIN yang sama dengan milik Tutor/Siswa untuk menyelesaikan sesi.</p>
-        
-        <input type="text" id="input-attendance-passcode" placeholder="Contoh: GL-98A2" class="w-full text-center tracking-widest text-lg font-bold p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 uppercase bg-slate-50">
-        
-        <button onclick="handlePasscodeSubmit()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md">
-            Konfirmasi Kehadiran
-        </button>
-    </div>
-</div>
-<div id="video-payment-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto border border-slate-100">
-            <button onclick="closeVideoPaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center transition">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-
-            <div class="text-center space-y-1 border-b border-slate-100 pb-4">
-                <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
-                    <i class="fa-solid fa-receipt"></i>
-                </div>
-                <h3 class="font-extrabold text-slate-900 text-base">Pembayaran Langganan Video</h3>
-                <p id="pay-tutor-name" class="text-xs text-slate-500 font-medium">Tutor: -</p>
-                <p id="pay-amount-display" class="text-lg font-black text-indigo-600 mt-1">Rp 0</p>
-            </div>
-
-            <!-- Pilih Metode Pembayaran -->
-            <div class="space-y-3">
-                <label class="block text-xs font-bold text-slate-700">Pilih Metode Pembayaran</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" id="pay-method-qris" onclick="switchPayMethod('qris')" class="border-2 border-indigo-600 bg-indigo-50 text-indigo-700 p-3 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition">
-                        <i class="fa-solid fa-qrcode text-lg"></i> QRIS (Instant)
-                    </button>
-                    <button type="button" id="pay-method-tf" onclick="switchPayMethod('tf')" class="border-2 border-slate-200 text-slate-600 p-3 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition">
-                        <i class="fa-solid fa-building-columns text-lg"></i> Transfer Bank
-                    </button>
-                </div>
-
-                <!-- Box Tampilan QRIS Dummy -->
-                <div id="pay-box-qris" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center space-y-2">
-                    <span class="text-[11px] font-semibold text-slate-500 block">Scan QRIS menggunakan GoPay, OVO, Dana, atau Mobile Banking</span>
-                    <div class="bg-white p-3 rounded-xl inline-block shadow-sm border border-slate-200">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GO-LES-LANGGANAN-DUMMY" class="w-36 h-36 mx-auto rounded-lg">
-                    </div>
-                    <p class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-shield-check"></i> Verifikasi Otomatis Terhubung</p>
-                </div>
-
-                <div id="pay-box-tf" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs space-y-2">
-                    <p class="text-slate-600">Transfer tepat sesuai nominal ke rekening berikut:</p>
-                    <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-1">
-                        <span class="text-[10px] text-slate-400 font-bold block">BANK BCA</span>
-                        <p class="font-mono text-sm font-bold text-slate-800">123-456-7890</p>
-                        <p class="text-[11px] text-slate-500">a.n GO-LES Indonesia</p>
-                    </div>
-                </div>
-            </div>
-
-            <button type="button" id="btn-confirm-video-pay" onclick="processDummyPayment()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-2xl text-xs transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-circle-check"></i> Bayar & Aktifkan Langganan
-            </button>
-        </div>
-    </div>
 </body>
 </html>
