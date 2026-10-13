@@ -482,120 +482,120 @@
         }
 
         function renderAdminTable(list) {
-            const headRow = document.getElementById('table-head-row');
-            const tbody = document.getElementById('admin-table-body');
-            tbody.innerHTML = '';
+    const headRow = document.getElementById('table-head-row');
+    const tbody = document.getElementById('admin-table-body');
+    tbody.innerHTML = '';
 
-            if (currentRoleTab === 'tutor') {
-                headRow.innerHTML = `
-                    <th class="py-3.5 px-4">Tutor</th>
-                    <th class="py-3.5 px-4">Mata Pelajaran</th>
-                    <th class="py-3.5 px-4">Rating & Review</th>
-                    <th class="py-3.5 px-4">Kontak / Domisili</th>
-                    <th class="py-3.5 px-4">Tarif</th>
-                    <th class="py-3.5 px-4 text-center">Verifikasi Offline</th>
-                    <th class="py-3.5 px-4 text-center">Status</th>
-                    <th class="py-3.5 px-4 text-right">Aksi</th>
-                `;
-            } else {
-                headRow.innerHTML = `
-                    <th class="py-3.5 px-4">Siswa</th>
-                    <th class="py-3.5 px-4">Tingkat Sekolah</th>
-                    <th class="py-3.5 px-4">Kontak / WhatsApp</th>
-                    <th class="py-3.5 px-4">Domisili</th>
-                    <th class="py-3.5 px-4 text-center">Peran</th>
-                    <th class="py-3.5 px-4 text-center">Status</th>
-                    <th class="py-3.5 px-4 text-right">Aksi</th>
-                `;
+    if (currentRoleTab === 'tutor') {
+        headRow.innerHTML = `
+            <th class="py-3.5 px-4">Tutor</th>
+            <th class="py-3.5 px-4">Mata Pelajaran</th>
+            <th class="py-3.5 px-4">Rating & Review</th>
+            <th class="py-3.5 px-4">Kontak / Domisili</th>
+            <th class="py-3.5 px-4">Tarif</th>
+            <th class="py-3.5 px-4 text-center">Verifikasi Offline</th>
+            <th class="py-3.5 px-4 text-center">Status</th>
+            <th class="py-3.5 px-4 text-right">Aksi</th>
+        `;
+    } else {
+        headRow.innerHTML = `
+            <th class="py-3.5 px-4">Siswa</th>
+            <th class="py-3.5 px-4">Tingkat Sekolah</th>
+            <th class="py-3.5 px-4">Kontak / WhatsApp</th>
+            <th class="py-3.5 px-4">Domisili</th>
+            <th class="py-3.5 px-4 text-center">Peran</th>
+            <th class="py-3.5 px-4 text-center">Status</th>
+            <th class="py-3.5 px-4 text-right">Aksi</th>
+        `;
+    }
+
+    if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada data ${currentRoleTab}.</td></tr>`;
+        return;
+    }
+
+    list.forEach(u => {
+        let statusBadge = '';
+        if (u.status === 'approved') {
+            statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Active</span>`;
+        } else if (u.status === 'rejected') {
+            let sisaHariText = 'Ditolak';
+            if (u.rejected_at) {
+                const diffMs = (3 * 24 * 60 * 60 * 1000) - (new Date().getTime() - new Date(u.rejected_at).getTime());
+                const hoursLeft = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
+                sisaHariText = `Ditolak (${hoursLeft}j lg hapus)`;
             }
-
-            if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada data ${currentRoleTab}.</td></tr>`;
-                return;
-            }
-
-            list.forEach(u => {
-                let statusBadge = '';
-                if (u.status === 'approved') {
-                    statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Active</span>`;
-                } else if (u.status === 'rejected') {
-                    let sisaHariText = 'Ditolak';
-                    if (u.rejected_at) {
-                        const diffMs = (3 * 24 * 60 * 60 * 1000) - (new Date().getTime() - new Date(u.rejected_at).getTime());
-                        const hoursLeft = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
-                        sisaHariText = `Ditolak (${hoursLeft}j lg hapus)`;
-                    }
-                    statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">${sisaHariText}</span>`;
-                } else {
-                    statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
-                }
-
-                if (currentRoleTab === 'tutor') {
-                    const offlineBadge = u.is_offline_verified
-                        ? `<span class="bg-sky-50 text-sky-600 px-2 py-0.5 rounded font-bold text-[10px]"><i class="fa-solid fa-check"></i> Verified</span>`
-                        : `<span class="text-slate-400 text-[10px]">-</span>`;
-
-                    const ratingVal = u.rating || 0;
-                    const totalReviews = u.total_reviews || 0;
-                    const ratingBadge = `<div class="flex items-center gap-1 font-bold text-amber-500">
-                        <i class="fa-solid fa-star text-xs"></i> <span>${ratingVal > 0 ? ratingVal : 'Baru'}</span>
-                        <span class="text-[10px] text-slate-400 font-normal">(${totalReviews} ulasan)</span>
-                    </div>`;
-
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                            <td class="py-3 px-4">
-                                <div class="flex items-center gap-3">
-                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
-                                    <div>
-                                        <div class="font-bold text-slate-900">${u.name}</div>
-                                        <div class="text-[11px] text-slate-400">${u.email}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-3 px-4 font-semibold text-slate-800">${u.subject} <span class="text-[10px] text-slate-400 font-normal">(${u.level || 'Umum'})</span></td>
-                            <td class="py-3 px-4">${ratingBadge}</td>
-                            <td class="py-3 px-4">
-                                <div>${u.phone_number || '-'}</div>
-                                <div class="text-[11px] text-slate-400">${u.location || 'Online'}</div>
-                            </td>
-                            <td class="py-3 px-4 font-bold text-sky-600">Rp ${(u.price || 0).toLocaleString('id-ID')}</td>
-                            <td class="py-3 px-4 text-center">${offlineBadge}</td>
-                            <td class="py-3 px-4 text-center">${statusBadge}</td>
-                            <td class="py-3 px-4 text-right">
-                                <button onclick="openDetailModal(${u.id})" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-bold px-3 py-1.5 rounded-lg text-xs transition">
-                                    <i class="fa-solid fa-eye"></i> Detail
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                } else {
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                            <td class="py-3 px-4">
-                                <div class="flex items-center gap-3">
-                                    <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
-                                    <div>
-                                        <div class="font-bold text-slate-900">${u.name}</div>
-                                        <div class="text-[11px] text-slate-400">${u.email}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-3 px-4 font-semibold text-slate-800">${u.level || 'SMA'}</td>
-                            <td class="py-3 px-4 text-slate-700 font-medium">${u.phone_number || '-'}</td>
-                            <td class="py-3 px-4 text-slate-700 font-medium">${u.location || '-'}</td>
-                            <td class="py-3 px-4 text-center"><span class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded">Siswa</span></td>
-                            <td class="py-3 px-4 text-center">${statusBadge}</td>
-                            <td class="py-3 px-4 text-right">
-                                <button onclick="openDetailModal(${u.id})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs transition">
-                                    <i class="fa-solid fa-eye"></i> Detail
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                }
-            });
+            statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">${sisaHariText}</span>`;
+        } else {
+            statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
         }
+
+        if (currentRoleTab === 'tutor') {
+            const offlineBadge = u.is_offline_verified
+                ? `<span class="bg-sky-50 text-sky-600 px-2 py-0.5 rounded font-bold text-[10px]"><i class="fa-solid fa-check"></i> Verified</span>`
+                : `<span class="text-slate-400 text-[10px]">-</span>`;
+
+            const ratingVal = u.rating || 0;
+            const totalReviews = u.total_reviews || 0;
+            const ratingBadge = `<div class="flex items-center gap-1 font-bold text-amber-500">
+                <i class="fa-solid fa-star text-xs"></i> <span>${ratingVal > 0 ? ratingVal : 'Baru'}</span>
+                <span class="text-[10px] text-slate-400 font-normal">(${totalReviews} ulasan)</span>
+            </div>`;
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
+                            <div>
+                                <div class="font-bold text-slate-900">${u.name}</div>
+                                <div class="text-[11px] text-slate-400">${u.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${u.subject} <span class="text-[10px] text-slate-400 font-normal">(${u.level || 'Umum'})</span></td>
+                    <td class="py-3 px-4">${ratingBadge}</td>
+                    <td class="py-3 px-4">
+                        <div>${u.phone_number || '-'}</div>
+                        <div class="text-[11px] text-slate-400">${u.location || 'Online'}</div>
+                    </td>
+                    <td class="py-3 px-4 font-bold text-sky-600">Rp ${(u.price || 0).toLocaleString('id-ID')}</td>
+                    <td class="py-3 px-4 text-center">${offlineBadge}</td>
+                    <td class="py-3 px-4 text-center">${statusBadge}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="openDetailModal('${u.id}')" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                            <i class="fa-solid fa-eye"></i> Detail
+                        </button>
+                    </td>
+                </tr>
+            `;
+        } else {
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-3">
+                            <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" class="w-10 h-10 rounded-xl object-cover border border-slate-200">
+                            <div>
+                                <div class="font-bold text-slate-900">${u.name}</div>
+                                <div class="text-[11px] text-slate-400">${u.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">${u.level || 'SMA'}</td>
+                    <td class="py-3 px-4 text-slate-700 font-medium">${u.phone_number || '-'}</td>
+                    <td class="py-3 px-4 text-slate-700 font-medium">${u.location || '-'}</td>
+                    <td class="py-3 px-4 text-center"><span class="bg-emerald-50 text-emerald-600 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded">Siswa</span></td>
+                    <td class="py-3 px-4 text-center">${statusBadge}</td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="openDetailModal('${u.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs transition">
+                            <i class="fa-solid fa-eye"></i> Detail
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+    });
+}
 
         function openDetailModal(id) {
             const user = allUsersData.find(u => u.id === id);
