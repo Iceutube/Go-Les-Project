@@ -22,17 +22,14 @@
                 <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Portal Tutor</span></span>
             </div>
             <div class="flex items-center gap-3">
+                <!-- Tombol Kehadiran Mengajar Tutor -->
                 <a href="kehadiran-tutor.html" class="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200/80 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
-        <i class="fa-solid fa-clipboard-user text-sky-600"></i>
-        <span class="hidden sm:inline">Kehadiran Mengajar</span>
-    </a>
+                    <i class="fa-solid fa-clipboard-user text-sky-600"></i>
+                    <span class="hidden sm:inline">Kehadiran Mengajar</span>
+                </a>
 
-    <img id="tutor-avatar-display" src="https://ui-avatars.com/api/?name=Tutor" class="w-8 h-8 rounded-full border border-slate-200 object-cover">
-    <span id="tutor-name-display" class="text-xs font-bold text-slate-700">Tutor</span>
-    <button onclick="logout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Keluar">
-        <i class="fa-solid fa-right-from-bracket"></i>
-    </button>
-</div>
+                <div class="h-5 w-[1px] bg-slate-200 mx-1"></div>
+
                 <img id="tutor-avatar-display" src="https://ui-avatars.com/api/?name=Tutor" class="w-8 h-8 rounded-full border border-slate-200 object-cover">
                 <span id="tutor-name-display" class="text-xs font-bold text-slate-700">Tutor</span>
                 <button onclick="logout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Keluar">
@@ -294,7 +291,6 @@
             document.getElementById('tutor-profile-subject').innerText = `${profile.subject || '-'} (${profile.level || 'Umum'})`;
             document.getElementById('tutor-price-display').innerText = `Rp ${(profile.price || 0).toLocaleString('id-ID')}`;
 
-            // Tampilkan Info Bank di Widget Ringkasan Pendapatan
             if (profile.bank_account_number) {
                 document.getElementById('tutor-bank-info').innerText = `${profile.bank_name || 'BCA'} - ${profile.bank_account_number} (a.n ${profile.bank_account_holder || profile.name})`;
             } else {
@@ -312,34 +308,33 @@
         }
 
         async function calculateTutorEarnings(tutorId) {
-    const { data: bookings } = await _supabase
-        .from('bookings')
-        .select('id')
-        .eq('tutor_id', tutorId)
-        .eq('status', 'confirmed');
+            const { data: bookings } = await _supabase
+                .from('bookings')
+                .select('id')
+                .eq('tutor_id', tutorId)
+                .eq('status', 'confirmed');
 
-    const totalBookings = (bookings || []).length * (currentTutorProfile.price || 0);
+            const totalBookings = (bookings || []).length * (currentTutorProfile.price || 0);
 
-    const { data: subs } = await _supabase
-        .from('video_subscriptions')
-        .select('price')
-        .eq('tutor_id', tutorId)
-        .eq('status', 'active');
+            const { data: subs } = await _supabase
+                .from('video_subscriptions')
+                .select('price')
+                .eq('tutor_id', tutorId)
+                .eq('status', 'active');
 
-    const totalSubs = (subs || []).reduce((sum, s) => sum + (s.price || 0), 0);
+            const totalSubs = (subs || []).reduce((sum, s) => sum + (s.price || 0), 0);
 
-    const { data: approvedWithdrawals } = await _supabase
-        .from('withdrawals')
-        .select('amount')
-        .eq('tutor_id', tutorId)
-        .eq('status', 'approved');
+            const { data: approvedWithdrawals } = await _supabase
+                .from('withdrawals')
+                .select('amount')
+                .eq('tutor_id', tutorId)
+                .eq('status', 'approved');
 
-    const totalWithdrawn = (approvedWithdrawals || []).reduce((sum, w) => sum + (w.amount || 0), 0);
+            const totalWithdrawn = (approvedWithdrawals || []).reduce((sum, w) => sum + (w.amount || 0), 0);
 
-    tutorGrandTotalEarnings = (totalBookings + totalSubs) - totalWithdrawn;
-
-    document.getElementById('stat-total-earnings').innerText = `Rp ${Math.max(tutorGrandTotalEarnings, 0).toLocaleString('id-ID')}`;
-}
+            tutorGrandTotalEarnings = (totalBookings + totalSubs) - totalWithdrawn;
+            document.getElementById('stat-total-earnings').innerText = `Rp ${Math.max(tutorGrandTotalEarnings, 0).toLocaleString('id-ID')}`;
+        }
 
         function populateSettingsForm(profile) {
             document.getElementById('setting-phone').value = profile.phone_number || '';
@@ -347,7 +342,6 @@
             document.getElementById('setting-video-price').value = profile.video_subscription_price || 0;
             document.getElementById('setting-address').value = profile.address || '';
 
-            // Set value input bank
             document.getElementById('setting-bank-name').value = profile.bank_name || 'BCA';
             document.getElementById('setting-bank-account').value = profile.bank_account_number || '';
             document.getElementById('setting-bank-holder').value = profile.bank_account_holder || profile.name || '';
