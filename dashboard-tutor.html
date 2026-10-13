@@ -173,6 +173,34 @@
         </button>
     </div>
 </div>
+<div class="bg-emerald-50/60 border border-emerald-200/80 p-4 rounded-2xl space-y-3">
+    <label class="block font-bold text-emerald-900 text-xs">
+        <i class="fa-solid fa-building-columns text-emerald-600"></i> Rekening Bank Pencairan Dana
+    </label>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+            <label class="block font-semibold text-slate-700 text-[11px] mb-1">Nama Bank</label>
+            <select id="setting-bank-name" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-white font-medium text-xs">
+                <option value="BCA">Bank BCA</option>
+                <option value="Mandiri">Bank Mandiri</option>
+                <option value="BNI">Bank BNI</option>
+                <option value="BRI">Bank BRI</option>
+                <option value="CIMB Niaga">CIMB Niaga</option>
+                <option value="Bank Jago">Bank Jago</option>
+                <option value="SeBank">SeBank</option>
+                <option value="DANA / GoPay">DANA / GoPay</option>
+            </select>
+        </div>
+        <div>
+            <label class="block font-semibold text-slate-700 text-[11px] mb-1">Nomor Rekening / HP</label>
+            <input type="text" id="setting-bank-account" required placeholder="Contoh: 1234567890" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-white font-medium text-xs">
+        </div>
+        <div>
+            <label class="block font-semibold text-slate-700 text-[11px] mb-1">Nama Pemilik Rekening</label>
+            <input type="text" id="setting-bank-holder" required placeholder="Sesuai nama di buku tabungan" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-white font-medium text-xs">
+        </div>
+    </div>
+</div>
     </main>
 
     <!-- Footer -->
