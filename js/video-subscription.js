@@ -1,6 +1,9 @@
 const VIDEO_SUB_MAX_PRICE = 20000; 
 let videoSubTargetTutor = null; 
 let activeVideoSubscription = null; 
+let selectedPayMethod = 'qris';
+
+// --- MODAL & FLOW LANGGANAN SISWA ---
 
 function openVideoSubscriptionModal(tutorId) {
     const tutor = rawApprovedTutors.find(t => t.id === tutorId);
@@ -40,7 +43,6 @@ function closeVideoSubscriptionModal() {
 }
 
 async function checkExistingVideoSubscription(tutorId) {
-    // Tambahkan pengaman jika objek currentStudent belum siap
     if (typeof currentStudent === 'undefined' || !currentStudent) return;
 
     const { data, error } = await _supabase
@@ -103,7 +105,9 @@ async function renderGatedVideoList(tutorId) {
     });
 }
 
-async function subscribeToVideo() {
+// --- LOGIKA SIMULATOR PEMBAYARAN LANGGANAN ---
+
+function subscribeToVideo() {
     if (!videoSubTargetTutor || typeof currentStudent === 'undefined' || !currentStudent) {
         alert('Silakan login terlebih dahulu sebagai Siswa.');
         return;
@@ -115,10 +119,45 @@ async function subscribeToVideo() {
         return;
     }
 
-    const btn = document.getElementById('btn-subscribe-video');
-    btn.disabled = true;
-    btn.innerText = 'Memproses...';
+    // Set informasi di modal simulator pembayaran
+    document.getElementById('pay-tutor-name').innerText = `Tutor: ${videoSubTargetTutor.name}`;
+    document.getElementById('pay-amount-display').innerText = `Rp ${price.toLocaleString('id-ID')}`;
+    
+    // Tampilkan modal pembayaran
+    switchPayMethod('qris');
+    document.getElementById('video-payment-modal').classList.remove('hidden');
+}
 
+function closeVideoPaymentModal() {
+    document.getElementById('video-payment-modal').classList.add('hidden');
+}
+
+function switchPayMethod(method) {
+    selectedPayMethod = method;
+    const btnQris = document.getElementById('pay-method-qris');
+    const btnTf = document.getElementById('pay-method-tf');
+    const boxQris = document.getElementById('pay-box-qris');
+    const boxTf = document.getElementById('pay-box-tf');
+
+    if (method === 'qris') {
+        btnQris.className = "border-2 border-indigo-600 bg-indigo-50 text-indigo-700 p-3 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition";
+        btnTf.className = "border-2 border-slate-200 text-slate-600 p-3 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition";
+        boxQris.classList.remove('hidden');
+        boxTf.classList.add('hidden');
+    } else {
+        btnTf.className = "border-2 border-indigo-600 bg-indigo-50 text-indigo-700 p-3 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition";
+        btnQris.className = "border-2 border-slate-200 text-slate-600 p-3 rounded-2xl text-xs font-bold flex flex-col items-center gap-1 transition";
+        boxTf.classList.remove('hidden');
+        boxQris.classList.add('hidden');
+    }
+}
+
+async function processDummyPayment() {
+    const btn = document.getElementById('btn-confirm-video-pay');
+    btn.disabled = true;
+    btn.innerText = 'Memproses Pembayaran...';
+
+    const price = Math.min(videoSubTargetTutor.video_subscription_price || 0, VIDEO_SUB_MAX_PRICE);
     const startedAt = new Date();
     const expiresAt = new Date(startedAt);
     expiresAt.setDate(expiresAt.getDate() + 30);
@@ -132,17 +171,22 @@ async function subscribeToVideo() {
         expires_at: expiresAt.toISOString()
     }]).select();
 
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Bayar & Aktifkan Langganan`;
+
     if (error) {
-        btn.disabled = false;
-        btn.innerText = `Langganan Sekarang - Rp ${price.toLocaleString('id-ID')}/bulan`;
-        alert('Gagal membuat langganan: ' + error.message);
+        alert('Gagal memproses pembayaran: ' + error.message);
         return;
     }
 
-    alert('Berlangganan video mengajar berhasil! Setelah menonton, kamu bisa memberi ulasan di modal ini.');
+    closeVideoPaymentModal();
+    alert('Pembayaran Berhasil! Akses video mengajar dan ulasan telah diaktifkan.');
+    
     activeVideoSubscription = data[0];
     await checkExistingVideoSubscription(videoSubTargetTutor.id);
 }
+
+// --- ULASAN & RATING VIDEO ---
 
 async function checkExistingReview(subscriptionId) {
     const { data } = await _supabase
@@ -199,6 +243,8 @@ async function submitVideoReview(e) {
     alert('Terima kasih! Ulasanmu membantu tutor ini memenuhi syarat mengajar offline.');
     await checkExistingReview(activeVideoSubscription.id);
 }
+
+// --- FUNGSI PORTAL TUTOR (TAMBAH, HAPUS, STATISTIK VIDEO) ---
 
 async function loadTutorVideoList(tutorId) {
     const list = document.getElementById('tutor-video-list');
