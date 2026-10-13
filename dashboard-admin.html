@@ -86,7 +86,6 @@
                     </h2>
                     <p class="text-xs text-slate-500 mt-0.5">Sistem otomatis menyetujui pemesanan yang tidak diverifikasi dalam 10 menit.</p>
                 </div>
-                <button onclick="adminApproveBooking('${b.id}')">Verifikasi Sekarang</button>
                 <button onclick="loadAdminBookings()" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
                     <i class="fa-solid fa-rotate"></i> Refresh Pemesanan
                 </button>
@@ -274,7 +273,30 @@
                 return;
             }
 
-            allUsersData = (users || []).map(u => {
+            const now = new Date();
+            const expiredIdsToDelete = [];
+            const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+
+            // Hapus otomatis dari tampilan & database jika sudah rejected >= 3 hari
+            const validUsers = (users || []).filter(u => {
+                if (u.status === 'rejected' && u.rejected_at) {
+                    const rejectedTime = new Date(u.rejected_at).getTime();
+                    if (now.getTime() - rejectedTime >= THREE_DAYS_MS) {
+                        expiredIdsToDelete.push(u.id);
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            if (expiredIdsToDelete.length > 0) {
+                await _supabase
+                    .from('tutors')
+                    .delete()
+                    .in('id', expiredIdsToDelete);
+            }
+
+            allUsersData = validUsers.map(u => {
                 let userRole = (u.role || '').toLowerCase();
                 if (userRole !== 'admin' && userRole !== 'tutor') {
                     userRole = 'siswa';
@@ -369,7 +391,7 @@
                     const remainingMins = Math.max(0, 10 - minutesPassed);
                     statusBadge = `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-clock"></i> Pending (Sisa auto: ${remainingMins} mnt)</span>`;
                     actionBtn = `
-                        <button onclick="adminApproveBooking(${b.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
+                        <button onclick="adminApproveBooking('${b.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-sm">
                             <i class="fa-solid fa-circle-check"></i> Verifikasi Sekarang
                         </button>`;
                 }
@@ -408,6 +430,8 @@
         }
 
         async function adminApproveBooking(bookingId) {
+            if (!bookingId) return;
+
             const { error } = await _supabase
                 .from('bookings')
                 .update({ 
@@ -491,11 +515,20 @@
             }
 
             list.forEach(u => {
-                let statusBadge = u.status === 'approved' 
-                    ? `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Active</span>`
-                    : u.status === 'rejected'
-                    ? `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Rejected</span>`
-                    : `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
+                let statusBadge = '';
+                if (u.status === 'approved') {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Active</span>`;
+                } else if (u.status === 'rejected') {
+                    let sisaHariText = 'Ditolak';
+                    if (u.rejected_at) {
+                        const diffMs = (3 * 24 * 60 * 60 * 1000) - (new Date().getTime() - new Date(u.rejected_at).getTime());
+                        const hoursLeft = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
+                        sisaHariText = `Ditolak (${hoursLeft}j lg hapus)`;
+                    }
+                    statusBadge = `<span class="bg-rose-100 text-rose-700 px-2.5 py-1 rounded-full font-bold text-[10px]">${sisaHariText}</span>`;
+                } else {
+                    statusBadge = `<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full font-bold text-[10px]">Pending</span>`;
+                }
 
                 if (currentRoleTab === 'tutor') {
                     const offlineBadge = u.is_offline_verified
@@ -583,23 +616,26 @@
 
             const actionsBox = document.getElementById('modal-tutor-actions');
             const eligibilityBox = document.getElementById('modal-offline-eligibility');
+            const btnReject = document.getElementById('btn-reject');
+
             if (user.role === 'tutor') {
                 actionsBox.classList.remove('hidden');
-                actionsBox.classList.remove('hidden');
-        document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
-        document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
+                document.getElementById('btn-approve-online').onclick = () => updateTutorStatus(selectedTutorId, 'approved', false);
+                document.getElementById('btn-approve-offline').onclick = () => updateTutorStatus(selectedTutorId, 'approved', true);
 
-        if (user.status === 'rejected') {
-            btnReject.disabled = true;
-            btnReject.className = "w-full bg-slate-100 text-slate-400 font-bold py-2.5 rounded-xl text-xs cursor-not-allowed border border-slate-200";
-            btnReject.innerHTML = `<i class="fa-solid fa-ban"></i> Pendaftaran Sudah Ditolak`;
-            btnReject.onclick = null;
-        } else {
-            btnReject.disabled = false;
-            btnReject.className = "w-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold py-2.5 rounded-xl text-xs transition";
-            btnReject.innerHTML = `<i class="fa-solid fa-xmark"></i> Tolak Pendaftaran`;
-            btnReject.onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
-        }
+                // Kunci tombol jika akun sudah ditolak sebelumnya
+                if (user.status === 'rejected') {
+                    btnReject.disabled = true;
+                    btnReject.className = "w-full bg-slate-100 text-slate-400 font-bold py-2.5 rounded-xl text-xs cursor-not-allowed border border-slate-200";
+                    btnReject.innerHTML = `<i class="fa-solid fa-ban"></i> Pendaftaran Sudah Ditolak`;
+                    btnReject.onclick = null;
+                } else {
+                    btnReject.disabled = false;
+                    btnReject.className = "w-full bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold py-2.5 rounded-xl text-xs transition";
+                    btnReject.innerHTML = `<i class="fa-solid fa-xmark"></i> Tolak Pendaftaran`;
+                    btnReject.onclick = () => updateTutorStatus(selectedTutorId, 'rejected', false);
+                }
+
                 eligibilityBox.classList.remove('hidden');
                 if (user.offline_eligible) {
                     eligibilityBox.className = 'text-[11px] font-bold px-3 py-2.5 rounded-xl border bg-emerald-50 border-emerald-200 text-emerald-700';
@@ -622,18 +658,28 @@
         }
 
         async function updateTutorStatus(tutorId, newStatus, isOffline) {
+            const updateData = { 
+                status: newStatus,
+                is_offline_verified: isOffline 
+            };
+
+            if (newStatus === 'rejected') {
+                updateData.rejected_at = new Date().toISOString();
+            } else {
+                updateData.rejected_at = null;
+            }
+
             const { error } = await _supabase
                 .from('tutors')
-                .update({ 
-                    status: newStatus,
-                    is_offline_verified: isOffline 
-                })
+                .update(updateData)
                 .eq('id', tutorId);
 
             if (error) {
                 alert('Gagal memperbarui status: ' + error.message);
             } else {
-                alert(`Status berhasil diperbarui!`);
+                alert(newStatus === 'rejected' 
+                    ? 'Pendaftaran ditolak. Akun akan terhapus otomatis dari database dalam 3 hari.' 
+                    : 'Status berhasil diperbarui!');
                 closeDetailModal();
                 await loadAdminData();
             }
