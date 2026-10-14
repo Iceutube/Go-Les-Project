@@ -14,6 +14,7 @@
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen relative">
     <input type="file" id="pfp-file-input" accept="image/*" class="hidden" onchange="handlePfpUpload(event)">
 
+    <!-- Navbar -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
@@ -24,8 +25,8 @@
             </div>
             <div class="flex items-center gap-3">
                 <a href="kehadiran-tutor.html" class="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
-        <i class="fa-solid fa-key"></i> Kelola Kehadiran
-            </a>
+                    <i class="fa-solid fa-key"></i> Kelola Kehadiran
+                </a>
                 <button onclick="openWithdrawModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
                     <i class="fa-solid fa-hand-holding-dollar"></i> Tarik Dana
                 </button>
@@ -104,7 +105,6 @@
                     </h3>
                     <p class="text-xs text-slate-400 mt-0.5">Semua daftar pemesanan dari siswa terurut berdasarkan tanggal</p>
                 </div>
-                <!-- Filter Tanggal / Pencarian -->
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <input type="date" id="schedule-date-filter" onchange="filterScheduleTable()" class="text-xs border border-slate-200 rounded-xl p-2 outline-none bg-slate-50 font-medium">
                     <button onclick="resetScheduleFilter()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Reset Filter">
@@ -113,7 +113,6 @@
                 </div>
             </div>
 
-            <!-- TABEL TANGGAL & JADWAL SESI -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-700">
                     <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
@@ -173,6 +172,58 @@
             </div>
         </div>
     </main>
+
+    <!-- Floating Chat WhatsApp-Style untuk Tutor -->
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all duration-300">
+            <div id="chat-header-list" class="bg-emerald-600 text-white p-4 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i>
+                    <div>
+                        <h4 class="font-bold text-sm leading-tight">Pesan Obrolan Siswa</h4>
+                        <p class="text-[10px] text-emerald-100">Daftar percakapan dengan siswa</p>
+                    </div>
+                </div>
+                <button onclick="closeChatModal()" class="text-white hover:text-emerald-200 text-lg transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="chat-header-room" class="hidden bg-emerald-600 text-white p-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <button onclick="showChatList()" class="text-white hover:text-emerald-200 text-sm mr-1">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <img id="chat-target-avatar" src="https://ui-avatars.com/api/?name=Siswa" class="w-9 h-9 rounded-full border border-white/30 object-cover">
+                    <div>
+                        <h4 id="chat-target-name" class="font-bold text-xs leading-tight">Nama Siswa</h4>
+                        <span class="text-[9px] text-emerald-100 flex items-center gap-1 mt-0.5"><i class="fa-solid fa-circle text-emerald-300 text-[6px]"></i> Online</span>
+                    </div>
+                </div>
+                <button onclick="closeChatModal()" class="text-white hover:text-emerald-200 text-lg transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="chat-view-list" class="flex-1 p-3 overflow-y-auto space-y-2 bg-slate-50 text-xs">
+                <div id="chat-contacts-container" class="space-y-1.5">
+                    <p class="text-center text-slate-400 py-6 text-[11px]">Memuat percakapan...</p>
+                </div>
+            </div>
+            <div id="chat-view-room" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+                <div id="chat-messages-box" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-100/70 text-xs">
+                    <p class="text-center text-slate-400 py-6 text-[11px]">Belum ada percakapan.</p>
+                </div>
+                <form id="chat-form" onsubmit="sendChatMessage(event)" class="p-3 bg-white border-t border-slate-100 flex gap-2">
+                    <input type="text" id="chat-input" required placeholder="Tulis pesan..." class="flex-1 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-emerald-500 bg-slate-50">
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-sm">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="bg-emerald-600 hover:bg-emerald-700 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all duration-300">
+            <i class="fa-brands fa-whatsapp text-3xl"></i>
+        </button>
+    </div>
 
     <!-- Modal Preview Foto Bukti Transfer -->
     <div id="modal-preview-foto" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
@@ -364,9 +415,11 @@
         let currentTutorProfile = null;
         let currentTutorBalance = 0;
         let allTutorBookings = [];
+        let currentChatTargetUserId = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             await checkTutorAuth();
+            listenToRealtimeChat();
         });
 
         async function checkTutorAuth() {
@@ -390,6 +443,7 @@
             await loadTutorBookings(profile.id);
             await loadVideoSubscriptionStats(profile.id);
             await loadTutorVideoList(profile.id);
+            await loadChatContacts();
         }
 
         async function renderTutorProfile(p) {
@@ -442,7 +496,6 @@
             }
         }
 
-        // FUNGSI LOAD & RENDER TABEL JADWAL SESI
         async function loadTutorBookings(tutorId) {
             const tbody = document.getElementById('schedule-table-body');
             const { data: bookings, error } = await _supabase
@@ -505,6 +558,142 @@
                     </tr>
                 `;
             });
+        }
+
+        // --- FUNGSI LOGIKA CHAT TUTOR ---
+        async function loadChatContacts() {
+            const container = document.getElementById('chat-contacts-container');
+            if (!container || !currentUser) return;
+            container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Memuat pesan...</p>`;
+
+            const { data: messages } = await _supabase
+                .from('messages')
+                .select('*')
+                .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+                .order('created_at', { ascending: false });
+
+            if (!messages || messages.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan dari siswa.</p>`;
+                return;
+            }
+
+            const uniqueIds = [...new Set(
+                messages.map(m => m.sender_id === currentUser.id ? m.receiver_id : m.sender_id)
+            )].filter(uid => uid && uid !== currentUser.id);
+
+            container.innerHTML = '';
+            uniqueIds.forEach(uid => {
+                const lastMsg = messages.find(m => m.sender_id === uid || m.receiver_id === uid);
+                const senderName = 'Siswa GO-LES';
+                const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(senderName)}`;
+
+                container.innerHTML += `
+                    <div onclick="openChatWithStudent('${uid}', '${senderName}', '${avatar}')" class="p-3 bg-white border border-slate-200 rounded-2xl hover:bg-emerald-50/50 transition cursor-pointer flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="${avatar}" class="w-10 h-10 rounded-full object-cover border border-slate-200">
+                            <div>
+                                <h5 class="font-bold text-xs text-slate-900">${senderName}</h5>
+                                <p class="text-[11px] text-slate-500 truncate max-w-[170px]">${lastMsg ? lastMsg.message : ''}</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs pr-1"></i>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleFloatingChat() {
+            const chatModal = document.getElementById('chat-modal');
+            if (chatModal.classList.contains('hidden')) {
+                chatModal.classList.remove('hidden');
+                showChatList();
+            } else {
+                closeChatModal();
+            }
+        }
+
+        function closeChatModal() {
+            document.getElementById('chat-modal').classList.add('hidden');
+        }
+
+        function showChatList() {
+            document.getElementById('chat-header-list').classList.remove('hidden');
+            document.getElementById('chat-header-room').classList.add('hidden');
+            document.getElementById('chat-view-list').classList.remove('hidden');
+            document.getElementById('chat-view-room').classList.add('hidden');
+            currentChatTargetUserId = null;
+        }
+
+        async function openChatWithStudent(targetUserId, targetName, targetAvatar) {
+            document.getElementById('chat-modal').classList.remove('hidden');
+            document.getElementById('chat-header-list').classList.add('hidden');
+            document.getElementById('chat-header-room').classList.remove('hidden');
+            document.getElementById('chat-view-list').classList.add('hidden');
+            document.getElementById('chat-view-room').classList.remove('hidden');
+            currentChatTargetUserId = targetUserId;
+            document.getElementById('chat-target-name').innerText = targetName;
+            document.getElementById('chat-target-avatar').src = targetAvatar;
+            await loadChatHistory();
+        }
+
+        async function loadChatHistory() {
+            const box = document.getElementById('chat-messages-box');
+            if (!box || !currentChatTargetUserId || !currentUser) return;
+            box.innerHTML = '';
+
+            const { data: messages } = await _supabase
+                .from('messages')
+                .select('*')
+                .or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${currentChatTargetUserId}),and(sender_id.eq.${currentChatTargetUserId},receiver_id.eq.${currentUser.id})`)
+                .order('created_at', { ascending: true });
+
+            if (!messages || messages.length === 0) {
+                box.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada percakapan.</p>`;
+                return;
+            }
+
+            messages.forEach(msg => {
+                const isMe = msg.sender_id === currentUser.id;
+                box.innerHTML += `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <div class="${isMe ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'} px-3.5 py-2 rounded-2xl max-w-[85%] shadow-sm leading-relaxed">
+                            ${msg.message}
+                        </div>
+                        <span class="text-[9px] text-slate-400 mt-0.5 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                `;
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const msgText = input.value.trim();
+            if (!msgText || !currentChatTargetUserId || !currentUser) return;
+
+            const { error } = await _supabase.from('messages').insert([{
+                sender_id: currentUser.id,
+                receiver_id: currentChatTargetUserId,
+                message: msgText
+            }]);
+
+            if (!error) {
+                input.value = '';
+                await loadChatHistory();
+                await loadChatContacts();
+            }
+        }
+
+        function listenToRealtimeChat() {
+            if (!_supabase) return;
+            _supabase
+                .channel('public:messages')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+                    if (currentChatTargetUserId) loadChatHistory();
+                    loadChatContacts();
+                })
+                .subscribe();
         }
 
         function filterScheduleTable() {
