@@ -1,6 +1,6 @@
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 async function fetchTutorsFromSQL() {
     try {
-        // Panggil endpoint serverless Vercel
         const response = await fetch('/api/tutors');
         
         if (!response.ok) {
