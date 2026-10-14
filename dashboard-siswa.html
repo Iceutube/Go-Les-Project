@@ -24,6 +24,9 @@
             </div>
 
             <div class="flex items-center gap-3">
+                <a href="kehadiran-siswa.html" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+        <i class="fa-solid fa-circle-check"></i> Konfirmasi Kehadiran
+    </a>
                 <div class="flex items-center gap-2">
                     <img id="student-avatar" src="https://ui-avatars.com/api/?name=Siswa" class="w-8 h-8 rounded-full border border-slate-200 object-cover">
                     <span id="student-name-nav" class="font-bold text-xs text-slate-800">Siswa</span>
@@ -48,7 +51,6 @@
             </div>
         </div>
 
-        <!-- TAB NAVIGASI UTAMA SISWA -->
         <div class="flex border-b border-slate-200 gap-2 bg-white px-4 pt-3 rounded-2xl border border-slate-200 shadow-sm">
             <button id="student-tab-catalog" onclick="switchStudentTab('catalog')" class="py-3 px-5 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition flex items-center gap-2">
                 <i class="fa-solid fa-magnifying-glass"></i> Cari Tutor & Katalog
@@ -57,11 +59,7 @@
                 <i class="fa-solid fa-calendar-check"></i> Jadwal Les Saya
             </button>
         </div>
-
-        <!-- SECTION 1: KATALOG TUTOR & FILTER -->
         <div id="student-section-catalog" class="space-y-6">
-            
-            <!-- Card Filter Pencarian -->
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                 <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider"><i class="fa-solid fa-filter text-sky-600"></i> Filter Cari Tutor</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -214,7 +212,6 @@
         </div>
     </div>
 
-    <!-- Floating Chat WhatsApp-Style -->
     <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
         <div id="chat-modal" class="hidden w-80 sm:w-96 bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[500px] transition-all duration-300">
             <div id="chat-header-list" class="bg-emerald-600 text-white p-4 flex items-center justify-between">
@@ -386,9 +383,6 @@
                     <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm hover:border-sky-300 transition flex flex-col justify-between">
                         <div class="space-y-3">
                             <div class="flex items-center gap-3">
-                                <a href="kehadiran-siswa.html" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
-                             <i class="fa-solid fa-circle-check"></i> Konfirmasi Kehadiran
-                             </a>
                                 <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
                                 <div>
                                     <h4 class="font-bold text-slate-900 text-sm">${t.name}</h4>
