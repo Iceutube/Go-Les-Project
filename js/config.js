@@ -31,5 +31,4 @@ async function getSupabase() {
     return await initSupabase();
 }
 
-// Jalankan inisialisasi awal
 initSupabase();
