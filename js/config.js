@@ -1,20 +1,29 @@
 let _supabase = null;
+let supabaseInitPromise = null;
 
-// Mengambil URL & Key dari file .env via API
 async function initSupabase() {
-    try {
-        const res = await fetch('/api/config');
-        if (!res.ok) {
-            throw new Error('Gagal mengambil konfigurasi Supabase dari server');
+    if (_supabase) return _supabase;
+    if (supabaseInitPromise) return supabaseInitPromise;
+
+    supabaseInitPromise = (async () => {
+        try {
+            const res = await fetch('/api/config');
+            if (!res.ok) throw new Error('Gagal memuat konfigurasi dari /api/config');
+            const config = await res.json();
+            
+            _supabase = supabase.createClient(config.supabaseUrl, config.supabaseKey);
+            return _supabase;
+        } catch (err) {
+            console.error('Error Inisialisasi Supabase:', err);
+            return null;
         }
-        const config = await res.json();
-        
-        // Inisialisasi client Supabase secara dinamis
-        _supabase = supabase.createClient(config.supabaseUrl, config.supabaseKey);
-    } catch (err) {
-        console.error('Error Inisialisasi Supabase:', err);
-    }
+    })();
+
+    return supabaseInitPromise;
 }
 
-// Jalankan inisialisasi saat file dimuat
+async function getSupabase() {
+    if (_supabase) return _supabase;
+    return await initSupabase();
+}
 initSupabase();

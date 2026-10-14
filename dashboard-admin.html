@@ -261,6 +261,7 @@
         });
 
         async function checkAdminAuth() {
+            await getSupabase();
             const { data: { user } } = await _supabase.auth.getUser();
             if (!user) {
                 window.location.href = 'login.html';
