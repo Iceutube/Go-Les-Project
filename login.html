@@ -54,6 +54,11 @@
     <script>
        document.getElementById('form-login').addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!_supabase) {
+        alert('Sedang menghubungkan ke server, silakan coba beberapa detik lagi...');
+        return;
+    }
+
     const btnLogin = document.getElementById('btn-login');
     btnLogin.innerText = 'Memproses...';
     btnLogin.disabled = true;
@@ -61,7 +66,6 @@
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    // 1. Authenticate akun Auth Supabase
     const { data: authData, error: authError } = await _supabase.auth.signInWithPassword({
         email: email,
         password: password
@@ -75,16 +79,13 @@
     }
 
     if (authData.user) {
-        // 2. Cari profil di tabel tutors berdasarkan user_id ATAU email
-        const { data: profiles, error: profileError } = await _supabase
+        const { data: profiles } = await _supabase
             .from('tutors')
             .select('*')
             .or(`user_id.eq.${authData.user.id},email.eq.${email}`);
 
         if (profiles && profiles.length > 0) {
             const userProfile = profiles[0];
-
-            // Jika user_id belum terhubung/kosong, perbaiki otomatis di background
             if (!userProfile.user_id) {
                 await _supabase
                     .from('tutors')
@@ -92,7 +93,6 @@
                     .eq('id', userProfile.id);
             }
 
-            // Redireksi sesuai Role
             if (userProfile.role === 'admin') {
                 window.location.href = 'dashboard-admin.html';
             } else if (userProfile.role === 'tutor') {
