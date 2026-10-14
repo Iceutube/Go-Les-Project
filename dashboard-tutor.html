@@ -336,7 +336,7 @@
         });
 
         async function checkTutorAuth() {
-    await getSupabase(); // WAJIB: Tunggu fetch /api/config selesai!
+    await getSupabase();
 
     if (!_supabase) {
         console.error("Gagal terhubung ke Supabase.");
