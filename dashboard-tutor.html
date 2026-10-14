@@ -12,7 +12,6 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen relative">
-
     <input type="file" id="pfp-file-input" accept="image/*" class="hidden" onchange="handlePfpUpload(event)">
 
     <!-- Navbar -->
@@ -24,8 +23,10 @@
                 </div>
                 <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Tutor</span></span>
             </div>
-
             <div class="flex items-center gap-3">
+                <button onclick="openWithdrawModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-hand-holding-dollar"></i> Tarik Dana
+                </button>
                 <button onclick="openSettingsModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
                     <i class="fa-solid fa-gear text-sky-600"></i> Pengaturan
                 </button>
@@ -46,15 +47,6 @@
     </nav>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-        <!-- Status Alert -->
-        <div id="status-alert" class="hidden p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3">
-            <i id="status-icon" class="fa-solid text-lg"></i>
-            <div>
-                <p id="status-title" class="font-bold"></p>
-                <p id="status-desc" class="text-slate-500 font-normal mt-0.5"></p>
-            </div>
-        </div>
-
         <!-- Tutor Profile Header Card -->
         <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
             <div class="flex gap-4 items-center">
@@ -72,7 +64,6 @@
                     <p id="card-location" class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot"></i> -</p>
                 </div>
             </div>
-
             <div class="flex gap-4 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 w-full md:w-auto justify-between md:justify-start items-center">
                 <div>
                     <span class="text-[10px] text-slate-400 block font-semibold">Tarif Sesi</span>
@@ -106,7 +97,6 @@
                 </h3>
                 <span class="text-xs text-slate-400 font-medium">Diurutkan berdasarkan tanggal terdekat</span>
             </div>
-            
             <div id="booking-list" class="space-y-3">
                 <p class="text-center text-xs text-slate-400 py-6">Memuat jadwal sesi les...</p>
             </div>
@@ -134,10 +124,8 @@
                     <span class="text-[10px] text-slate-500 font-semibold">Rating Rata-rata</span>
                 </div>
             </div>
-
             <div class="border-t border-slate-100 pt-4 space-y-3">
                 <p class="text-xs font-bold text-slate-700">Tambah Video Baru</p>
-
                 <form id="form-add-video" onsubmit="addTutorVideo(event)" class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="new-video-title" required placeholder="Judul video, contoh: Aljabar Dasar Bab 1" class="flex-1 text-xs p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                     <input type="url" id="new-video-url" required placeholder="Link video (YouTube/Drive)" class="flex-1 text-xs p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
@@ -145,7 +133,6 @@
                         Tambah Video
                     </button>
                 </form>
-
                 <div id="tutor-video-list" class="space-y-2 pt-2">
                     <p class="text-center text-[11px] text-slate-400 py-4">Memuat video...</p>
                 </div>
@@ -153,33 +140,16 @@
         </div>
     </main>
 
-    <!-- Modal Preview Foto Bukti Transfer -->
-    <div id="modal-preview-foto" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-5 space-y-4 shadow-2xl relative">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 class="font-extrabold text-slate-900 text-sm"><i class="fa-solid fa-file-invoice-dollar text-sky-600"></i> Bukti Transfer Siswa</h3>
-                <button onclick="closeFotoModal()" class="text-slate-400 hover:text-slate-600 text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div class="max-h-[70vh] overflow-y-auto flex justify-center bg-slate-100 rounded-2xl p-2">
-                <img id="img-preview-target" src="" class="max-w-full h-auto rounded-xl shadow-sm object-contain">
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Pengaturan -->
+    <!-- Modal Pengaturan Profil & Slot Jam -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeSettingsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-
             <div class="border-b border-slate-100 pb-3">
                 <h3 class="font-extrabold text-slate-900 text-base">Pengaturan Akun Tutor</h3>
                 <p class="text-xs text-slate-500">Atur profil pribadi dan ketersediaan waktu mengajar per jam</p>
             </div>
-
             <div class="flex border-b border-slate-200 gap-2">
                 <button id="tab-btn-profile" onclick="switchSettingsTab('profile')" class="py-2 px-4 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition">
                     Data Profil & Tarif
@@ -188,14 +158,12 @@
                     Jadwal & Slot Jam Mengajar
                 </button>
             </div>
-
             <form id="form-settings" onsubmit="saveTutorSettings(event)">
                 <div id="tab-content-profile" class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
                         <input type="text" id="edit-name" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                     </div>
-
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran Utama</label>
@@ -218,7 +186,6 @@
                             <input type="number" id="edit-price" required min="0" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                         </div>
                     </div>
-
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Kota / Domisili</label>
@@ -229,35 +196,11 @@
                             <input type="tel" id="edit-phone" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
                         </div>
                     </div>
-
-                    <div class="bg-sky-50 border border-sky-200 p-3.5 rounded-xl space-y-1">
-                        <label class="block text-xs font-bold text-sky-700">
-                            <i class="fa-solid fa-video"></i> Harga Langganan Video Mengajar (per bulan)
-                        </label>
-                        <input type="number" id="edit-video-price" min="0" max="20000" step="1000" class="w-full text-xs p-3 border border-sky-200 rounded-xl outline-none focus:border-sky-600 bg-white">
-                        <p class="text-[10px] text-sky-600">Maksimal Rp20.000/bulan.</p>
-                    </div>
                 </div>
 
                 <div id="tab-content-schedule" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Sekolah</label>
-                        <select id="edit-level" onchange="renderGradeEditOptions()" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
-                            <option value="SD">SD</option>
-                            <option value="SMP">SMP</option>
-                            <option value="SMA">SMA</option>
-                            <option value="Umum">Umum</option>
-                        </select>
-                    </div>
-
-                    <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">Pilih Kelas Spesifik:</label>
-                        <div id="edit-grades-checkboxes" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs font-medium text-slate-700"></div>
-                    </div>
-
                     <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-3">
                         <label class="block text-xs font-bold text-slate-700">Slot Jam Belajar per Jam:</label>
-
                         <div class="space-y-2">
                             <span class="text-[11px] font-bold text-sky-700 block"><i class="fa-regular fa-sun"></i> Sesi Pagi</span>
                             <div class="grid grid-cols-3 gap-2 text-xs font-medium">
@@ -272,7 +215,6 @@
                                 </label>
                             </div>
                         </div>
-
                         <div class="space-y-2 pt-2 border-t border-slate-200/60">
                             <span class="text-[11px] font-bold text-amber-600 block"><i class="fa-solid fa-sun"></i> Sesi Siang</span>
                             <div class="grid grid-cols-2 gap-2 text-xs font-medium">
@@ -284,7 +226,6 @@
                                 </label>
                             </div>
                         </div>
-
                         <div class="space-y-2 pt-2 border-t border-slate-200/60">
                             <span class="text-[11px] font-bold text-orange-600 block"><i class="fa-solid fa-cloud-sun"></i> Sesi Sore</span>
                             <div class="grid grid-cols-2 gap-2 text-xs font-medium">
@@ -296,7 +237,6 @@
                                 </label>
                             </div>
                         </div>
-
                         <div class="space-y-2 pt-2 border-t border-slate-200/60">
                             <span class="text-[11px] font-bold text-indigo-600 block"><i class="fa-solid fa-moon"></i> Sesi Malam</span>
                             <div class="grid grid-cols-2 gap-2 text-xs font-medium">
@@ -323,6 +263,43 @@
         </div>
     </div>
 
+    <!-- Modal Penarikan Dana Tutor -->
+    <div id="withdraw-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+            <button onclick="closeWithdrawModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-hand-holding-dollar text-emerald-600"></i> Pengajuan Penarikan Dana
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Isi rincian rekening bank milikmu untuk pencairan dana</p>
+            </div>
+            <form id="form-withdraw" onsubmit="submitWithdrawal(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Penarikan (Rp)</label>
+                    <input type="number" id="withdraw-amount" min="10000" required placeholder="Contoh: 100000" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-slate-50 font-bold text-emerald-700">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bank / E-Wallet</label>
+                    <input type="text" id="withdraw-bank" required placeholder="BCA / Mandiri / GoPay / OVO" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Rekening / HP</label>
+                    <input type="text" id="withdraw-account" required placeholder="1234567890" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pemilik Rekening</label>
+                    <input type="text" id="withdraw-holder" required placeholder="Sesuai nama di rekening" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-slate-50">
+                </div>
+                <button type="submit" id="btn-submit-withdraw" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-emerald-600/20">
+                    Kirim Pengajuan Penarikan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Supabase JS & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
@@ -336,31 +313,230 @@
         });
 
         async function checkTutorAuth() {
-    await getSupabase();
+            await getSupabase();
+            if (!_supabase) return;
 
-    if (!_supabase) {
-        console.error("Gagal terhubung ke Supabase.");
-        return;
-    }
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) { window.location.href = 'login.html'; return; }
+            currentUser = user;
 
-    const { data: { user } } = await _supabase.auth.getUser();
-    if (!user) { window.location.href = 'login.html'; return; }
+            const { data: profile } = await _supabase
+                .from('tutors')
+                .select('*')
+                .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+                .single();
 
-    currentUser = user;
-    const { data: profile } = await _supabase
-        .from('tutors')
-        .select('*')
-        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-        .single();
+            if (!profile) { window.location.href = 'login.html'; return; }
+            currentTutorProfile = profile;
 
-    if (!profile) { window.location.href = 'login.html'; return; }
+            renderTutorProfile(profile);
+            await loadTutorBookings(profile.id);
+            await loadVideoSubscriptionStats(profile.id);
+            await loadTutorVideoList(profile.id);
+        }
 
-    currentTutorProfile = profile;
-    renderTutorProfile(profile);
-    await loadTutorBookings(profile.id);
-    await loadVideoSubscriptionStats(profile.id);
-    await loadTutorVideoList(profile.id);
-}
+        function renderTutorProfile(p) {
+            document.getElementById('tutor-name').innerText = p.name;
+            document.getElementById('tutor-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
+            document.getElementById('card-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
+            document.getElementById('card-name').innerText = p.name;
+            document.getElementById('card-subject').innerText = `${p.subject} (${p.level || 'Umum'})`;
+            document.getElementById('card-hours').innerHTML = `<i class="fa-regular fa-clock text-sky-600"></i> ${p.available_hours || 'Belum diatur'}`;
+            document.getElementById('card-location').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${p.location || 'Online'}`;
+            document.getElementById('card-price').innerText = `Rp ${(p.price || 0).toLocaleString('id-ID')}/jam`;
+
+            const statusBadge = document.getElementById('card-status-badge');
+            if (p.status === 'approved') {
+                statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700';
+                statusBadge.innerText = 'Approved';
+            } else if (p.status === 'rejected') {
+                statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700';
+                statusBadge.innerText = 'Rejected';
+            } else {
+                statusBadge.className = 'inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700';
+                statusBadge.innerText = 'Pending';
+            }
+        }
+
+        // FUNGSI GANTI FOTO PROFIL
+        function triggerPfpUpload() {
+            document.getElementById('pfp-file-input').click();
+        }
+
+        async function handlePfpUpload(event) {
+            const file = event.target.files[0];
+            if (!file || !currentTutorProfile) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = async function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 400;
+                    const scaleFactor = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleFactor;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const base64Avatar = canvas.toDataURL('image/jpeg', 0.8);
+
+                    const { error } = await _supabase
+                        .from('tutors')
+                        .update({ avatar: base64Avatar })
+                        .eq('id', currentTutorProfile.id);
+
+                    if (!error) {
+                        alert('Foto profil berhasil diperbarui!');
+                        currentTutorProfile.avatar = base64Avatar;
+                        renderTutorProfile(currentTutorProfile);
+                    } else {
+                        alert('Gagal mengunggah foto profil: ' + error.message);
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // FUNGSI MODAL PENGATURAN PROFIL & JAM
+        function openSettingsModal() {
+            if (!currentTutorProfile) return;
+            document.getElementById('edit-name').value = currentTutorProfile.name || '';
+            document.getElementById('edit-subject').value = currentTutorProfile.subject || 'Matematika';
+            document.getElementById('edit-price').value = currentTutorProfile.price || 0;
+            document.getElementById('edit-location').value = currentTutorProfile.location || '';
+            document.getElementById('edit-phone').value = currentTutorProfile.phone_number || '';
+
+            const activeHours = (currentTutorProfile.available_hours || '').split(',').map(h => h.trim());
+            document.querySelectorAll('input[name="edit_hourly_slots"]').forEach(cb => {
+                cb.checked = activeHours.includes(cb.value);
+            });
+
+            switchSettingsTab('profile');
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settings-modal').classList.add('hidden');
+        }
+
+        function switchSettingsTab(tab) {
+            const tabProf = document.getElementById('tab-btn-profile');
+            const tabSch = document.getElementById('tab-btn-schedule');
+            const contentProf = document.getElementById('tab-content-profile');
+            const contentSch = document.getElementById('tab-content-schedule');
+
+            if (tab === 'profile') {
+                tabProf.className = 'py-2 px-4 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition';
+                tabSch.className = 'py-2 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent transition';
+                contentProf.classList.remove('hidden');
+                contentSch.classList.add('hidden');
+            } else {
+                tabSch.className = 'py-2 px-4 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition';
+                tabProf.className = 'py-2 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent transition';
+                contentSch.classList.remove('hidden');
+                contentProf.classList.add('hidden');
+            }
+        }
+
+        async function saveTutorSettings(e) {
+            e.preventDefault();
+            if (!currentTutorProfile) return;
+
+            const name = document.getElementById('edit-name').value.trim();
+            const subject = document.getElementById('edit-subject').value;
+            const price = parseInt(document.getElementById('edit-price').value) || 0;
+            const location = document.getElementById('edit-location').value.trim();
+            const phone = document.getElementById('edit-phone').value.trim();
+
+            const selectedSlots = Array.from(document.querySelectorAll('input[name="edit_hourly_slots"]:checked')).map(cb => cb.value);
+            const availableHoursStr = selectedSlots.length > 0 ? selectedSlots.join(', ') : 'Belum diatur';
+
+            const btn = document.getElementById('btn-save-settings');
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
+
+            const { error } = await _supabase
+                .from('tutors')
+                .update({
+                    name: name,
+                    subject: subject,
+                    price: price,
+                    location: location,
+                    phone_number: phone,
+                    available_hours: availableHoursStr
+                })
+                .eq('id', currentTutorProfile.id);
+
+            btn.disabled = false;
+            btn.innerText = 'Simpan Perubahan';
+
+            if (!error) {
+                alert('Pengaturan profil berhasil diperbarui!');
+                currentTutorProfile.name = name;
+                currentTutorProfile.subject = subject;
+                currentTutorProfile.price = price;
+                currentTutorProfile.location = location;
+                currentTutorProfile.phone_number = phone;
+                currentTutorProfile.available_hours = availableHoursStr;
+
+                renderTutorProfile(currentTutorProfile);
+                closeSettingsModal();
+            } else {
+                alert('Gagal menyimpan pengaturan: ' + error.message);
+            }
+        }
+
+        // FUNGSI PENARIKAN DANA
+        function openWithdrawModal() {
+            document.getElementById('withdraw-modal').classList.remove('hidden');
+        }
+
+        function closeWithdrawModal() {
+            document.getElementById('withdraw-modal').classList.add('hidden');
+        }
+
+        async function submitWithdrawal(e) {
+            e.preventDefault();
+            if (!currentTutorProfile) return;
+
+            const amount = parseInt(document.getElementById('withdraw-amount').value) || 0;
+            const bank = document.getElementById('withdraw-bank').value.trim();
+            const account = document.getElementById('withdraw-account').value.trim();
+            const holder = document.getElementById('withdraw-holder').value.trim();
+
+            if (amount < 10000) {
+                alert('Minimal penarikan dana adalah Rp10.000');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-withdraw');
+            btn.disabled = true;
+            btn.innerText = 'Mengirim Pengajuan...';
+
+            const { error } = await _supabase
+                .from('withdrawals')
+                .insert([{
+                    tutor_id: currentTutorProfile.id,
+                    amount: amount,
+                    bank_name: bank,
+                    account_number: account,
+                    account_holder: holder,
+                    status: 'pending'
+                }]);
+
+            btn.disabled = false;
+            btn.innerText = 'Kirim Pengajuan Penarikan';
+
+            if (!error) {
+                alert('Pengajuan penarikan dana berhasil dikirim! Admin akan memproses transfer ke rekening tujuan kamu.');
+                document.getElementById('form-withdraw').reset();
+                closeWithdrawModal();
+            } else {
+                alert('Gagal mengajukan penarikan dana: ' + error.message);
+            }
+        }
 
         function switchMainTab(tab) {
             const tabSch = document.getElementById('main-tab-schedule');
@@ -381,21 +557,8 @@
             }
         }
 
-        function renderTutorProfile(p) {
-            document.getElementById('tutor-name').innerText = p.name;
-            document.getElementById('tutor-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
-            document.getElementById('card-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
-            document.getElementById('card-name').innerText = p.name;
-            document.getElementById('card-subject').innerText = `${p.subject} (${p.level || 'Umum'})`;
-            document.getElementById('card-hours').innerHTML = `<i class="fa-regular fa-clock text-sky-600"></i> ${p.available_hours || 'Belum diatur'}`;
-            document.getElementById('card-location').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${p.location || 'Online'}`;
-            document.getElementById('card-price').innerText = `Rp ${(p.price || 0).toLocaleString('id-ID')}/jam`;
-        }
-
-        // FUNGSI LOAD JADWAL DETAIL LENGKAP PADA DASHBOARD TUTOR
         async function loadTutorBookings(tutorId) {
             const container = document.getElementById('booking-list');
-
             const { data: bookings, error } = await _supabase
                 .from('bookings')
                 .select('*')
@@ -409,44 +572,9 @@
 
             container.innerHTML = '';
             bookings.forEach(b => {
-                let locationDetail = '';
-
-                if (b.session_mode === 'online') {
-                    locationDetail = `
-                        <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 space-y-1">
-                            <span class="text-sky-800 font-bold text-[11px] block flex items-center gap-1.5">
-                                <i class="fa-solid fa-video text-sky-600"></i> Mode Sesi: ONLINE
-                            </span>
-                            <p class="text-xs text-slate-600">Pelaksanaan via Google Meet / Zoom. Hubungi siswa lewat WhatsApp untuk kirim link.</p>
-                        </div>`;
-                } else if (b.offline_location === 'rumah_siswa') {
-                    locationDetail = `
-                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1">
-                            <span class="text-amber-800 font-bold text-[11px] block flex items-center gap-1.5">
-                                <i class="fa-solid fa-house-user text-amber-600"></i> Mode Sesi: OFFLINE (Tutor Datang Ke Rumah Siswa)
-                            </span>
-                            <p class="text-xs text-slate-700 font-bold">📍 Alamat Rumah Siswa:</p>
-                            <p class="text-xs text-slate-800 bg-white p-2 rounded-lg border border-amber-200 font-medium">${b.student_address || 'Alamat tidak dicantumkan'}</p>
-                        </div>`;
-                } else {
-                    locationDetail = `
-                        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 space-y-1">
-                            <span class="text-indigo-800 font-bold text-[11px] block flex items-center gap-1.5">
-                                <i class="fa-solid fa-building-user text-indigo-600"></i> Mode Sesi: OFFLINE (Siswa Datang Ke Rumah Tutor)
-                            </span>
-                            <p class="text-xs text-slate-600">Siswa belajar langsung datang ke rumah/tempat kamu.</p>
-                        </div>`;
-                }
-
                 const statusBadge = b.status === 'confirmed'
                     ? `<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700"><i class="fa-solid fa-check"></i> Disetujui</span>`
                     : `<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700"><i class="fa-solid fa-clock"></i> Menunggu Admin</span>`;
-
-                const proofButton = (b.payment_proof && b.payment_proof.length > 20)
-                    ? `<button onclick='showPaymentProof(${JSON.stringify(b.payment_proof)})' class="text-xs bg-sky-50 text-sky-600 border border-sky-200 px-2.5 py-1 rounded-lg font-bold hover:bg-sky-100 transition inline-flex items-center gap-1"><i class="fa-solid fa-image"></i> Lihat Bukti Bayar</button>`
-                    : `<span class="text-xs text-slate-400">Tidak ada foto bukti</span>`;
-
-                const waLink = `https://wa.me/${(b.student_phone || '').replace(/[^0-9]/g, '')}`;
 
                 container.innerHTML += `
                     <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm hover:border-slate-300 transition">
@@ -457,15 +585,12 @@
                                 </div>
                                 <div>
                                     <h4 class="font-bold text-slate-900 text-sm">${b.student_name || 'Siswa GO-LES'}</h4>
-                                    <a href="${waLink}" target="_blank" class="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1">
-                                        <i class="fa-brands fa-whatsapp"></i> ${b.student_phone || '-'}
-                                    </a>
+                                    <p class="text-xs text-emerald-600 font-semibold"><i class="fa-brands fa-whatsapp"></i> ${b.student_phone || '-'}</p>
                                 </div>
                             </div>
                             <div>${statusBadge}</div>
                         </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
                             <div>
                                 <span class="text-slate-400 block font-semibold text-[10px]">TANGGAL SESI</span>
                                 <span class="font-bold text-slate-800"><i class="fa-regular fa-calendar text-sky-600"></i> ${b.booking_date || '-'}</span>
@@ -474,26 +599,10 @@
                                 <span class="text-slate-400 block font-semibold text-[10px]">JAM SESI</span>
                                 <span class="font-bold text-slate-800"><i class="fa-regular fa-clock text-sky-600"></i> ${b.booking_time || '-'}</span>
                             </div>
-                            <div>
-                                <span class="text-slate-400 block font-semibold text-[10px]">BUKTI BAYAR</span>
-                                ${proofButton}
-                            </div>
                         </div>
-
-                        ${locationDetail}
                     </div>
                 `;
             });
-        }
-
-        function showPaymentProof(base64Image) {
-            if (!base64Image) return;
-            document.getElementById('img-preview-target').src = base64Image;
-            document.getElementById('modal-preview-foto').classList.remove('hidden');
-        }
-
-        function closeFotoModal() {
-            document.getElementById('modal-preview-foto').classList.add('hidden');
         }
 
         async function logout() {
