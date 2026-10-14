@@ -276,7 +276,6 @@
         &copy; 2026 GO-LES. Hak Cipta Dilindungi.
     </footer>
 
-    <!-- Supabase JS & Script Pendukung -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
@@ -294,23 +293,29 @@
         });
 
         async function checkStudentAuth() {
-            const { data: { user } } = await _supabase.auth.getUser();
+    await getSupabase()
 
-            if (!user) {
-                window.location.href = 'login.html';
-                return;
-            }
+    if (!_supabase) {
+        console.error("Gagal terhubung ke Supabase.");
+        return;
+    }
 
-            currentStudent = user;
-            const studentNameStr = user.user_metadata?.name || user.email.split('@')[0];
-            
-            document.getElementById('student-name').innerText = studentNameStr;
-            document.getElementById('student-name-nav').innerText = studentNameStr;
-            document.getElementById('student-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentNameStr)}`;
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (!user) {
+        window.location.href = 'login.html';
+        return;
+    }
 
-            await loadStudentBookings(user.id);
-            await loadChatContacts();
-        }
+    currentStudent = user;
+    const studentNameStr = user.user_metadata?.name || user.email.split('@')[0];
+    
+    document.getElementById('student-name').innerText = studentNameStr;
+    document.getElementById('student-name-nav').innerText = studentNameStr;
+    document.getElementById('student-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentNameStr)}`;
+
+    await loadStudentBookings(user.id);
+    await loadChatContacts();
+}
 
         function switchStudentTab(tab) {
             const tabCat = document.getElementById('student-tab-catalog');
