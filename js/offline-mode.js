@@ -1,5 +1,6 @@
 let bookingTargetTutor = null;
 
+// Dipanggil saat tombol "Pesan Sesi" pada kartu tutor diklik
 async function openBookingModal(tutorId) {
     const tutor = rawApprovedTutors.find(t => t.id === tutorId);
     if (!tutor) return;
@@ -27,6 +28,7 @@ async function openBookingModal(tutorId) {
         if (offlineLockedNotice) offlineLockedNotice.classList.remove('hidden');
     }
 
+    // Mencegah memilih tanggal sebelum hari ini
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -87,35 +89,28 @@ function setBookingMode(mode) {
     }
 
     const dateInput = document.getElementById('booking-date');
-    if (bookingTargetTutor && dateInput) {
-        renderTutorBookingHours(bookingTargetTutor.available_hours, bookingTargetTutor.id, dateInput.value);
+    const selectedDateStr = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
+
+    if (bookingTargetTutor) {
+        renderTutorBookingHours(bookingTargetTutor.available_hours, bookingTargetTutor.id, selectedDateStr);
     }
 }
 
-function toggleStudentAddressInput(isStudentHouse) {
-    const studentAddressBox = document.getElementById('student-address-container');
-    const tutorAddressBox = document.getElementById('tutor-address-display-container');
-    const tutorAddressText = document.getElementById('tutor-address-text');
-
-    if (isStudentHouse) {
-        if (studentAddressBox) studentAddressBox.classList.remove('hidden');
-        if (tutorAddressBox) tutorAddressBox.classList.add('hidden');
-    } else {
-        if (studentAddressBox) studentAddressBox.classList.add('hidden');
-        if (tutorAddressBox) tutorAddressBox.classList.remove('hidden');
-        if (tutorAddressText && bookingTargetTutor) {
-            tutorAddressText.innerText = bookingTargetTutor.address 
-                ? bookingTargetTutor.address : "Alamat spesifik belum diisi oleh tutor. Kamu bisa menanyakannya secara langsung via Chat WhatsApp.";
-        }
+function toggleStudentAddressInput(show) {
+    const addressBox = document.getElementById('student-address-container');
+    if (addressBox) {
+        if (show) addressBox.classList.remove('hidden');
+        else addressBox.classList.add('hidden');
     }
 }
 
+// Render slot jam belajar tutor
 async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate) {
     const container = document.getElementById('booking-available-hours-container');
     if (!container) return;
     container.innerHTML = '';
 
-    // Mencegah error ReferenceError jika selectedDate tidak terdefinisi
+    // Mencegah ReferenceError jika selectedDate belum terdefinisi
     if (!selectedDate) {
         const dateInput = document.getElementById('booking-date');
         selectedDate = dateInput && dateInput.value ? dateInput.value : new Date().toISOString().split('T')[0];
@@ -204,13 +199,13 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
     }
 }
 
-
 function closeBookingModal() {
     const modal = document.getElementById('booking-modal');
     if (modal) modal.classList.add('hidden');
     bookingTargetTutor = null;
 }
 
+// Submit Pemesanan
 async function submitBooking(e) {
     e.preventDefault();
     if (!bookingTargetTutor || !currentStudent) return;
@@ -258,7 +253,7 @@ async function submitBooking(e) {
         btn.innerText = 'Memproses Gambar...';
     }
 
-    // MEMBACA DAN MENGOMPRES GAMBAR KUALITAS CANVAS
+    // Mengompres foto bukti transfer via Canvas
     const reader = new FileReader();
     reader.onload = function(event) {
         const img = new Image();
@@ -278,7 +273,6 @@ async function submitBooking(e) {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             
-            // Kompres foto ke format JPEG kualitas 70%
             const paymentProofBase64 = canvas.toDataURL('image/jpeg', 0.7);
 
             if (btn) btn.innerText = 'Memproses...';
@@ -311,6 +305,7 @@ async function submitBooking(e) {
                 return;
             }
 
+            // Kirim pesan otomatis ke tutor
             if (bookingTargetTutor.user_id) {
                 const autoMessage = `Ditunggu ya kelas privatnya di jam ${time} (Tanggal: ${date}).`;
                 await _supabase.from('messages').insert([{
