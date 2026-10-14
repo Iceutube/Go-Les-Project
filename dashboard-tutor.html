@@ -3,34 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Tutor - GO-LES</title>
-    <script src="https://cdn.tailwindcss.com?suppressWarning=true"></script>
+    <title>Dashboard Tutor - GO-LES</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
-    <!-- Navigasi Atas -->
+<body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen relative">
+
+    <input type="file" id="pfp-file-input" accept="image/*" class="hidden" onchange="handlePfpUpload(event)">
+
+    <!-- Navbar -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <div class="bg-sky-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-bold">
                     <i class="fa-solid fa-chalkboard-user"></i>
                 </div>
-                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Portal Tutor</span></span>
+                <span class="font-extrabold text-lg tracking-tight">GO-LES <span class="text-sky-600 text-xs font-semibold">Tutor</span></span>
             </div>
+
             <div class="flex items-center gap-3">
-                <!-- Tombol Kehadiran Mengajar Tutor -->
-                <a href="kehadiran-tutor.html" class="bg-sky-50 text-sky-700 px-3 py-2 rounded-xl text-xs font-bold">
-                <i class="fa-solid fa-clipboard-user"></i> Kehadiran Mengajar
-                    </a>
-
-                <div class="h-5 w-[1px] bg-slate-200 mx-1"></div>
-
-                <img id="tutor-avatar-display" src="https://ui-avatars.com/api/?name=Tutor" class="w-8 h-8 rounded-full border border-slate-200 object-cover">
-                <span id="tutor-name-display" class="text-xs font-bold text-slate-700">Tutor</span>
+                <button onclick="openSettingsModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-sky-600"></i> Pengaturan
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="relative group cursor-pointer" onclick="triggerPfpUpload()" title="Klik untuk ganti Foto Profil">
+                        <img id="tutor-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-8 h-8 rounded-full object-cover border border-slate-200 group-hover:opacity-75 transition">
+                        <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-white text-[10px]">
+                            <i class="fa-solid fa-camera"></i>
+                        </div>
+                    </div>
+                    <span id="tutor-name" class="font-bold text-xs text-slate-800">Tutor</span>
+                </div>
                 <button onclick="logout()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-bold transition" title="Keluar">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
@@ -38,223 +45,300 @@
         </div>
     </nav>
 
-    <!-- Konten Utama -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-                 
-        <!-- Kartu Profil Tutor -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <img id="tutor-profile-img" src="https://ui-avatars.com/api/?name=Tutor" class="w-16 h-16 rounded-2xl object-cover border border-slate-200">
-                <div>
-                    <h1 id="tutor-profile-name" class="text-lg font-extrabold text-slate-900">Memuat Profil...</h1>
-                    <p id="tutor-profile-subject" class="text-xs text-slate-500 font-medium">-</p>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span id="tutor-status-badge" class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">Pending</span>
-                        <span id="offline-eligible-badge" class="text-[10px] font-semibold text-slate-500"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="flex flex-wrap gap-2 text-xs">
-                <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
-                    <span class="text-slate-400 block font-semibold">Tarif / Jam</span>
-                    <span id="tutor-price-display" class="font-bold text-sky-600">Rp 0</span>
-                </div>
-                <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl">
-                    <span class="text-slate-400 block font-semibold">Rating Performa</span>
-                    <span id="stat-video-rating" class="font-bold text-amber-500">-</span>
-                </div>
+        <!-- Status Alert -->
+        <div id="status-alert" class="hidden p-4 rounded-2xl border text-xs font-semibold flex items-center gap-3">
+            <i id="status-icon" class="fa-solid text-lg"></i>
+            <div>
+                <p id="status-title" class="font-bold"></p>
+                <p id="status-desc" class="text-slate-500 font-normal mt-0.5"></p>
             </div>
         </div>
 
-        <!-- Section Pendapatan & Info Rekening -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                <div class="bg-emerald-100 text-emerald-600 w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold">
-                    <i class="fa-solid fa-wallet"></i>
+        <!-- Tutor Profile Header Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+            <div class="flex gap-4 items-center">
+                <div class="relative group cursor-pointer" onclick="triggerPfpUpload()" title="Klik untuk ubah foto profil">
+                    <img id="card-avatar" src="https://ui-avatars.com/api/?name=Tutor" class="w-16 h-16 rounded-2xl object-cover border border-slate-200 group-hover:opacity-80 transition">
+                    <div class="absolute inset-0 bg-slate-900/50 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition text-white text-[10px] font-bold gap-0.5">
+                        <i class="fa-solid fa-camera text-sm"></i>
+                        <span>Ubah</span>
+                    </div>
                 </div>
                 <div>
-                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Total Pendapatan</span>
-                    <span id="stat-total-earnings" class="text-xl font-extrabold text-slate-900">Rp 0</span>
+                    <h2 id="card-name" class="text-lg font-bold text-slate-900">-</h2>
+                    <p id="card-subject" class="text-xs text-sky-600 font-semibold">-</p>
+                    <p id="card-hours" class="text-xs text-slate-500 font-medium mt-0.5"><i class="fa-regular fa-clock text-sky-600"></i> -</p>
+                    <p id="card-location" class="text-xs text-slate-400 mt-1"><i class="fa-solid fa-location-dot"></i> -</p>
                 </div>
             </div>
 
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between sm:col-span-2">
+            <div class="flex gap-4 border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 w-full md:w-auto justify-between md:justify-start items-center">
                 <div>
-                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Info Rekening Pencairan</span>
-                    <span id="tutor-bank-info" class="text-xs font-extrabold text-emerald-700">Belum diatur</span>
+                    <span class="text-[10px] text-slate-400 block font-semibold">Tarif Sesi</span>
+                    <span id="card-price" class="text-sm font-extrabold text-slate-900">Rp 0/jam</span>
                 </div>
-                <button onclick="openWithdrawModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/20 flex items-center gap-2">
-                    <i class="fa-solid fa-hand-holding-dollar"></i> Tarik Saldo
+                <div>
+                    <span class="text-[10px] text-slate-400 block font-semibold">Status Profil</span>
+                    <span id="card-status-badge" class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">Pending</span>
+                </div>
+                <button onclick="openSettingsModal()" class="bg-sky-50 hover:bg-sky-100 text-sky-600 border border-sky-200 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 ml-2">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
                 </button>
             </div>
         </div>
 
-        <!-- Section Pengaturan Profil & Rekening -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-            <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
-                <i class="fa-solid fa-sliders text-sky-600"></i> Pengaturan Profil & Rekening Pencairan
-            </h2>
-            <form id="form-tutor-settings" onsubmit="saveTutorSettings(event)" class="space-y-4 text-xs">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
-                        <input type="tel" id="setting-phone" required placeholder="08123456789" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Kota / Domisili</label>
-                        <input type="text" id="setting-location" required placeholder="Surabaya" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 mb-1">Harga Langganan Video / Bulan (Maks Rp20.000)</label>
-                        <input type="number" id="setting-video-price" min="0" max="20000" step="1000" placeholder="15000" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Alamat Rumah Lengkap (Untuk Sesi Offline Tatap Muka)</label>
-                    <textarea id="setting-address" rows="2" placeholder="Jl. Raya Kebon Agung No. 45, Malang" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium"></textarea>
-                </div>
-
-                <!-- Input Rekening Bank Tutor -->
-                <div class="bg-emerald-50/70 border border-emerald-200 p-4 rounded-2xl space-y-3">
-                    <label class="block font-bold text-emerald-900 text-xs">
-                        <i class="fa-solid fa-building-columns text-emerald-600"></i> Rekening Bank Pencairan Ulang
-                    </label>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block font-bold text-slate-700 text-[11px] mb-1">Nama Bank</label>
-                            <select id="setting-bank-name" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-white font-medium text-xs">
-                                <option value="BCA">Bank BCA</option>
-                                <option value="Mandiri">Bank Mandiri</option>
-                                <option value="BNI">Bank BNI</option>
-                                <option value="BRI">Bank BRI</option>
-                                <option value="CIMB Niaga">CIMB Niaga</option>
-                                <option value="Bank Jago">Bank Jago</option>
-                                <option value="DANA / GoPay">DANA / GoPay</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 text-[11px] mb-1">Nomor Rekening / HP</label>
-                            <input type="text" id="setting-bank-account" required placeholder="Contoh: 1234567890" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-white font-medium text-xs">
-                        </div>
-                        <div>
-                            <label class="block font-bold text-slate-700 text-[11px] mb-1">Nama Pemilik Rekening</label>
-                            <input type="text" id="setting-bank-holder" required placeholder="Sesuai nama di buku tabungan" class="w-full p-2.5 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-white font-medium text-xs">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Slot Jam Mengajar -->
-                <div class="bg-slate-50 p-4 border border-slate-200 rounded-2xl space-y-2">
-                    <label class="block font-bold text-slate-700 mb-1">Atur Jam Sesi Mengajar Yang Tersedia:</label>
-                    <div id="settings-hours-checkboxes" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-700">
-                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="08:00 - 09:30" class="accent-sky-600"> 08:00 - 09:30</label>
-                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="09:30 - 11:00" class="accent-sky-600"> 09:30 - 11:00</label>
-                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="13:00 - 14:30" class="accent-sky-600"> 13:00 - 14:30</label>
-                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="14:30 - 16:00" class="accent-sky-600"> 14:30 - 16:00</label>
-                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="16:00 - 17:30" class="accent-sky-600"> 16:00 - 17:30</label>
-                        <label class="flex items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 cursor-pointer"><input type="checkbox" name="tutor_hours" value="18:30 - 20:00" class="accent-sky-600"> 18:30 - 20:00</label>
-                    </div>
-                </div>
-
-                <button type="submit" id="btn-save-settings" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-5 py-2.5 rounded-xl transition shadow-md shadow-sky-600/20">
-                    <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan & Rekening Bank
-                </button>
-            </form>
+        <!-- Navigation Tabs untuk Jadwal & Video -->
+        <div class="flex border-b border-slate-200 gap-2 bg-white px-4 pt-3 rounded-2xl border border-slate-200 shadow-sm">
+            <button id="main-tab-schedule" onclick="switchMainTab('schedule')" class="py-3 px-5 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition flex items-center gap-2">
+                <i class="fa-solid fa-calendar-days"></i> Jadwal Mengajar Sesi
+            </button>
+            <button id="main-tab-video" onclick="switchMainTab('video')" class="py-3 px-5 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition flex items-center gap-2">
+                <i class="fa-solid fa-video"></i> Video Mengajar
+            </button>
         </div>
 
-        <!-- Video & Stats Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-                <div class="border-b border-slate-100 pb-3 flex justify-between items-center">
-                    <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-video text-sky-600"></i> Kelola Video Mengajar
-                    </h2>
-                </div>
+        <!-- SECTION 1: JADWAL MENGAJAR TERPISAH -->
+        <div id="section-schedule" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check text-sky-600"></i> Daftar Jadwal Les Privat Siswa
+                </h3>
+                <span class="text-xs text-slate-400 font-medium">Diurutkan berdasarkan tanggal terdekat</span>
+            </div>
+            
+            <div id="booking-list" class="space-y-3">
+                <p class="text-center text-xs text-slate-400 py-6">Memuat jadwal sesi les...</p>
+            </div>
+        </div>
 
-                <form id="form-add-video" onsubmit="addTutorVideo(event)" class="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-3">
-                    <p class="text-xs font-bold text-slate-700">Unggah Video Baru</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input type="text" id="new-video-title" required placeholder="Judul Video" class="text-xs p-2.5 border border-slate-200 rounded-lg outline-none focus:border-sky-600 bg-white">
-                        <input type="url" id="new-video-url" required placeholder="Link Video (YouTube / Drive)" class="text-xs p-2.5 border border-slate-200 rounded-lg outline-none focus:border-sky-600 bg-white">
-                    </div>
-                    <button type="submit" id="btn-add-video" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-lg text-xs transition">
-                        <i class="fa-solid fa-plus"></i> Tambah Video
+        <!-- SECTION 2: KELOLA VIDEO -->
+        <div id="section-video" class="hidden bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-video text-sky-600"></i> Langganan Video Mengajar
+                </h3>
+                <span id="offline-eligible-badge" class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 border border-slate-200 text-[11px] font-semibold px-3 py-1.5 rounded-full">-</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-center">
+                <div class="bg-slate-50 rounded-xl p-3">
+                    <span id="stat-video-subscribers" class="block text-lg font-extrabold text-slate-900">0</span>
+                    <span class="text-[10px] text-slate-500 font-semibold">Pelanggan Aktif</span>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-3">
+                    <span id="stat-video-reviews" class="block text-lg font-extrabold text-slate-900">0</span>
+                    <span class="text-[10px] text-slate-500 font-semibold">Total Ulasan</span>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-3">
+                    <span id="stat-video-rating" class="block text-lg font-extrabold text-slate-900">-</span>
+                    <span class="text-[10px] text-slate-500 font-semibold">Rating Rata-rata</span>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4 space-y-3">
+                <p class="text-xs font-bold text-slate-700">Tambah Video Baru</p>
+
+                <form id="form-add-video" onsubmit="addTutorVideo(event)" class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="new-video-title" required placeholder="Judul video, contoh: Aljabar Dasar Bab 1" class="flex-1 text-xs p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    <input type="url" id="new-video-url" required placeholder="Link video (YouTube/Drive)" class="flex-1 text-xs p-2.5 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    <button type="submit" id="btn-add-video" class="bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition whitespace-nowrap">
+                        Tambah Video
                     </button>
                 </form>
 
                 <div id="tutor-video-list" class="space-y-2 pt-2">
-                    <p class="text-center text-xs text-slate-400 py-4">Memuat daftar video...</p>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-                <h2 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line text-sky-600"></i> Ringkasan Langganan
-                </h2>
-                <div id="video-stats-box" class="space-y-3 text-xs">
-                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-slate-600 font-medium">Pelanggan Aktif</span>
-                        <span id="stat-video-subscribers" class="font-extrabold text-slate-900 text-sm">0</span>
-                    </div>
-                    <div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-slate-600 font-medium">Total Ulasan Siswa</span>
-                        <span id="stat-video-reviews" class="font-extrabold text-slate-900 text-sm">0</span>
-                    </div>
+                    <p class="text-center text-[11px] text-slate-400 py-4">Memuat video...</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Modal Tarik Saldo -->
-    <div id="withdraw-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative border border-slate-100">
-            <button onclick="closeWithdrawModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+    <!-- Modal Preview Foto Bukti Transfer -->
+    <div id="modal-preview-foto" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 space-y-4 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-extrabold text-slate-900 text-sm"><i class="fa-solid fa-file-invoice-dollar text-sky-600"></i> Bukti Transfer Siswa</h3>
+                <button onclick="closeFotoModal()" class="text-slate-400 hover:text-slate-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="max-h-[70vh] overflow-y-auto flex justify-center bg-slate-100 rounded-2xl p-2">
+                <img id="img-preview-target" src="" class="max-w-full h-auto rounded-xl shadow-sm object-contain">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pengaturan -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeSettingsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold">
-                <i class="fa-solid fa-hand-holding-dollar"></i>
+
+            <div class="border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-slate-900 text-base">Pengaturan Akun Tutor</h3>
+                <p class="text-xs text-slate-500">Atur profil pribadi dan ketersediaan waktu mengajar per jam</p>
             </div>
-            <h3 class="font-extrabold text-center text-slate-900 text-base">Pengajuan Tarik Saldo</h3>
-            <p id="withdraw-bank-target" class="text-xs text-center text-slate-500 bg-slate-50 border border-slate-200 p-3 rounded-xl font-medium"></p>
-            
-            <form onsubmit="handleWithdrawSubmit(event)" class="space-y-3 text-xs">
-                <div>
-                    <label class="block font-bold text-slate-700 mb-1">Nominal Yang Ingin Ditarik (Rp)</label>
-                    <input type="number" id="withdraw-amount-input" min="10000" required placeholder="Minimal Rp 10.000" class="w-full p-3 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-slate-50 font-bold">
-                </div>
-                <button type="submit" id="btn-confirm-withdraw" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/20">
-                    Kirim Pengajuan Pencairan
+
+            <div class="flex border-b border-slate-200 gap-2">
+                <button id="tab-btn-profile" onclick="switchSettingsTab('profile')" class="py-2 px-4 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition">
+                    Data Profil & Tarif
                 </button>
+                <button id="tab-btn-schedule" onclick="switchSettingsTab('schedule')" class="py-2 px-4 text-xs font-bold text-slate-500 border-b-2 border-transparent transition">
+                    Jadwal & Slot Jam Mengajar
+                </button>
+            </div>
+
+            <form id="form-settings" onsubmit="saveTutorSettings(event)">
+                <div id="tab-content-profile" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
+                        <input type="text" id="edit-name" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran Utama</label>
+                            <select id="edit-subject" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                                <option value="Matematika">Matematika</option>
+                                <option value="B. Indonesia">B. Indonesia</option>
+                                <option value="B. Inggris">B. Inggris</option>
+                                <option value="Fisika">Fisika</option>
+                                <option value="Kimia">Kimia</option>
+                                <option value="Biologi">Biologi</option>
+                                <option value="Sosiologi">Sosiologi</option>
+                                <option value="Sejarah">Sejarah</option>
+                                <option value="Pancasila">Pancasila</option>
+                                <option value="Geografi">Geografi</option>
+                                <option value="Informatika">Informatika</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tarif / Jam (Rp)</label>
+                            <input type="number" id="edit-price" required min="0" class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kota / Domisili</label>
+                            <input type="text" id="edit-location" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor WhatsApp</label>
+                            <input type="tel" id="edit-phone" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50">
+                        </div>
+                    </div>
+
+                    <div class="bg-sky-50 border border-sky-200 p-3.5 rounded-xl space-y-1">
+                        <label class="block text-xs font-bold text-sky-700">
+                            <i class="fa-solid fa-video"></i> Harga Langganan Video Mengajar (per bulan)
+                        </label>
+                        <input type="number" id="edit-video-price" min="0" max="20000" step="1000" class="w-full text-xs p-3 border border-sky-200 rounded-xl outline-none focus:border-sky-600 bg-white">
+                        <p class="text-[10px] text-sky-600">Maksimal Rp20.000/bulan.</p>
+                    </div>
+                </div>
+
+                <div id="tab-content-schedule" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Sekolah</label>
+                        <select id="edit-level" onchange="renderGradeEditOptions()" required class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-sky-600 bg-slate-50 font-medium">
+                            <option value="SD">SD</option>
+                            <option value="SMP">SMP</option>
+                            <option value="SMA">SMA</option>
+                            <option value="Umum">Umum</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-2">
+                        <label class="block text-xs font-bold text-slate-700">Pilih Kelas Spesifik:</label>
+                        <div id="edit-grades-checkboxes" class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs font-medium text-slate-700"></div>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 border border-slate-200 rounded-xl space-y-3">
+                        <label class="block text-xs font-bold text-slate-700">Slot Jam Belajar per Jam:</label>
+
+                        <div class="space-y-2">
+                            <span class="text-[11px] font-bold text-sky-700 block"><i class="fa-regular fa-sun"></i> Sesi Pagi</span>
+                            <div class="grid grid-cols-3 gap-2 text-xs font-medium">
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="08:00 - 09:00" class="accent-sky-600"> 08:00-09:00
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="09:00 - 10:00" class="accent-sky-600"> 09:00-10:00
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="10:00 - 11:00" class="accent-sky-600"> 10:00-11:00
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-slate-200/60">
+                            <span class="text-[11px] font-bold text-amber-600 block"><i class="fa-solid fa-sun"></i> Sesi Siang</span>
+                            <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="12:30 - 13:30" class="accent-sky-600"> 12:30-13:30
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="13:30 - 14:30" class="accent-sky-600"> 13:30-14:30
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-slate-200/60">
+                            <span class="text-[11px] font-bold text-orange-600 block"><i class="fa-solid fa-cloud-sun"></i> Sesi Sore</span>
+                            <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="15:30 - 16:30" class="accent-sky-600"> 15:30-16:30
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="16:30 - 17:30" class="accent-sky-600"> 16:30-17:30
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-2 border-t border-slate-200/60">
+                            <span class="text-[11px] font-bold text-indigo-600 block"><i class="fa-solid fa-moon"></i> Sesi Malam</span>
+                            <div class="grid grid-cols-2 gap-2 text-xs font-medium">
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="18:30 - 19:30" class="accent-sky-600"> 18:30-19:30
+                                </label>
+                                <label class="flex items-center gap-1.5 bg-white p-2 rounded-lg border border-slate-200 cursor-pointer">
+                                    <input type="checkbox" name="edit_hourly_slots" value="19:30 - 20:30" class="accent-sky-600"> 19:30-20:30
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex gap-2 border-t border-slate-100 mt-4">
+                    <button type="button" onclick="closeSettingsModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl text-xs transition">
+                        Batal
+                    </button>
+                    <button type="submit" id="btn-save-settings" class="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                        Simpan Perubahan
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        &copy; 2026 GO-LES Portal Tutor. Hak Cipta Dilindungi.
-    </footer>
-
-    <!-- Supabase JS & Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/video-subscription.js"></script>
     <script>
+        let currentUser = null;
         let currentTutorProfile = null;
-        let tutorGrandTotalEarnings = 0;
 
         document.addEventListener('DOMContentLoaded', async () => {
             await checkTutorAuth();
         });
 
         async function checkTutorAuth() {
-            await getSupabase();
             const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) {
-                window.location.href = 'login.html';
-                return;
-            }
+            if (!user) { window.location.href = 'login.html'; return; }
+            currentUser = user;
 
             const { data: profile } = await _supabase
                 .from('tutors')
@@ -262,192 +346,148 @@
                 .or(`user_id.eq.${user.id},email.eq.${user.email}`)
                 .single();
 
-            if (!profile || profile.role !== 'tutor') {
-                alert('Akses Ditolak! Halaman ini khusus untuk Tutor.');
-                window.location.href = 'login.html';
+            if (!profile) { window.location.href = 'login.html'; return; }
+
+            currentTutorProfile = profile;
+            renderTutorProfile(profile);
+            await loadTutorBookings(profile.id);
+            await loadVideoSubscriptionStats(profile.id);
+            await loadTutorVideoList(profile.id);
+        }
+
+        function switchMainTab(tab) {
+            const tabSch = document.getElementById('main-tab-schedule');
+            const tabVid = document.getElementById('main-tab-video');
+            const secSch = document.getElementById('section-schedule');
+            const secVid = document.getElementById('section-video');
+
+            if (tab === 'schedule') {
+                tabSch.className = 'py-3 px-5 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition flex items-center gap-2';
+                tabVid.className = 'py-3 px-5 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition flex items-center gap-2';
+                secSch.classList.remove('hidden');
+                secVid.classList.add('hidden');
+            } else {
+                tabVid.className = 'py-3 px-5 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition flex items-center gap-2';
+                tabSch.className = 'py-3 px-5 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition flex items-center gap-2';
+                secVid.classList.remove('hidden');
+                secSch.classList.add('hidden');
+            }
+        }
+
+        function renderTutorProfile(p) {
+            document.getElementById('tutor-name').innerText = p.name;
+            document.getElementById('tutor-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
+            document.getElementById('card-avatar').src = p.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}`;
+            document.getElementById('card-name').innerText = p.name;
+            document.getElementById('card-subject').innerText = `${p.subject} (${p.level || 'Umum'})`;
+            document.getElementById('card-hours').innerHTML = `<i class="fa-regular fa-clock text-sky-600"></i> ${p.available_hours || 'Belum diatur'}`;
+            document.getElementById('card-location').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${p.location || 'Online'}`;
+            document.getElementById('card-price').innerText = `Rp ${(p.price || 0).toLocaleString('id-ID')}/jam`;
+        }
+
+        // FUNGSI LOAD JADWAL DETAIL LENGKAP PADA DASHBOARD TUTOR
+        async function loadTutorBookings(tutorId) {
+            const container = document.getElementById('booking-list');
+
+            const { data: bookings, error } = await _supabase
+                .from('bookings')
+                .select('*')
+                .eq('tutor_id', tutorId)
+                .order('booking_date', { ascending: true });
+
+            if (error || !bookings || bookings.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Belum ada jadwal sesi les privat dari siswa.</p>`;
                 return;
             }
 
-            currentTutorProfile = profile;
-            renderTutorDashboard(profile);
-            populateSettingsForm(profile);
-            await calculateTutorEarnings(profile.id);
-            
-            if (typeof loadTutorVideoList === 'function') {
-                await loadTutorVideoList(profile.id);
-            }
-            if (typeof loadVideoSubscriptionStats === 'function') {
-                await loadVideoSubscriptionStats(profile.id);
-            }
-        }
+            container.innerHTML = '';
+            bookings.forEach(b => {
+                let locationDetail = '';
 
-        function renderTutorDashboard(profile) {
-            const avatarUrl = profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}`;
-            
-            document.getElementById('tutor-name-display').innerText = profile.name || 'Tutor';
-            document.getElementById('tutor-avatar-display').src = avatarUrl;
-            document.getElementById('tutor-profile-img').src = avatarUrl;
-            document.getElementById('tutor-profile-name').innerText = profile.name;
-            document.getElementById('tutor-profile-subject').innerText = `${profile.subject || '-'} (${profile.level || 'Umum'})`;
-            document.getElementById('tutor-price-display').innerText = `Rp ${(profile.price || 0).toLocaleString('id-ID')}`;
+                if (b.session_mode === 'online') {
+                    locationDetail = `
+                        <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 space-y-1">
+                            <span class="text-sky-800 font-bold text-[11px] block flex items-center gap-1.5">
+                                <i class="fa-solid fa-video text-sky-600"></i> Mode Sesi: ONLINE
+                            </span>
+                            <p class="text-xs text-slate-600">Pelaksanaan via Google Meet / Zoom. Hubungi siswa lewat WhatsApp untuk kirim link.</p>
+                        </div>`;
+                } else if (b.offline_location === 'rumah_siswa') {
+                    locationDetail = `
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1">
+                            <span class="text-amber-800 font-bold text-[11px] block flex items-center gap-1.5">
+                                <i class="fa-solid fa-house-user text-amber-600"></i> Mode Sesi: OFFLINE (Tutor Datang Ke Rumah Siswa)
+                            </span>
+                            <p class="text-xs text-slate-700 font-bold">📍 Alamat Rumah Siswa:</p>
+                            <p class="text-xs text-slate-800 bg-white p-2 rounded-lg border border-amber-200 font-medium">${b.student_address || 'Alamat tidak dicantumkan'}</p>
+                        </div>`;
+                } else {
+                    locationDetail = `
+                        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 space-y-1">
+                            <span class="text-indigo-800 font-bold text-[11px] block flex items-center gap-1.5">
+                                <i class="fa-solid fa-building-user text-indigo-600"></i> Mode Sesi: OFFLINE (Siswa Datang Ke Rumah Tutor)
+                            </span>
+                            <p class="text-xs text-slate-600">Siswa belajar langsung datang ke rumah/tempat kamu.</p>
+                        </div>`;
+                }
 
-            if (profile.bank_account_number) {
-                document.getElementById('tutor-bank-info').innerText = `${profile.bank_name || 'BCA'} - ${profile.bank_account_number} (a.n ${profile.bank_account_holder || profile.name})`;
-            } else {
-                document.getElementById('tutor-bank-info').innerText = 'Belum diatur (Isi di Pengaturan Profil)';
-            }
+                const statusBadge = b.status === 'confirmed'
+                    ? `<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700"><i class="fa-solid fa-check"></i> Disetujui</span>`
+                    : `<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700"><i class="fa-solid fa-clock"></i> Menunggu Admin</span>`;
 
-            const badge = document.getElementById('tutor-status-badge');
-            if (profile.status === 'approved') {
-                badge.className = 'bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full';
-                badge.innerText = 'Disetujui Admin';
-            } else {
-                badge.className = 'bg-amber-100 text-amber-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full';
-                badge.innerText = 'Menunggu Verifikasi Admin';
-            }
-        }
+                const proofButton = (b.payment_proof && b.payment_proof.length > 20)
+                    ? `<button onclick='showPaymentProof(${JSON.stringify(b.payment_proof)})' class="text-xs bg-sky-50 text-sky-600 border border-sky-200 px-2.5 py-1 rounded-lg font-bold hover:bg-sky-100 transition inline-flex items-center gap-1"><i class="fa-solid fa-image"></i> Lihat Bukti Bayar</button>`
+                    : `<span class="text-xs text-slate-400">Tidak ada foto bukti</span>`;
 
-        async function calculateTutorEarnings(tutorId) {
-            const { data: bookings } = await _supabase
-                .from('bookings')
-                .select('id')
-                .eq('tutor_id', tutorId)
-                .eq('status', 'confirmed');
+                const waLink = `https://wa.me/${(b.student_phone || '').replace(/[^0-9]/g, '')}`;
 
-            const totalBookings = (bookings || []).length * (currentTutorProfile.price || 0);
+                container.innerHTML += `
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm hover:border-slate-300 transition">
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-slate-100 pb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center font-bold text-sm">
+                                    <i class="fa-solid fa-user-graduate"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm">${b.student_name || 'Siswa GO-LES'}</h4>
+                                    <a href="${waLink}" target="_blank" class="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1">
+                                        <i class="fa-brands fa-whatsapp"></i> ${b.student_phone || '-'}
+                                    </a>
+                                </div>
+                            </div>
+                            <div>${statusBadge}</div>
+                        </div>
 
-            const { data: subs } = await _supabase
-                .from('video_subscriptions')
-                .select('price')
-                .eq('tutor_id', tutorId)
-                .eq('status', 'active');
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <div>
+                                <span class="text-slate-400 block font-semibold text-[10px]">TANGGAL SESI</span>
+                                <span class="font-bold text-slate-800"><i class="fa-regular fa-calendar text-sky-600"></i> ${b.booking_date || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-semibold text-[10px]">JAM SESI</span>
+                                <span class="font-bold text-slate-800"><i class="fa-regular fa-clock text-sky-600"></i> ${b.booking_time || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-semibold text-[10px]">BUKTI BAYAR</span>
+                                ${proofButton}
+                            </div>
+                        </div>
 
-            const totalSubs = (subs || []).reduce((sum, s) => sum + (s.price || 0), 0);
-
-            const { data: approvedWithdrawals } = await _supabase
-                .from('withdrawals')
-                .select('amount')
-                .eq('tutor_id', tutorId)
-                .eq('status', 'approved');
-
-            const totalWithdrawn = (approvedWithdrawals || []).reduce((sum, w) => sum + (w.amount || 0), 0);
-
-            tutorGrandTotalEarnings = (totalBookings + totalSubs) - totalWithdrawn;
-            document.getElementById('stat-total-earnings').innerText = `Rp ${Math.max(tutorGrandTotalEarnings, 0).toLocaleString('id-ID')}`;
-        }
-
-        function populateSettingsForm(profile) {
-            document.getElementById('setting-phone').value = profile.phone_number || '';
-            document.getElementById('setting-location').value = profile.location || '';
-            document.getElementById('setting-video-price').value = profile.video_subscription_price || 0;
-            document.getElementById('setting-address').value = profile.address || '';
-
-            document.getElementById('setting-bank-name').value = profile.bank_name || 'BCA';
-            document.getElementById('setting-bank-account').value = profile.bank_account_number || '';
-            document.getElementById('setting-bank-holder').value = profile.bank_account_holder || profile.name || '';
-
-            const availableHours = (profile.available_hours || '').split(',').map(h => h.trim());
-            const checkboxes = document.querySelectorAll('input[name="tutor_hours"]');
-            checkboxes.forEach(cb => {
-                cb.checked = availableHours.includes(cb.value);
+                        ${locationDetail}
+                    </div>
+                `;
             });
         }
 
-        async function saveTutorSettings(e) {
-            e.preventDefault();
-            if (!currentTutorProfile) return;
-
-            const btn = document.getElementById('btn-save-settings');
-            btn.disabled = true;
-            btn.innerText = 'Menyimpan...';
-
-            const phone = document.getElementById('setting-phone').value.trim();
-            const location = document.getElementById('setting-location').value.trim();
-            const videoPrice = parseInt(document.getElementById('setting-video-price').value) || 0;
-            const address = document.getElementById('setting-address').value.trim();
-
-            const bankName = document.getElementById('setting-bank-name').value;
-            const bankAccount = document.getElementById('setting-bank-account').value.trim();
-            const bankHolder = document.getElementById('setting-bank-holder').value.trim();
-
-            const selectedHours = Array.from(document.querySelectorAll('input[name="tutor_hours"]:checked')).map(cb => cb.value);
-
-            const { error } = await _supabase
-                .from('tutors')
-                .update({
-                    phone_number: phone,
-                    location: location,
-                    video_subscription_price: Math.min(Math.max(videoPrice, 0), 20000),
-                    address: address,
-                    available_hours: selectedHours.join(', '),
-                    bank_name: bankName,
-                    bank_account_number: bankAccount,
-                    bank_account_holder: bankHolder
-                })
-                .eq('id', currentTutorProfile.id);
-
-            btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan & Rekening Bank`;
-
-            if (error) {
-                alert('Gagal menyimpan pengaturan: ' + error.message);
-            } else {
-                alert('Pengaturan profil dan rekening bank berhasil disimpan!');
-                currentTutorProfile.bank_name = bankName;
-                currentTutorProfile.bank_account_number = bankAccount;
-                currentTutorProfile.bank_account_holder = bankHolder;
-                renderTutorDashboard(currentTutorProfile);
-            }
+        function showPaymentProof(base64Image) {
+            if (!base64Image) return;
+            document.getElementById('img-preview-target').src = base64Image;
+            document.getElementById('modal-preview-foto').classList.remove('hidden');
         }
 
-        function openWithdrawModal() {
-            if (!currentTutorProfile.bank_account_number) {
-                alert('Silakan lengkapi Nomor Rekening Bank di Pengaturan Profil terlebih dahulu.');
-                return;
-            }
-            document.getElementById('withdraw-bank-target').innerHTML = `
-                Transfer ke: <strong>${currentTutorProfile.bank_name} - ${currentTutorProfile.bank_account_number}</strong><br>
-                a.n <strong>${currentTutorProfile.bank_account_holder || currentTutorProfile.name}</strong>
-            `;
-            document.getElementById('withdraw-modal').classList.remove('hidden');
+        function closeFotoModal() {
+            document.getElementById('modal-preview-foto').classList.add('hidden');
         }
-
-        function closeWithdrawModal() {
-            document.getElementById('withdraw-modal').classList.add('hidden');
-        }
-
-        async function handleWithdrawSubmit(e) {
-            e.preventDefault();
-            const amount = parseInt(document.getElementById('withdraw-amount-input').value);
-            if (!amount || amount < 10000) {
-                alert('Nominal penarikan minimal Rp 10.000');
-                return;
-            }
-
-            const btn = document.getElementById('btn-confirm-withdraw');
-            btn.disabled = true;
-            btn.innerText = 'Mengirim...';
-
-            const { error } = await _supabase.from('withdrawals').insert([{
-                tutor_id: currentTutorProfile.id,
-                amount: amount,
-                bank_name: currentTutorProfile.bank_name || 'BCA',
-                account_number: currentTutorProfile.bank_account_number,
-                account_holder: currentTutorProfile.bank_account_holder || currentTutorProfile.name,
-                status: 'pending'
-            }]);
-
-            btn.disabled = false;
-            btn.innerText = 'Kirim Pengajuan Pencairan';
-
-            if (error) {
-                alert('Gagal membuat pengajuan: ' + error.message);
-            } else {
-                closeWithdrawModal();
-                alert('Pengajuan pencairan dana berhasil dikirim! Admin akan segera memverifikasi dan mentransfer ke rekening kamu.');
-            }
-        }
-        
 
         async function logout() {
             await _supabase.auth.signOut();
