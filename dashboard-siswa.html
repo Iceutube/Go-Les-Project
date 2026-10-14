@@ -633,6 +633,70 @@
             }
         }
 
+        async function loadStudentBookings(studentId) {
+    const container = document.getElementById('student-bookings-list'); // Pastikan ID kontainer sesuai
+    if (!container) return;
+
+    const { data: bookings, error } = await _supabase
+        .from('bookings')
+        .select('*, tutors(name, subject, phone_number, location)')
+        .eq('student_id', studentId)
+        .order('booking_date', { ascending: true });
+
+    if (error || !bookings || bookings.length === 0) {
+        container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Kamu belum memiliki jadwal les privat.</p>`;
+        return;
+    }
+
+    container.innerHTML = '';
+    bookings.forEach(b => {
+        const tutorName = b.tutors ? b.tutors.name : 'Tutor GO-LES';
+        const tutorSubject = b.tutors ? b.tutors.subject : 'Mata Pelajaran';
+
+        let modeText = '';
+        if (b.session_mode === 'online') {
+            modeText = `<span class="text-sky-600 font-bold"><i class="fa-solid fa-video"></i> Online (Google Meet / Zoom)</span>`;
+        } else if (b.offline_location === 'rumah_siswa') {
+            modeText = `<span class="text-amber-700 font-bold"><i class="fa-solid fa-house-user"></i> Offline (Tutor datang ke rumah kamu)</span>`;
+        } else {
+            modeText = `<span class="text-indigo-700 font-bold"><i class="fa-solid fa-building-user"></i> Offline (Kamu datang ke rumah tutor)</span>`;
+        }
+
+        const statusBadge = b.status === 'confirmed'
+            ? `<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700"><i class="fa-solid fa-circle-check"></i> Sesi Dikonfirmasi</span>`
+            : `<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700"><i class="fa-solid fa-clock"></i> Menunggu Verifikasi Admin</span>`;
+
+        container.innerHTML += `
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm">${tutorName}</h4>
+                        <p class="text-xs text-sky-600 font-semibold">${tutorSubject}</p>
+                    </div>
+                    <div>${statusBadge}</div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <div>
+                        <span class="text-slate-400 block font-semibold text-[10px]">JADWAL TANGGAL</span>
+                        <span class="font-bold text-slate-800"><i class="fa-regular fa-calendar text-sky-600"></i> ${b.booking_date}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold text-[10px]">JAM SESI LES</span>
+                        <span class="font-bold text-slate-800"><i class="fa-regular fa-clock text-sky-600"></i> ${b.booking_time}</span>
+                    </div>
+                </div>
+
+                <div class="text-xs bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <span class="text-slate-400 block font-semibold text-[10px]">MODE & LOKASI BELAJAR</span>
+                    <p>${modeText}</p>
+                    ${b.student_address && b.offline_location === 'rumah_siswa' ? `<p class="text-[11px] text-slate-500 mt-1"><strong>Alamat Pengiriman:</strong> ${b.student_address}</p>` : ''}
+                </div>
+            </div>
+        `;
+    });
+}
+
         function listenToRealtimeChat() {
             chatSubscription = _supabase
                 .channel('public:messages')
