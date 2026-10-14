@@ -336,24 +336,31 @@
         });
 
         async function checkTutorAuth() {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) { window.location.href = 'login.html'; return; }
-            currentUser = user;
+    await getSupabase(); // WAJIB: Tunggu fetch /api/config selesai!
 
-            const { data: profile } = await _supabase
-                .from('tutors')
-                .select('*')
-                .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-                .single();
+    if (!_supabase) {
+        console.error("Gagal terhubung ke Supabase.");
+        return;
+    }
 
-            if (!profile) { window.location.href = 'login.html'; return; }
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (!user) { window.location.href = 'login.html'; return; }
 
-            currentTutorProfile = profile;
-            renderTutorProfile(profile);
-            await loadTutorBookings(profile.id);
-            await loadVideoSubscriptionStats(profile.id);
-            await loadTutorVideoList(profile.id);
-        }
+    currentUser = user;
+    const { data: profile } = await _supabase
+        .from('tutors')
+        .select('*')
+        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+        .single();
+
+    if (!profile) { window.location.href = 'login.html'; return; }
+
+    currentTutorProfile = profile;
+    renderTutorProfile(profile);
+    await loadTutorBookings(profile.id);
+    await loadVideoSubscriptionStats(profile.id);
+    await loadTutorVideoList(profile.id);
+}
 
         function switchMainTab(tab) {
             const tabSch = document.getElementById('main-tab-schedule');
