@@ -447,6 +447,89 @@
                 alert('Pengajuan pencairan dana berhasil dikirim! Admin akan segera memverifikasi dan mentransfer ke rekening kamu.');
             }
         }
+        async function loadTutorBookings(tutorId) {
+    const container = document.getElementById('booking-list');
+
+    const { data: bookings, error } = await _supabase
+        .from('bookings')
+        .select('*')
+        .eq('tutor_id', tutorId)
+        .order('booking_date', { ascending: true }); // Diurutkan berdasarkan tanggal jadwal terdekat
+
+    if (error || !bookings || bookings.length === 0) {
+        container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Belum ada jadwal sesi les privat.</p>`;
+        return;
+    }
+
+    container.innerHTML = '';
+    bookings.forEach(b => {
+        let locationDetail = '';
+        if (b.session_mode === 'online') {
+            locationDetail = `
+                <div class="bg-sky-50 border border-sky-200 rounded-xl p-3 space-y-1">
+                    <span class="text-sky-800 font-bold text-[11px] block flex items-center gap-1.5">
+                        <i class="fa-solid fa-video text-sky-600"></i> Mode Sesi: ONLINE
+                    </span>
+                    <p class="text-xs text-slate-600">Sesi dilaksanakan via Google Meet / Zoom. Silakan hubungi siswa via WhatsApp untuk membagikan link.</p>
+                </div>`;
+        } else if (b.offline_location === 'rumah_siswa') {
+            locationDetail = `
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1">
+                    <span class="text-amber-800 font-bold text-[11px] block flex items-center gap-1.5">
+                        <i class="fa-solid fa-house-user text-amber-600"></i> Mode Sesi: OFFLINE (Tutor ke Rumah Siswa)
+                    </span>
+                    <p class="text-xs text-slate-700 font-semibold">📍 Alamat Rumah Siswa:</p>
+                    <p class="text-xs text-slate-800 bg-white p-2 rounded-lg border border-amber-200 font-medium">${b.student_address || 'Alamat tidak dicantumkan'}</p>
+                </div>`;
+        } else {
+            locationDetail = `
+                <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 space-y-1">
+                    <span class="text-indigo-800 font-bold text-[11px] block flex items-center gap-1.5">
+                        <i class="fa-solid fa-building-user text-indigo-600"></i> Mode Sesi: OFFLINE (Siswa ke Rumah Tutor)
+                    </span>
+                    <p class="text-xs text-slate-600">Siswa akan datang belajar langsung ke lokasi / rumah kamu.</p>
+                </div>`;
+        }
+
+        const statusBadge = b.status === 'confirmed'
+            ? `<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700"><i class="fa-solid fa-check"></i> Disetujui</span>`
+            : `<span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700"><i class="fa-solid fa-clock"></i> Menunggu Verifikasi</span>`;
+
+        const waLink = `https://wa.me/${(b.student_phone || '').replace(/[^0-9]/g, '')}`;
+
+        container.innerHTML += `
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm hover:border-slate-300 transition">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center font-bold text-sm">
+                            <i class="fa-solid fa-user-graduate"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm">${b.student_name || 'Siswa GO-LES'}</h4>
+                            <a href="${waLink}" target="_blank" class="text-xs text-emerald-600 font-semibold hover:underline flex items-center gap-1">
+                                <i class="fa-brands fa-whatsapp"></i> ${b.student_phone || '-'}
+                            </a>
+                        </div>
+                    </div>
+                    <div>${statusBadge}</div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <div>
+                        <span class="text-slate-400 block font-semibold text-[10px]">TANGGAL LES</span>
+                        <span class="font-bold text-slate-800"><i class="fa-regular fa-calendar text-sky-600"></i> ${b.booking_date || '-'}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block font-semibold text-[10px]">JAM SESI</span>
+                        <span class="font-bold text-slate-800"><i class="fa-regular fa-clock text-sky-600"></i> ${b.booking_time || '-'}</span>
+                    </div>
+                </div>
+
+                ${locationDetail}
+            </div>
+        `;
+    });
+}
 
         async function logout() {
             await _supabase.auth.signOut();
