@@ -11,7 +11,11 @@ async function initSupabase() {
             if (!res.ok) throw new Error('Gagal memuat konfigurasi dari /api/config');
             const config = await res.json();
             
-            _supabase = supabase.createClient(config.supabaseUrl, config.supabaseKey);
+            if (typeof supabase !== 'undefined') {
+                _supabase = supabase.createClient(config.supabaseUrl, config.supabaseKey);
+            } else {
+                console.error('Supabase CDN SDK belum dimuat di HTML!');
+            }
             return _supabase;
         } catch (err) {
             console.error('Error Inisialisasi Supabase:', err);
@@ -26,4 +30,6 @@ async function getSupabase() {
     if (_supabase) return _supabase;
     return await initSupabase();
 }
+
+// Jalankan inisialisasi awal
 initSupabase();
