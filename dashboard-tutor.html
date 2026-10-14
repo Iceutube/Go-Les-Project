@@ -79,7 +79,7 @@
             </div>
         </div>
 
-        <!-- Navigation Tabs untuk Jadwal & Video -->
+        <!-- Navigation Tabs -->
         <div class="flex border-b border-slate-200 gap-2 bg-white px-4 pt-3 rounded-2xl border border-slate-200 shadow-sm">
             <button id="main-tab-schedule" onclick="switchMainTab('schedule')" class="py-3 px-5 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition flex items-center gap-2">
                 <i class="fa-solid fa-calendar-days"></i> Jadwal Mengajar Sesi
@@ -89,7 +89,7 @@
             </button>
         </div>
 
-        <!-- SECTION 1: JADWAL MENGAJAR TERPISAH -->
+        <!-- SECTION 1: JADWAL MENGAJAR -->
         <div id="section-schedule" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
@@ -110,7 +110,7 @@
                 </h3>
                 <span id="offline-eligible-badge" class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 border border-slate-200 text-[11px] font-semibold px-3 py-1.5 rounded-full">-</span>
             </div>
-            <div class="grid grid-cols-3 gap-3 text-center">
+            <div id="video-stats-box" class="grid grid-cols-3 gap-3 text-center">
                 <div class="bg-slate-50 rounded-xl p-3">
                     <span id="stat-video-subscribers" class="block text-lg font-extrabold text-slate-900">0</span>
                     <span class="text-[10px] text-slate-500 font-semibold">Pelanggan Aktif</span>
@@ -140,7 +140,7 @@
         </div>
     </main>
 
-    <!-- Modal Pengaturan Profil & Slot Jam -->
+    <!-- Modal Pengaturan Profil & Jam -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeSettingsModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg">
@@ -263,7 +263,7 @@
         </div>
     </div>
 
-    <!-- Modal Penarikan Dana Tutor -->
+    <!-- Modal Penarikan Dana -->
     <div id="withdraw-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl relative">
             <button onclick="closeWithdrawModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg">
@@ -299,7 +299,7 @@
         </div>
     </div>
 
-    <!-- Supabase JS & Config -->
+    <!-- Script Pendukung -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
@@ -358,7 +358,7 @@
             }
         }
 
-        // FUNGSI GANTI FOTO PROFIL
+        // --- FUNGSI GANTI FOTO PROFIL ---
         function triggerPfpUpload() {
             document.getElementById('pfp-file-input').click();
         }
@@ -399,7 +399,7 @@
             reader.readAsDataURL(file);
         }
 
-        // FUNGSI MODAL PENGATURAN PROFIL & JAM
+        // --- FUNGSI MODAL PENGATURAN PROFIL & JAM ---
         function openSettingsModal() {
             if (!currentTutorProfile) return;
             document.getElementById('edit-name').value = currentTutorProfile.name || '';
@@ -488,7 +488,7 @@
             }
         }
 
-        // FUNGSI PENARIKAN DANA
+        // --- FUNGSI PENARIKAN DANA ---
         function openWithdrawModal() {
             document.getElementById('withdraw-modal').classList.remove('hidden');
         }
@@ -530,7 +530,7 @@
             btn.innerText = 'Kirim Pengajuan Penarikan';
 
             if (!error) {
-                alert('Pengajuan penarikan dana berhasil dikirim! Admin akan memproses transfer ke rekening tujuan kamu.');
+                alert('Pengajuan penarikan dana berhasil dikirim!');
                 document.getElementById('form-withdraw').reset();
                 closeWithdrawModal();
             } else {
