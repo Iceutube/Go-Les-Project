@@ -83,26 +83,41 @@
     <script>
         let rawApprovedTutors = [];
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadIndexTutorData();
-        });
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadIndexTutorData();
+});
 
-        async function loadIndexTutorData() {
-            const { data: tutors, error } = await _supabase
-                .from('tutors')
-                .select('*')
-                .eq('status', 'approved')
-                .eq('role', 'tutor')
-                .order('id', { ascending: false });
+async function loadIndexTutorData() {
+    let attempts = 0;
+    while (!_supabase && attempts < 20) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
 
-            if (error) {
-                console.error(error);
-                return;
-            }
-
-            rawApprovedTutors = tutors || [];
-            filterIndexTutors();
+    if (!_supabase) {
+        console.error("Supabase client gagal dimuat.");
+        const grid = document.getElementById('index-tutor-grid');
+        if (grid) {
+            grid.innerHTML = `<p class="col-span-full text-center text-rose-500 py-8">Gagal terhubung ke database. Silakan refresh halaman.</p>`;
         }
+        return;
+    }
+
+    const { data: tutors, error } = await _supabase
+        .from('tutors')
+        .select('*')
+        .eq('status', 'approved')
+        .eq('role', 'tutor')
+        .order('id', { ascending: false });
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    rawApprovedTutors = tutors || [];
+    filterIndexTutors();
+}
 
         function filterIndexTutors() {
     const selectedMapel = document.getElementById('filter-mapel').value;
