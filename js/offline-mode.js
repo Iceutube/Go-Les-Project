@@ -114,6 +114,12 @@ async function renderTutorBookingHours(availableHoursStr, tutorId, selectedDate)
     const container = document.getElementById('booking-available-hours-container');
     if (!container) return;
     container.innerHTML = '';
+
+    if (!selectedDate) {
+        const dateInput = document.getElementById('booking-date');
+        selectedDate = dateInput ? dateInput.value : new Date().toISOString().split('T')[0];
+    }
+
     if (!availableHoursStr || availableHoursStr.trim() === '') {
         container.innerHTML = `<p class="col-span-full text-amber-600 bg-amber-50 border border-amber-200 p-3 rounded-xl text-[11px] font-semibold text-center"><i class="fa-solid fa-circle-info"></i> Tutor ini belum mengatur slot jam mengajar.</p>`;
         return;
