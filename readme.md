@@ -39,7 +39,6 @@ supabase-*.sql         Migrasi SQL tambahan (dijalankan manual)
 ## Tabel Supabase
 
 | Tabel | Isi |
-|---|---|
 | `tutors` | Profil **semua pengguna** — kolom `role` berisi `admin`, `tutor`, atau `siswa`; `user_id` mengacu ke `auth.users` |
 | `bookings` | Pemesanan sesi les (jadwal, mode, bukti bayar, status, PIN kehadiran, rating sesi) |
 | `messages` | Chat antar pengguna (`sender_id`, `receiver_id`, `message`) |
@@ -92,14 +91,6 @@ Tutor mengunggah link video dan menentukan harga langganan bulanan. Siswa berlan
 Saldo tutor = jumlah booking `confirmed`/`completed` × tarif per jam, dikurangi penarikan yang `pending`/`approved`. Tutor mengajukan penarikan, lalu admin menyetujui atau menolaknya.
 
 ## Cara Menjalankan
-
-> Frontend mengambil kredensial Supabase dari endpoint `/api/config`, jadi aplikasi **harus dijalankan lewat Vercel** (lokal dengan `vercel dev` atau deploy). Membuka file HTML langsung atau lewat Apache XAMPP saja tidak cukup karena `/api/config` tidak akan tersedia.
-
-### Prasyarat
-- [Node.js](https://nodejs.org) (versi LTS)
-- Vercel CLI: `npm install -g vercel`
-- Proyek Supabase dengan tabel di atas
-
 ### 1. Siapkan Supabase
 1. Buat tabel-tabel di atas di proyek Supabase kamu.
 2. Jalankan migrasi tambahan di **Supabase → SQL Editor**, berurutan:
@@ -108,15 +99,7 @@ Saldo tutor = jumlah booking `confirmed`/`completed` × tarif per jam, dikurangi
 3. Aktifkan Realtime untuk tabel `messages` (**Database → Replication**).
 
 ### 2. Atur Environment Variable
-Buat file `.env` di root proyek (sudah ada di `.gitignore`, jangan di-commit):
-
-```env
-SUPABASE_URL=https://xxxxx.supabase.co
-SUPABASE_KEY=<anon public key>
-```
-
-Gunakan **anon key**, bukan service role key — key ini dikirim ke browser.
-
+Buat file `.env` di root proyek
 ### 3. Jalankan Lokal
 
 ```bash
@@ -136,7 +119,6 @@ Lalu isi `SUPABASE_URL` dan `SUPABASE_KEY` di **Vercel → Project → Settings 
 ## Akun Uji Coba
 
 | Peran | Email | Password |
-|---|---|---|
 | Admin | admin@goles.com | 123 |
 | Tutor | el@gmail.com | 123 |
 | Siswa | siswa@goles.com | 123 |
