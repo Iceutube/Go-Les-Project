@@ -9,6 +9,12 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        /* Rating bintang: DOM urut 5→1 dan ditampilkan terbalik, jadi "~ label" menyalakan bintang di kirinya */
+        #video-review-stars label { color: #cbd5e1; transition: color .15s; }
+        #video-review-stars input:checked ~ label,
+        #video-review-stars label:hover,
+        #video-review-stars label:hover ~ label { color: #f59e0b; }
+        #video-review-stars input:focus-visible + label { outline: 2px solid #f59e0b; outline-offset: 2px; border-radius: 4px; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col relative">
@@ -57,6 +63,9 @@
             </button>
             <button id="student-tab-schedule" onclick="switchStudentTab('schedule')" class="py-3 px-5 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition flex items-center gap-2">
                 <i class="fa-solid fa-calendar-check"></i> Jadwal Les Saya
+            </button>
+            <button id="student-tab-videos" onclick="switchStudentTab('videos')" class="py-3 px-5 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition flex items-center gap-2">
+                <i class="fa-solid fa-film"></i> Video Langganan
             </button>
         </div>
         <div id="student-section-catalog" class="space-y-6">
@@ -122,7 +131,127 @@
             </div>
         </div>
 
+        <div id="student-section-videos" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-film text-emerald-600"></i> Video Mengajar yang Kamu Langgani
+                </h3>
+                <span class="text-xs text-slate-400 font-medium">Langganan berlaku 30 hari sejak pembayaran</span>
+            </div>
+
+            <div id="my-video-subs-list" class="space-y-3">
+                <p class="text-center text-xs text-slate-400 py-6">Memuat langganan video...</p>
+            </div>
+        </div>
+
     </main>
+
+    <!-- Modal Langganan Video Mengajar -->
+    <div id="video-sub-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeVideoSubscriptionModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg" aria-label="Tutup">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="flex items-center gap-3 pr-8">
+                <img id="video-sub-tutor-avatar" src="" alt="" class="w-12 h-12 rounded-2xl object-cover border border-slate-200">
+                <div>
+                    <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider"><i class="fa-solid fa-video"></i> Video Mengajar</span>
+                    <h3 id="video-sub-tutor-name" class="font-extrabold text-slate-900 text-sm">Nama Tutor</h3>
+                    <p id="video-sub-tutor-subject" class="text-xs text-sky-600 font-semibold">Mata Pelajaran</p>
+                </div>
+            </div>
+
+            <a id="video-sub-intro-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center gap-1.5 text-[11px] font-bold text-sky-600 hover:underline">
+                <i class="fa-brands fa-youtube"></i> Tonton video perkenalan (gratis)
+            </a>
+
+            <div id="video-sub-subscribe-box" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 space-y-3">
+                <ul class="text-[11px] text-emerald-800 space-y-1">
+                    <li><i class="fa-solid fa-check text-emerald-600"></i> Akses semua video mengajar tutor ini selama 30 hari</li>
+                    <li><i class="fa-solid fa-check text-emerald-600"></i> Beri ulasan untuk membantu tutor mendapat verifikasi offline</li>
+                </ul>
+                <button id="btn-subscribe-video" onclick="subscribeToVideo()" class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-emerald-600/20">
+                    Langganan Sekarang
+                </button>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-slate-700">Daftar Video</h4>
+                <div id="video-sub-gated-list" class="space-y-2"></div>
+            </div>
+
+            <div id="video-sub-review-box" class="hidden space-y-3 border-t border-slate-100 pt-4">
+                <p id="video-sub-expiry-info" class="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2"></p>
+
+                <form id="video-review-form" onsubmit="submitVideoReview(event)" class="space-y-3">
+                    <h4 class="text-xs font-bold text-slate-700">Beri Ulasan Video Mengajar</h4>
+                    <div class="flex flex-row-reverse justify-end gap-1 text-2xl" id="video-review-stars">
+                        <input type="radio" id="vr-star-5" name="video-review-rating" value="5" class="sr-only">
+                        <label for="vr-star-5" class="cursor-pointer" title="5 bintang"><i class="fa-solid fa-star"></i></label>
+                        <input type="radio" id="vr-star-4" name="video-review-rating" value="4" class="sr-only">
+                        <label for="vr-star-4" class="cursor-pointer" title="4 bintang"><i class="fa-solid fa-star"></i></label>
+                        <input type="radio" id="vr-star-3" name="video-review-rating" value="3" class="sr-only">
+                        <label for="vr-star-3" class="cursor-pointer" title="3 bintang"><i class="fa-solid fa-star"></i></label>
+                        <input type="radio" id="vr-star-2" name="video-review-rating" value="2" class="sr-only">
+                        <label for="vr-star-2" class="cursor-pointer" title="2 bintang"><i class="fa-solid fa-star"></i></label>
+                        <input type="radio" id="vr-star-1" name="video-review-rating" value="1" class="sr-only">
+                        <label for="vr-star-1" class="cursor-pointer" title="1 bintang"><i class="fa-solid fa-star"></i></label>
+                    </div>
+                    <textarea id="video-review-comment" rows="3" maxlength="500" placeholder="Ceritakan pengalamanmu menonton video mengajar tutor ini..." class="w-full text-xs p-3 border border-slate-200 rounded-xl outline-none focus:border-emerald-600 bg-slate-50"></textarea>
+                    <button type="submit" id="btn-submit-video-review" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                        Kirim Ulasan
+                    </button>
+                </form>
+
+                <div id="video-review-done" class="hidden text-center text-[11px] text-slate-500 bg-slate-50 border border-slate-200 rounded-xl py-4">
+                    <i class="fa-solid fa-circle-check text-emerald-600 text-lg block mb-1"></i>
+                    Kamu sudah memberi ulasan untuk langganan ini. Terima kasih!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Simulasi Pembayaran Langganan Video -->
+    <div id="video-payment-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeVideoPaymentModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 text-lg" aria-label="Tutup">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center space-y-1 pr-6 pl-6">
+                <span class="inline-block bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-md">Simulasi pembayaran (demo)</span>
+                <h3 class="font-extrabold text-slate-900 text-sm">Pembayaran Langganan Video</h3>
+                <p id="pay-tutor-name" class="text-xs text-slate-500">Tutor: -</p>
+                <p id="pay-amount-display" class="text-2xl font-extrabold text-indigo-700">Rp 0</p>
+                <p class="text-[10px] text-slate-400">per 30 hari</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="pay-method-qris" onclick="switchPayMethod('qris')">
+                    <i class="fa-solid fa-qrcode text-lg"></i> QRIS
+                </button>
+                <button type="button" id="pay-method-tf" onclick="switchPayMethod('tf')">
+                    <i class="fa-solid fa-building-columns text-lg"></i> Transfer Bank
+                </button>
+            </div>
+
+            <div id="pay-box-qris" class="text-center bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
+                <i class="fa-solid fa-qrcode text-8xl text-slate-800"></i>
+                <p class="text-[11px] text-slate-500">Scan QR dengan e-wallet / m-banking kamu</p>
+            </div>
+
+            <div id="pay-box-tf" class="hidden bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-1 text-[11px] text-slate-600">
+                <p>Transfer ke rekening GO-LES:</p>
+                <p class="text-sm font-extrabold text-slate-900">BCA 123-456-7890</p>
+                <p>a.n GO-LES Admin</p>
+            </div>
+
+            <button id="btn-confirm-video-pay" onclick="processDummyPayment()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-xs transition shadow-md shadow-indigo-600/20">
+                <i class="fa-solid fa-circle-check"></i> Bayar & Aktifkan Langganan
+            </button>
+        </div>
+    </div>
 
     <div id="booking-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
@@ -286,6 +415,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             await checkStudentAuth();
             await loadApprovedTutors();
+            await loadMyVideoSubscriptions();
             listenToRealtimeChat();
         });
 
@@ -315,22 +445,16 @@
 }
 
         function switchStudentTab(tab) {
-            const tabCat = document.getElementById('student-tab-catalog');
-            const tabSch = document.getElementById('student-tab-schedule');
-            const secCat = document.getElementById('student-section-catalog');
-            const secSch = document.getElementById('student-section-schedule');
+            const activeClass = 'py-3 px-5 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition flex items-center gap-2';
+            const inactiveClass = 'py-3 px-5 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition flex items-center gap-2';
 
-            if (tab === 'catalog') {
-                tabCat.className = 'py-3 px-5 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition flex items-center gap-2';
-                tabSch.className = 'py-3 px-5 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition flex items-center gap-2';
-                secCat.classList.remove('hidden');
-                secSch.classList.add('hidden');
-            } else {
-                tabSch.className = 'py-3 px-5 text-xs font-bold border-b-2 border-sky-600 text-sky-600 transition flex items-center gap-2';
-                tabCat.className = 'py-3 px-5 text-xs font-bold text-slate-500 border-b-2 border-transparent hover:text-slate-800 transition flex items-center gap-2';
-                secSch.classList.remove('hidden');
-                secCat.classList.add('hidden');
-            }
+            ['catalog', 'schedule', 'videos'].forEach(name => {
+                const isActive = name === tab;
+                document.getElementById(`student-tab-${name}`).className = isActive ? activeClass : inactiveClass;
+                document.getElementById(`student-section-${name}`).classList.toggle('hidden', !isActive);
+            });
+
+            if (tab === 'videos') loadMyVideoSubscriptions();
         }
 
         async function loadApprovedTutors() {
@@ -402,13 +526,19 @@
                             ${offlineBadge}
                         </div>
 
-                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                            <div>
-                                <span class="text-[10px] text-slate-400 block font-semibold">TARIF SESI</span>
-                                <span class="text-xs font-extrabold text-slate-900">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
+                        <div class="pt-3 border-t border-slate-100 space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block font-semibold">TARIF SESI</span>
+                                    <span class="text-xs font-extrabold text-slate-900">Rp ${(t.price || 0).toLocaleString('id-ID')}/jam</span>
+                                </div>
+                                <button onclick="openBookingModal(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm">
+                                    Pesan Sesi
+                                </button>
                             </div>
-                            <button onclick="openBookingModal(${t.id})" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-sm">
-                                Pesan Sesi
+                            <button onclick="openVideoSubscriptionModal(${t.id})" class="w-full flex items-center justify-between gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold px-3 py-2 rounded-xl text-xs transition">
+                                <span><i class="fa-solid fa-circle-play"></i> Video Mengajar</span>
+                                <span class="text-[11px]">${getVideoSubPrice(t) > 0 ? `Rp ${getVideoSubPrice(t).toLocaleString('id-ID')}/bulan` : 'Belum dibuka'}</span>
                             </button>
                         </div>
                     </div>
