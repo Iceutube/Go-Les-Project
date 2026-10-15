@@ -4,6 +4,8 @@ let bookingTargetTutor = null;
 async function openBookingModal(tutorId) {
     const tutor = rawApprovedTutors.find(t => t.id === tutorId);
     if (!tutor) return;
+    // Siswa wajib merating sesi yang sudah selesai sebelum memesan lagi
+    if (!(await ensureSessionsRatedBeforeBooking())) return;
     bookingTargetTutor = tutor;
     
     document.getElementById('booking-modal-tutor-name').innerText = tutor.name;
@@ -209,6 +211,10 @@ function closeBookingModal() {
 async function submitBooking(e) {
     e.preventDefault();
     if (!bookingTargetTutor || !currentStudent) return;
+    if (!(await ensureSessionsRatedBeforeBooking())) {
+        closeBookingModal();
+        return;
+    }
 
     const modeInput = document.getElementById('booking-form-mode');
     const mode = modeInput ? modeInput.value : 'online';

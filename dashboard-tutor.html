@@ -486,7 +486,7 @@
                 .from('bookings')
                 .select('id')
                 .eq('tutor_id', tutorId)
-                .eq('status', 'confirmed');
+                .in('status', ['confirmed', 'completed']);
 
             const totalEarnedFromBookings = (bookings || []).length * hourlyRate;
 
@@ -542,9 +542,17 @@
                     locationBadge = `<span class="bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold px-2 py-0.5 rounded text-[10px]"><i class="fa-solid fa-building-user"></i> Siswa Ke Rumah Tutor</span>`;
                 }
 
-                const statusBadge = b.status === 'confirmed'
-                    ? `<span class="bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full text-[10px]"><i class="fa-solid fa-check"></i> Disetujui</span>`
-                    : `<span class="bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full text-[10px]"><i class="fa-solid fa-clock"></i> Pending</span>`;
+                let statusBadge;
+                if (b.status === 'completed') {
+                    const ratingInfo = b.session_rating
+                        ? `<div class="mt-1 text-[10px] text-amber-400" title="Rating dari siswa">${'<i class="fa-solid fa-star"></i>'.repeat(b.session_rating)}<span class="text-slate-200">${'<i class="fa-solid fa-star"></i>'.repeat(5 - b.session_rating)}</span></div>`
+                        : `<div class="mt-1 text-[10px] text-slate-400">Belum dirating</div>`;
+                    statusBadge = `<span class="bg-slate-800 text-white font-bold px-2.5 py-1 rounded-full text-[10px] whitespace-nowrap"><i class="fa-solid fa-flag-checkered"></i> Sesi telah selesai</span>${ratingInfo}`;
+                } else if (b.status === 'confirmed') {
+                    statusBadge = `<span class="bg-emerald-100 text-emerald-700 font-bold px-2.5 py-1 rounded-full text-[10px]"><i class="fa-solid fa-check"></i> Disetujui</span>`;
+                } else {
+                    statusBadge = `<span class="bg-amber-100 text-amber-700 font-bold px-2.5 py-1 rounded-full text-[10px]"><i class="fa-solid fa-clock"></i> Pending</span>`;
+                }
 
                 const proofButton = (b.payment_proof && b.payment_proof.length > 20)
                     ? `<button onclick='showPaymentProof(${JSON.stringify(b.payment_proof)})' class="text-xs bg-sky-50 text-sky-600 border border-sky-200 px-2.5 py-1 rounded-lg font-bold hover:bg-sky-100 transition inline-flex items-center gap-1"><i class="fa-solid fa-image"></i> Lihat</button>`

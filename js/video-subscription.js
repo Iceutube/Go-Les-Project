@@ -326,26 +326,38 @@ async function checkExistingReview(subscriptionId) {
     }
 }
 
-// Hitung ulang rating tutor dari semua ulasan video, supaya kartu tutor
-// dan syarat verifikasi offline ikut berubah.
+// Hitung ulang rating tutor dari ulasan video + rating sesi les, supaya kartu tutor
+// ikut berubah. Syarat verifikasi offline tetap dihitung dari ulasan video saja.
 async function refreshTutorRating(sb, tutorId) {
-    const { data: reviews, error } = await sb
+    const { data: videoReviews, error } = await sb
         .from('video_reviews')
         .select('rating')
         .eq('tutor_id', tutorId);
-    if (error || !reviews) return;
+    if (error || !videoReviews) return;
 
-    const totalReviews = reviews.length;
-    const avgRating = totalReviews > 0
-        ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews) * 10) / 10
+    // Kalau kolom session_rating belum ada, anggap belum ada rating sesi
+    const { data: sessionRatings } = await sb
+        .from('bookings')
+        .select('session_rating')
+        .eq('tutor_id', tutorId)
+        .not('session_rating', 'is', null);
+
+    const avg = list => list.length > 0
+        ? Math.round((list.reduce((sum, r) => sum + r, 0) / list.length) * 10) / 10
         : 0;
+
+    const videoValues = videoReviews.map(r => r.rating);
+    const allValues = videoValues.concat((sessionRatings || []).map(b => b.session_rating));
+    const totalReviews = allValues.length;
+    const avgRating = avg(allValues);
+    const avgVideoRating = avg(videoValues);
 
     const { error: updateError } = await sb
         .from('tutors')
         .update({
             rating: avgRating,
             total_reviews: totalReviews,
-            offline_eligible: totalReviews >= OFFLINE_ELIGIBLE_MIN_REVIEWS && avgRating >= OFFLINE_ELIGIBLE_MIN_RATING
+            offline_eligible: videoValues.length >= OFFLINE_ELIGIBLE_MIN_REVIEWS && avgVideoRating >= OFFLINE_ELIGIBLE_MIN_RATING
         })
         .eq('id', tutorId);
 

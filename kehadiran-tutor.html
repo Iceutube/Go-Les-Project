@@ -27,7 +27,7 @@
     <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-8 space-y-6">
         <div class="bg-sky-600 text-white p-6 rounded-2xl shadow-md space-y-2">
             <h1 class="text-lg font-extrabold"><i class="fa-solid fa-key"></i> Buat & Bagikan PIN Kehadiran</h1>
-            <p class="text-xs text-sky-100 leading-relaxed">Klik "Buat PIN Kehadiran" saat jam sesi mengajar dimulai. Berikan kode PIN tersebut kepada siswa untuk memverifikasi kehadiran dan menyelesaikan sesi.</p>
+            <p class="text-xs text-sky-100 leading-relaxed">Tombol "Buat PIN Kehadiran" terbuka otomatis mulai 15 menit sebelum jam sesi dimulai. Berikan kode PIN tersebut kepada siswa untuk memverifikasi kehadiran dan menyelesaikan sesi.</p>
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
@@ -71,92 +71,172 @@
     <script src="js/attendance.js"></script>
     <script>
         let currentTutor = null;
+        let tutorAttendanceBookings = [];
+
+        function escapeText(str) {
+            const div = document.createElement('div');
+            div.textContent = str ?? '';
+            return div.innerHTML;
+        }
+
+        function showListMessage(text, isError) {
+            document.getElementById('tutor-session-list').innerHTML =
+                `<p class="text-center ${isError ? 'text-rose-500' : 'text-slate-400'} text-xs py-8">${text}</p>`;
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const { data: { user } } = await _supabase.auth.getUser();
-                if (!user) { 
-                    window.location.href = 'login.html'; 
-                    return; 
+                const sb = await getSupabase();
+                if (!sb) {
+                    showListMessage('Gagal terhubung ke server. Coba refresh halaman.', true);
+                    return;
                 }
-                const { data: profile } = await _supabase
+
+                const { data: { user } } = await sb.auth.getUser();
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Cari profil tutor berdasarkan user_id, fallback ke email (akun lama)
+                let { data: profile } = await sb
                     .from('tutors')
                     .select('*')
-                    .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-                    .single();
+                    .eq('user_id', user.id)
+                    .eq('role', 'tutor')
+                    .maybeSingle();
+                if (!profile) {
+                    ({ data: profile } = await sb
+                        .from('tutors')
+                        .select('*')
+                        .eq('email', user.email)
+                        .eq('role', 'tutor')
+                        .limit(1)
+                        .maybeSingle());
+                }
 
                 if (!profile) {
-                    alert('Data profil tutor tidak ditemukan.');
+                    showListMessage('Data profil tutor tidak ditemukan. Pastikan kamu login dengan akun tutor.', true);
                     return;
                 }
                 currentTutor = profile;
                 document.getElementById('tutor-name-display').innerText = profile.name;
                 await loadTutorAttendanceSessions();
+
+                // Render ulang tiap 30 detik supaya tombol PIN terbuka sendiri saat waktunya tiba
+                setInterval(renderTutorAttendanceSessions, 30 * 1000);
             } catch (err) {
                 console.error('Error init:', err);
+                showListMessage('Terjadi kesalahan saat memuat halaman: ' + escapeText(err.message || err), true);
             }
         });
 
         async function loadTutorAttendanceSessions() {
-            const list = document.getElementById('tutor-session-list');
-            list.innerHTML = `<p class="text-center text-slate-400 text-xs py-8">Memuat daftar sesi...</p>`;
+            if (!currentTutor) return;
+            showListMessage('Memuat daftar sesi...', false);
 
-            const { data: bookings, error } = await _supabase
+            const sb = await getSupabase();
+            if (!sb) {
+                showListMessage('Gagal terhubung ke server. Coba lagi.', true);
+                return;
+            }
+
+            const { data: bookings, error } = await sb
                 .from('bookings')
                 .select('*')
                 .eq('tutor_id', currentTutor.id)
-                .in('status', ['confirmed', 'completed'])
-                .order('booking_date', { ascending: false });
+                .in('status', ['confirmed', 'completed']);
 
             if (error) {
-                list.innerHTML = `<p class="text-center text-rose-500 text-xs py-8">Gagal memuat sesi: ${error.message}</p>`;
+                showListMessage('Gagal memuat sesi: ' + escapeText(error.message), true);
                 return;
             }
 
-            if (!bookings || bookings.length === 0) {
-                list.innerHTML = `<p class="text-center text-slate-400 text-xs py-8">Belum ada sesi mengajar aktif yang terkonfirmasi.</p>`;
-                return;
-            }
-
-            list.innerHTML = '';
-            bookings.forEach(b => {
-                const passcodeUI = b.attendance_passcode 
-                    ? `<div class="text-right">
-                         <span class="text-[10px] text-slate-400 font-bold block mb-1">PIN KEHADIRAN SISWA:</span>
-                         <span class="bg-emerald-100 text-emerald-800 font-mono font-black text-lg px-3.5 py-1.5 rounded-xl border border-emerald-200">${b.attendance_passcode}</span>
-                       </div>`
-                    : `<button type="button" onclick="handleCreatePIN(${b.id})" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
-                         <i class="fa-solid fa-wand-magic-sparkles"></i> Buat PIN Kehadiran
-                       </button>`;
-
-                const isCompleted = b.status === 'completed' 
-                    ? `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check"></i> Selesai</span>`
-                    : `<span class="bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${b.session_mode || 'online'}</span>`;
-
-                list.innerHTML += `
-                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div class="space-y-1 text-xs">
-                            ${isCompleted}
-                            <h4 class="font-extrabold text-slate-900 text-sm">Siswa: ${b.student_name || 'Siswa GO-LES'}</h4>
-                            <p class="text-slate-500 font-medium"><i class="fa-regular fa-calendar"></i> ${b.booking_date} | <i class="fa-regular fa-clock"></i> ${b.booking_time}</p>
-                        </div>
-                        ${passcodeUI}
-                    </div>
-                `;
+            // Sesi aktif terdekat di atas, sesi selesai di bawah (terbaru dulu)
+            const startTime = b => (getSessionStart(b) || new Date(0)).getTime();
+            tutorAttendanceBookings = (bookings || []).sort((a, b) => {
+                if (a.status !== b.status) return a.status === 'confirmed' ? -1 : 1;
+                return a.status === 'confirmed' ? startTime(a) - startTime(b) : startTime(b) - startTime(a);
             });
+            renderTutorAttendanceSessions();
         }
 
-        async function handleCreatePIN(bookingId) {
-            if (typeof generateAttendancePasscode !== 'function') {
-                alert('Fungsi generateAttendancePasscode belum dimuat. Pastikan file js/attendance.js tersedia.');
+        function formatOpenTime(openTime) {
+            const now = new Date();
+            const minutesLeft = Math.ceil((openTime - now) / 60000);
+            const timeStr = openTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            if (openTime.toDateString() === now.toDateString()) {
+                return minutesLeft <= 60
+                    ? `Dibuka pukul ${timeStr} (${minutesLeft} menit lagi)`
+                    : `Dibuka hari ini pukul ${timeStr}`;
+            }
+            return `Dibuka ${openTime.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} pukul ${timeStr}`;
+        }
+
+        function renderTutorAttendanceSessions() {
+            const list = document.getElementById('tutor-session-list');
+            if (tutorAttendanceBookings.length === 0) {
+                showListMessage('Belum ada sesi mengajar aktif yang terkonfirmasi.', false);
                 return;
             }
 
-            const code = await generateAttendancePasscode(bookingId);
-            if (code) {
-                // Tampilkan Pop-up PIN
-                document.getElementById('modal-passcode-text').innerText = code;
-                document.getElementById('pin-display-modal').classList.remove('hidden');
+            list.innerHTML = tutorAttendanceBookings.map(b => {
+                const isCompleted = b.status === 'completed';
+                let actionUI;
+
+                if (isCompleted) {
+                    actionUI = `<span class="text-[11px] text-slate-400 font-semibold"><i class="fa-solid fa-circle-check text-emerald-500"></i> Kehadiran sudah diverifikasi</span>`;
+                } else if (b.attendance_passcode) {
+                    actionUI = `<div class="text-right">
+                         <span class="text-[10px] text-slate-400 font-bold block mb-1">PIN KEHADIRAN SISWA:</span>
+                         <span class="bg-emerald-100 text-emerald-800 font-mono font-black text-lg px-3.5 py-1.5 rounded-xl border border-emerald-200">${escapeText(b.attendance_passcode)}</span>
+                       </div>`;
+                } else if (isPinWindowOpen(b)) {
+                    actionUI = `<button type="button" onclick="handleCreatePIN(${Number(b.id)}, this)" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                         <i class="fa-solid fa-wand-magic-sparkles"></i> Buat PIN Kehadiran
+                       </button>`;
+                } else {
+                    actionUI = `<div class="text-right space-y-1">
+                         <button type="button" disabled class="bg-slate-200 text-slate-400 font-bold px-4 py-2.5 rounded-xl text-xs cursor-not-allowed">
+                             <i class="fa-solid fa-lock"></i> Buat PIN Kehadiran
+                         </button>
+                         <span class="block text-[10px] text-slate-500 font-semibold">${formatOpenTime(getPinOpenTime(b))}</span>
+                       </div>`;
+                }
+
+                const badge = isCompleted
+                    ? `<span class="bg-slate-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-flag-checkered"></i> Sesi telah selesai</span>`
+                    : `<span class="bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${escapeText(b.session_mode || 'online')}</span>`;
+
+                return `
+                    <div class="${isCompleted ? 'bg-white opacity-75' : 'bg-slate-50'} border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div class="space-y-1 text-xs">
+                            ${badge}
+                            <h4 class="font-extrabold text-slate-900 text-sm">Siswa: ${escapeText(b.student_name || 'Siswa GO-LES')}</h4>
+                            <p class="text-slate-500 font-medium"><i class="fa-regular fa-calendar"></i> ${escapeText(b.booking_date)} | <i class="fa-regular fa-clock"></i> ${escapeText(b.booking_time)}</p>
+                        </div>
+                        ${actionUI}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function handleCreatePIN(bookingId, btn) {
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Membuat PIN...';
+            }
+
+            try {
+                const code = await generateAttendancePasscode(bookingId);
+                if (code) {
+                    document.getElementById('modal-passcode-text').innerText = code;
+                    document.getElementById('pin-display-modal').classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error('Error buat PIN:', err);
+                alert('Terjadi kesalahan saat membuat PIN: ' + (err.message || err));
+            } finally {
                 await loadTutorAttendanceSessions();
             }
         }

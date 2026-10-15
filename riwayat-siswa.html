@@ -71,7 +71,9 @@
             const createdAt = new Date(b.created_at);
             const minutesDiff = (now - createdAt) / (1000 * 60);
             let statusBadge = '';
-            if (b.status === 'confirmed' || minutesDiff >= 10) {
+            if (b.status === 'completed') {
+                statusBadge = `<span class="bg-slate-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase"><i class="fa-solid fa-flag-checkered"></i> Sesi telah selesai</span>`;
+            } else if (b.status === 'confirmed' || minutesDiff >= 10) {
                 statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase"><i class="fa-solid fa-circle-check"></i> Terverifikasi</span>`;
             } else {
                 const remainingMins = Math.max(0, Math.ceil(10 - minutesDiff));

@@ -77,7 +77,12 @@
         let selectedBookingId = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { user } } = await _supabase.auth.getUser();
+            const sb = await getSupabase();
+            if (!sb) {
+                document.getElementById('student-session-list').innerHTML = `<p class="text-center text-rose-500 text-xs py-8">Gagal terhubung ke server. Coba refresh halaman.</p>`;
+                return;
+            }
+            const { data: { user } } = await sb.auth.getUser();
             if (!user) { window.location.href = 'login.html'; return; }
             currentStudent = user;
             document.getElementById('student-name-display').innerText = user.email.split('@')[0];
@@ -106,7 +111,7 @@
                 list.innerHTML += `
                     <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                         <div class="space-y-1 text-xs">
-                            <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${b.learning_mode || 'online'}</span>
+                            <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">${b.session_mode || 'online'}</span>
                             <h4 class="font-extrabold text-slate-900 text-sm">Tutor: ${tutorName} (${subject})</h4>
                             <p class="text-slate-500 font-medium"><i class="fa-regular fa-calendar"></i> ${b.booking_date} | <i class="fa-regular fa-clock"></i> ${b.booking_time}</p>
                         </div>
@@ -143,8 +148,10 @@
             btn.innerText = 'Verifikasi Kehadiran Selesai';
 
             if (isSuccess) {
+                const finishedBookingId = selectedBookingId;
                 closePinModal();
-                await loadStudentAttendanceSessions();
+                // Langsung arahkan siswa untuk memberi rating sesi yang baru selesai
+                window.location.href = `dashboard-siswa.html?tab=schedule&rate=${finishedBookingId}`;
             }
         }
     </script>
