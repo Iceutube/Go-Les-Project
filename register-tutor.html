@@ -143,11 +143,40 @@
             });
         }
 
+        function resetSubmitButton() {
+            const btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.innerText = 'Daftar Sebagai Tutor';
+            btnSubmit.disabled = false;
+        }
+
         document.getElementById('form-register-tutor').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btnSubmit = document.getElementById('btn-submit');
+
+            if (document.querySelectorAll('input[name="specific_grades"]:checked').length === 0) {
+                alert('Pilih minimal satu kelas yang bisa kamu ajar.');
+                return;
+            }
+
             btnSubmit.innerText = 'Memproses Pendaftaran...';
             btnSubmit.disabled = true;
+
+            try {
+                await registerTutor();
+            } catch (err) {
+                console.error('Error pendaftaran tutor:', err);
+                alert('Terjadi kesalahan saat mendaftar: ' + (err.message || err));
+                resetSubmitButton();
+            }
+        });
+
+        async function registerTutor() {
+            const sb = await getSupabase();
+            if (!sb) {
+                alert('Gagal terhubung ke server. Periksa koneksi lalu coba lagi.');
+                resetSubmitButton();
+                return;
+            }
 
             const name = document.getElementById('reg-name').value.trim();
             const email = document.getElementById('reg-email').value.trim();
@@ -164,17 +193,25 @@
             const rawVideoPrice = parseInt(document.getElementById('reg-video-price').value) || 0;
             const videoSubscriptionPrice = Math.min(Math.max(rawVideoPrice, 0), 20000);
 
-            let { data: authData, error: authError } = await _supabase.auth.signUp({
+            let { data: authData, error: authError } = await sb.auth.signUp({
                 email: email,
                 password: password
             });
 
-            if (authError && authError.message.includes('already registered')) {
-                const { data: signInData, error: signInError } = await _supabase.auth.signInWithPassword({
+            // Email sudah terdaftar: Supabase mengembalikan error "already registered",
+            // atau (jika konfirmasi email aktif) user palsu dengan identities kosong.
+            const alreadyRegistered =
+                (authError && authError.message.toLowerCase().includes('already registered')) ||
+                (!authError && authData?.user && Array.isArray(authData.user.identities) && authData.user.identities.length === 0);
+
+            if (alreadyRegistered) {
+                const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
-                if (!signInError) {
+                if (signInError) {
+                    authError = { message: 'Email sudah terdaftar. Gunakan password yang benar atau masuk lewat halaman login.' };
+                } else {
                     authData = signInData;
                     authError = null;
                 }
@@ -182,12 +219,17 @@
 
             if (authError) {
                 alert('Gagal mendaftarkan akun autentikasi: ' + authError.message);
-                btnSubmit.innerText = 'Daftar Sebagai Tutor';
-                btnSubmit.disabled = false;
+                resetSubmitButton();
                 return;
             }
 
-            if (authData.user) {
+            if (!authData?.user) {
+                alert('Pendaftaran gagal: data akun tidak diterima dari server. Silakan coba lagi.');
+                resetSubmitButton();
+                return;
+            }
+
+            {
                 const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0284c7&color=fff`;
                 const profileData = {
                     user_id: authData.user.id,
@@ -207,7 +249,7 @@
                     video_subscription_price: videoSubscriptionPrice
                 };
 
-                const { data: existingProfiles } = await _supabase
+                const { data: existingProfiles } = await sb
                     .from('tutors')
                     .select('id')
                     .eq('email', email);
@@ -215,13 +257,13 @@
                 let profileError = null;
 
                 if (existingProfiles && existingProfiles.length > 0) {
-                    const res = await _supabase
+                    const res = await sb
                         .from('tutors')
                         .update(profileData)
                         .eq('email', email);
                     profileError = res.error;
                 } else {
-                    const res = await _supabase
+                    const res = await sb
                         .from('tutors')
                         .insert([profileData]);
                     profileError = res.error;
@@ -229,14 +271,13 @@
 
                 if (profileError) {
                     alert('Gagal menyimpan profil tutor: ' + profileError.message);
-                    btnSubmit.innerText = 'Daftar Sebagai Tutor';
-                    btnSubmit.disabled = false;
+                    resetSubmitButton();
                 } else {
                     alert('Pendaftaran tutor berhasil! Silakan masuk ke akun kamu.');
                     window.location.href = 'login.html';
                 }
             }
-        });
+        }
     </script>
 </body>
 </html>
