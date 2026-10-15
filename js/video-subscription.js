@@ -326,50 +326,28 @@ async function checkExistingReview(subscriptionId) {
     }
 }
 
-// Hitung ulang rating tutor dari ulasan video + rating sesi les, supaya kartu tutor
-// ikut berubah. Syarat verifikasi offline tetap dihitung dari ulasan video saja.
+// Rating & jumlah ulasan tutor dihitung otomatis oleh trigger database
+// (lihat supabase-tutor-rating-trigger.sql), karena akun siswa tidak boleh
+// mengubah baris tutor (RLS). Di sini cukup ambil nilai terbarunya untuk kartu tutor.
 async function refreshTutorRating(sb, tutorId) {
-    const { data: videoReviews, error } = await sb
-        .from('video_reviews')
-        .select('rating')
-        .eq('tutor_id', tutorId);
-    if (error || !videoReviews) return;
-
-    // Kalau kolom session_rating belum ada, anggap belum ada rating sesi
-    const { data: sessionRatings } = await sb
-        .from('bookings')
-        .select('session_rating')
-        .eq('tutor_id', tutorId)
-        .not('session_rating', 'is', null);
-
-    const avg = list => list.length > 0
-        ? Math.round((list.reduce((sum, r) => sum + r, 0) / list.length) * 10) / 10
-        : 0;
-
-    const videoValues = videoReviews.map(r => r.rating);
-    const allValues = videoValues.concat((sessionRatings || []).map(b => b.session_rating));
-    const totalReviews = allValues.length;
-    const avgRating = avg(allValues);
-    const avgVideoRating = avg(videoValues);
-
-    const { error: updateError } = await sb
+    const { data: tutor, error } = await sb
         .from('tutors')
-        .update({
-            rating: avgRating,
-            total_reviews: totalReviews,
-            offline_eligible: videoValues.length >= OFFLINE_ELIGIBLE_MIN_REVIEWS && avgVideoRating >= OFFLINE_ELIGIBLE_MIN_RATING
-        })
-        .eq('id', tutorId);
+        .select('id, rating, total_reviews, offline_eligible')
+        .eq('id', tutorId)
+        .maybeSingle();
 
-    if (updateError) {
-        console.warn('Gagal memperbarui rating tutor:', updateError.message);
+    if (error || !tutor) {
+        console.warn('Gagal memuat rating tutor terbaru:', error ? error.message : 'tutor tidak ditemukan');
         return;
     }
 
-    const cached = typeof rawApprovedTutors !== 'undefined' ? rawApprovedTutors.find(t => t.id === tutorId) : null;
+    const cached = typeof rawApprovedTutors !== 'undefined'
+        ? rawApprovedTutors.find(t => String(t.id) === String(tutorId))
+        : null;
     if (cached) {
-        cached.rating = avgRating;
-        cached.total_reviews = totalReviews;
+        cached.rating = tutor.rating;
+        cached.total_reviews = tutor.total_reviews;
+        cached.offline_eligible = tutor.offline_eligible;
         if (typeof filterTutors === 'function') filterTutors();
     }
 }
