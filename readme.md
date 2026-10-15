@@ -86,7 +86,7 @@ Sesi juga dianggap selesai jika sudah `confirmed` dan jam sesinya sudah lewat.
 - Trigger database menghitung ulang `rating` dan `total_reviews` tutor. Tutor dengan ≥ 5 ulasan video dan rata-rata ≥ 4.0 ditandai `offline_eligible`.
 
 ### 8. Video Mengajar
-Tutor mengunggah link video dan menentukan harga langganan bulanan. Siswa berlangganan lewat pembayaran (simulasi/dummy) untuk membuka daftar video tutor tersebut selama 1 bulan.
+Tutor mengunggah link video dan menentukan harga langganan bulanan. Siswa berlangganan lewat pembayaran (simulasi/dummy) untuk membuka daftar video tutor tersebut selama 30 hari.
 
 ### 9. Saldo & Penarikan (Tutor)
 Saldo tutor = jumlah booking `confirmed`/`completed` × tarif per jam, dikurangi penarikan yang `pending`/`approved`. Tutor mengajukan penarikan, lalu admin menyetujui atau menolaknya.
