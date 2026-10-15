@@ -581,6 +581,9 @@
                                     Pesan Sesi
                                 </button>
                             </div>
+                            <button onclick="startChatWithTutor(${t.id})" ${t.user_id ? '' : 'disabled title="Tutor belum bisa menerima pesan"'} class="w-full flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl text-xs transition disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="fa-solid fa-comment-dots text-emerald-600"></i> Chat Tutor
+                            </button>
                             <button onclick="openVideoSubscriptionModal(${t.id})" class="w-full flex items-center justify-between gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold px-3 py-2 rounded-xl text-xs transition">
                                 <span><i class="fa-solid fa-circle-play"></i> Video Mengajar</span>
                                 <span class="text-[11px]">${getVideoSubPrice(t) > 0 ? `Rp ${getVideoSubPrice(t).toLocaleString('id-ID')}/bulan` : 'Belum dibuka'}</span>
@@ -598,7 +601,7 @@
 
             const { data: bookings, error } = await _supabase
                 .from('bookings')
-                .select('*, tutors(name, subject, phone_number, location)')
+                .select('*, tutors(name, subject, phone_number, location, user_id, avatar)')
                 .eq('student_id', studentId)
                 .order('booking_date', { ascending: true });
 
@@ -676,6 +679,11 @@
                             ${b.student_address && b.offline_location === 'rumah_siswa' ? `<p class="text-[11px] text-slate-500 mt-1"><strong>Alamat Pengiriman:</strong> ${b.student_address}</p>` : ''}
                         </div>
 
+                        ${b.tutors && b.tutors.user_id ? `
+                        <button onclick="startChatWithTutor(${b.tutor_id})" class="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold py-2.5 rounded-xl text-xs transition">
+                            <i class="fa-solid fa-comment-dots"></i> Chat dengan Tutor
+                        </button>` : ''}
+
                         ${ratingSection}
                     </div>
                 `;
@@ -694,7 +702,7 @@
                 .order('created_at', { ascending: false });
 
             if (!messages || messages.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan dengan tutor.</p>`;
+                container.innerHTML = `<p class="text-center text-slate-400 py-6 text-[11px]">Belum ada pesan dengan tutor.<br>Klik "Chat Tutor" di katalog untuk memulai.</p>`;
                 return;
             }
 
@@ -717,8 +725,8 @@
                         <div class="flex items-center gap-3">
                             <img src="${t.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name)}" class="w-10 h-10 rounded-full object-cover border border-slate-200">
                             <div>
-                                <h5 class="font-bold text-xs text-slate-900">${t.name}</h5>
-                                <p class="text-[11px] text-slate-500 truncate max-w-[170px]">${lastMsg ? lastMsg.message : ''}</p>
+                                <h5 class="font-bold text-xs text-slate-900">${escapeHtml(t.name)}</h5>
+                                <p class="text-[11px] text-slate-500 truncate max-w-[170px]">${lastMsg ? escapeHtml(lastMsg.message) : ''}</p>
                             </div>
                         </div>
                         <i class="fa-solid fa-chevron-right text-slate-300 text-xs pr-1"></i>
@@ -747,6 +755,19 @@
             document.getElementById('chat-view-list').classList.remove('hidden');
             document.getElementById('chat-view-room').classList.add('hidden');
             currentChatTargetUserId = null;
+        }
+
+        // Mulai DM dari kartu katalog / jadwal, walaupun belum pernah ada pesan sebelumnya
+        function startChatWithTutor(tutorId) {
+            const tutor = rawApprovedTutors.find(t => t.id === tutorId)
+                || (studentBookingsCache.find(b => b.tutor_id === tutorId) || {}).tutors;
+
+            if (!tutor || !tutor.user_id) {
+                alert('Tutor ini belum bisa menerima pesan.');
+                return;
+            }
+            openChatWithTutor(tutor.user_id, tutor.name || 'Tutor GO-LES', tutor.avatar || '');
+            document.getElementById('chat-input').focus();
         }
 
         async function openChatWithTutor(targetUserId, targetName, targetAvatar) {
@@ -783,7 +804,7 @@
                 box.innerHTML += `
                     <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
                         <div class="${isMe ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-800 rounded-tl-none'} px-3.5 py-2 rounded-2xl max-w-[85%] shadow-sm leading-relaxed">
-                            ${msg.message}
+                            ${escapeHtml(msg.message)}
                         </div>
                         <span class="text-[9px] text-slate-400 mt-0.5 px-1">${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                     </div>
