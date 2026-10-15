@@ -72,7 +72,7 @@ async function ensureSessionsRatedBeforeBooking() {
     if (!unrated) return true;
 
     // Pastikan sesi ini ada di cache supaya modal rating bisa dibuka
-    if (typeof studentBookingsCache !== 'undefined' && !studentBookingsCache.some(b => b.id === unrated.id)) {
+    if (typeof studentBookingsCache !== 'undefined' && !studentBookingsCache.some(b => String(b.id) === String(unrated.id))) {
         studentBookingsCache.push(unrated);
     }
     const tutorName = unrated.tutors ? unrated.tutors.name : 'tutor sebelumnya';
@@ -81,9 +81,14 @@ async function ensureSessionsRatedBeforeBooking() {
     return false;
 }
 
+// bookingId bisa angka atau UUID (string), jadi dibandingkan sebagai string
 function openSessionRatingModal(bookingId) {
-    const booking = (typeof studentBookingsCache !== 'undefined' ? studentBookingsCache : []).find(b => b.id === bookingId);
-    if (!booking) return;
+    const booking = (typeof studentBookingsCache !== 'undefined' ? studentBookingsCache : [])
+        .find(b => String(b.id) === String(bookingId));
+    if (!booking) {
+        alert('Data sesi tidak ditemukan. Coba refresh halaman.');
+        return;
+    }
     if (booking.session_rating) {
         alert('Kamu sudah memberi rating untuk sesi ini.');
         return;

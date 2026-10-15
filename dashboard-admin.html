@@ -89,6 +89,10 @@
             <div id="admin-bookings-list" class="space-y-3">
                 <p class="text-center text-xs text-slate-400 py-6">Memuat transaksi pemesanan...</p>
             </div>
+            <div id="admin-bookings-pagination" class="hidden flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                <span id="admin-bookings-page-info" class="text-xs text-slate-500"></span>
+                <div id="admin-bookings-page-buttons" class="flex items-center gap-1 flex-wrap"></div>
+            </div>
         </div>
 
         <!-- Management Table Card -->
@@ -348,6 +352,10 @@
             document.getElementById('modal-preview-foto').classList.add('hidden');
         }
 
+        const ADMIN_BOOKINGS_PER_PAGE = 5;
+        let adminBookingsData = [];
+        let adminBookingsPage = 1;
+
         async function loadAdminBookings() {
             const container = document.getElementById('admin-bookings-list');
             const { data: bookings, error } = await _supabase
@@ -356,7 +364,9 @@
                 .order('created_at', { ascending: false });
 
             if (error || !bookings || bookings.length === 0) {
+                adminBookingsData = [];
                 container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">Belum ada pemesanan sesi dari siswa.</p>`;
+                document.getElementById('admin-bookings-pagination').classList.add('hidden');
                 document.getElementById('stat-pending-bookings').innerText = '0';
                 return;
             }
@@ -390,15 +400,79 @@
             }
 
             document.getElementById('stat-pending-bookings').innerText = pendingCount;
-            container.innerHTML = '';
+            adminBookingsData = bookings;
+            renderAdminBookingsPage();
+        }
 
-            bookings.forEach(b => {
+        function goToAdminBookingsPage(page) {
+            adminBookingsPage = page;
+            renderAdminBookingsPage();
+            document.getElementById('admin-bookings-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function renderAdminBookingsPagination(totalPages, startIndex, shownCount) {
+            const wrapper = document.getElementById('admin-bookings-pagination');
+            const total = adminBookingsData.length;
+            document.getElementById('admin-bookings-page-info').innerText =
+                `Menampilkan ${startIndex + 1}–${startIndex + shownCount} dari ${total} pemesanan`;
+
+            if (totalPages <= 1) {
+                wrapper.classList.remove('hidden');
+                document.getElementById('admin-bookings-page-buttons').innerHTML = '';
+                return;
+            }
+
+            const btnBase = 'min-w-[2rem] h-8 px-2 rounded-lg text-xs font-bold border transition';
+            const btnIdle = `${btnBase} bg-white text-slate-600 border-slate-200 hover:bg-slate-50`;
+            const btnActive = `${btnBase} bg-sky-600 text-white border-sky-600`;
+            const btnDisabled = `${btnBase} bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed`;
+
+            // Tampilkan halaman 1, terakhir, dan 1 halaman di sekitar halaman aktif
+            const pages = [];
+            for (let p = 1; p <= totalPages; p++) {
+                if (p === 1 || p === totalPages || Math.abs(p - adminBookingsPage) <= 1) {
+                    pages.push(p);
+                } else if (pages[pages.length - 1] !== '…') {
+                    pages.push('…');
+                }
+            }
+
+            const prevDisabled = adminBookingsPage === 1;
+            const nextDisabled = adminBookingsPage === totalPages;
+            let html = `<button type="button" ${prevDisabled ? 'disabled' : `onclick="goToAdminBookingsPage(${adminBookingsPage - 1})"`} class="${prevDisabled ? btnDisabled : btnIdle}" aria-label="Halaman sebelumnya"><i class="fa-solid fa-chevron-left"></i></button>`;
+            pages.forEach(p => {
+                html += p === '…'
+                    ? `<span class="px-1 text-xs text-slate-400">…</span>`
+                    : `<button type="button" onclick="goToAdminBookingsPage(${p})" class="${p === adminBookingsPage ? btnActive : btnIdle}">${p}</button>`;
+            });
+            html += `<button type="button" ${nextDisabled ? 'disabled' : `onclick="goToAdminBookingsPage(${adminBookingsPage + 1})"`} class="${nextDisabled ? btnDisabled : btnIdle}" aria-label="Halaman berikutnya"><i class="fa-solid fa-chevron-right"></i></button>`;
+
+            document.getElementById('admin-bookings-page-buttons').innerHTML = html;
+            wrapper.classList.remove('hidden');
+        }
+
+        function renderAdminBookingsPage() {
+            const container = document.getElementById('admin-bookings-list');
+            const totalPages = Math.max(1, Math.ceil(adminBookingsData.length / ADMIN_BOOKINGS_PER_PAGE));
+            // Tetap di halaman yang sama saat data di-refresh, tapi jangan melebihi jumlah halaman
+            adminBookingsPage = Math.min(Math.max(1, adminBookingsPage), totalPages);
+            const startIndex = (adminBookingsPage - 1) * ADMIN_BOOKINGS_PER_PAGE;
+            const pageItems = adminBookingsData.slice(startIndex, startIndex + ADMIN_BOOKINGS_PER_PAGE);
+            const now = new Date();
+
+            container.innerHTML = '';
+            renderAdminBookingsPagination(totalPages, startIndex, pageItems.length);
+
+            pageItems.forEach(b => {
                 const createdAt = new Date(b.created_at);
                 const minutesPassed = Math.floor((now - createdAt) / (1000 * 60));
                 let statusBadge = '';
                 let actionBtn = '';
 
-                if (b.status === 'confirmed') {
+                if (b.status === 'completed') {
+                    const ratingTag = b.session_rating ? ` · ${b.session_rating}<i class="fa-solid fa-star text-amber-300 ml-0.5"></i>` : '';
+                    statusBadge = `<span class="bg-slate-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-flag-checkered"></i> Sesi telah selesai${ratingTag}</span>`;
+                } else if (b.status === 'confirmed') {
                     const autoTag = b.auto_verified ? ' (Auto 10m)' : '';
                     statusBadge = `<span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-check"></i> Terverifikasi${autoTag}</span>`;
                 } else {

@@ -460,7 +460,7 @@
             // Dari halaman kehadiran: dashboard-siswa.html?tab=schedule&rate=<bookingId>
             const params = new URLSearchParams(window.location.search);
             if (['catalog', 'schedule', 'videos'].includes(params.get('tab'))) switchStudentTab(params.get('tab'));
-            if (params.get('rate')) openSessionRatingModal(parseInt(params.get('rate')));
+            if (params.get('rate')) openSessionRatingModal(params.get('rate'));
             if (params.toString()) history.replaceState(null, '', window.location.pathname);
         });
 
@@ -644,7 +644,7 @@
                         </div>`;
                 } else if (isCompleted) {
                     ratingSection = `
-                        <button onclick="openSessionRatingModal(${b.id})" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm">
+                        <button onclick="openSessionRatingModal('${escapeHtml(b.id)}')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-sm">
                             <i class="fa-solid fa-star"></i> Beri Rating Sesi Ini
                         </button>`;
                 }

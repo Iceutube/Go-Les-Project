@@ -500,7 +500,7 @@ async function loadTutorVideoList(tutorId) {
                     <p class="text-xs font-bold text-slate-800 truncate">${escapeHtml(v.title)}</p>
                     ${link}
                 </div>
-                <button type="button" onclick="deleteTutorVideo(${Number(v.id)}, ${Number(tutorId)})" class="text-rose-500 hover:text-rose-700 text-xs flex-shrink-0" title="Hapus video">
+                <button type="button" onclick="deleteTutorVideo('${escapeHtml(v.id)}', ${Number(tutorId)})" class="text-rose-500 hover:text-rose-700 text-xs flex-shrink-0" title="Hapus video">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>

@@ -192,7 +192,7 @@
                          <span class="bg-emerald-100 text-emerald-800 font-mono font-black text-lg px-3.5 py-1.5 rounded-xl border border-emerald-200">${escapeText(b.attendance_passcode)}</span>
                        </div>`;
                 } else if (isPinWindowOpen(b)) {
-                    actionUI = `<button type="button" onclick="handleCreatePIN(${Number(b.id)}, this)" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
+                    actionUI = `<button type="button" onclick="handleCreatePIN('${escapeText(b.id)}', this)" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-sky-600/20">
                          <i class="fa-solid fa-wand-magic-sparkles"></i> Buat PIN Kehadiran
                        </button>`;
                 } else {
